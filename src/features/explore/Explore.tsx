@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
-import { ArrowDown, ArrowRight, ArrowUp, Download, Search, SlidersHorizontal, X } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUp, ArrowUpRight, Download, Search, X } from 'lucide-react';
 import type { Dataset, Item } from '@/core/data/types';
+import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
+import { getTournesolPublicDataset } from '@/core/data/tournesol-public';
+import { ALL_STRATEGIES, computeResults } from '@/core/data/strategies';
 import { escapeCsvCell } from '@/core/data/csv';
 import { useApp } from '@/App';
+import './Explore.css';
 
-interface ExploreProps {
-  dataset: Dataset;
-}
-
+interface ExploreProps { dataset: Dataset }
 type MetricKey = keyof Item['metrics'];
 type SortKey = 'title' | MetricKey;
 type SortDirection = 'asc' | 'desc';
@@ -18,27 +19,32 @@ const metricLabels: Record<MetricKey, string> = {
   diversityScore: 'Diversité',
   freshness: 'Fraîcheur',
 };
-
 const metricKeys = Object.keys(metricLabels) as MetricKey[];
+const sorts: { value: SortKey; label: string }[] = [
+  { value: 'popularity', label: 'Popularité' },
+  { value: 'collectiveScore', label: 'Score collectif' },
+  { value: 'diversityScore', label: 'Diversité' },
+  { value: 'freshness', label: 'Fraîcheur' },
+  { value: 'title', label: 'Titre' },
+];
 
-function MetricCell({ value, label }: { value: number; label: string }) {
-  const percent = Math.round(value * 100);
+function MetricValue({ value, label }: { value: number; label: string }) {
+  const percentage = Math.round(value * 100);
   return (
-    <div className="flex min-w-[115px] items-center justify-end gap-3" aria-label={label + ' : ' + percent + '%'}>
-      <div className="h-1.5 w-12 overflow-hidden rounded-full bg-neutral-100" aria-hidden="true">
-        <div className="h-full rounded-full bg-neutral-700" style={{ width: percent + '%' }} />
-      </div>
-      <span className="w-9 text-right font-mono text-xs text-neutral-700">{percent}%</span>
-    </div>
+    <span className="dw-metric" aria-label={label + ' : ' + percentage + ' %'}>
+      <span className="dw-meter" aria-hidden="true"><span style={{ width: percentage + '%' }} /></span>
+      <span className="dw-metric-number">{percentage}</span>
+    </span>
   );
 }
 
 export function Explore({ dataset }: ExploreProps) {
-  const { setView } = useApp();
+  const { setView, setDataset } = useApp();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [sort, setSort] = useState<SortKey>('popularity');
   const [direction, setDirection] = useState<SortDirection>('desc');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const categories = useMemo(
     () => [...new Set(dataset.items.map((item) => item.category))].sort((a, b) => a.localeCompare(b, 'fr')),
@@ -60,21 +66,32 @@ export function Explore({ dataset }: ExploreProps) {
       });
   }, [dataset, query, category, sort, direction]);
 
+  const selected = filtered.find((item) => item.id === selectedId) ?? filtered[0] ?? null;
+  const selectedRanks = useMemo(() => {
+    if (!selected) return [];
+    return ALL_STRATEGIES.map((strategy) => ({
+      id: strategy.id,
+      name: strategy.name,
+      rank: computeResults(dataset.items, strategy, {}).findIndex(({ item }) => item.id === selected.id) + 1,
+    }));
+  }, [dataset, selected]);
+
   const setSorting = (key: SortKey) => {
     if (sort === key) setDirection((previous) => previous === 'asc' ? 'desc' : 'asc');
-    else {
-      setSort(key);
-      setDirection(key === 'title' ? 'asc' : 'desc');
-    }
+    else { setSort(key); setDirection(key === 'title' ? 'asc' : 'desc'); }
+  };
+
+  const switchSource = (next: 'example' | 'tournesol') => {
+    setDataset(next === 'example' ? EXAMPLE_DATASET : getTournesolPublicDataset());
+    setQuery('');
+    setCategory('all');
+    setSelectedId(null);
   };
 
   const exportCsv = () => {
     const headings = ['Titre', 'Auteur', 'Catégorie', ...metricKeys.map((key) => metricLabels[key])];
     const dataRows = filtered.map((item) => [
-      item.title,
-      item.author,
-      item.category,
-      ...metricKeys.map((key) => item.metrics[key]),
+      item.title, item.author, item.category, ...metricKeys.map((key) => item.metrics[key]),
     ]);
     const metadata = [
       ['Jeu de données', dataset.title],
@@ -90,7 +107,6 @@ export function Explore({ dataset }: ExploreProps) {
     const link = document.createElement('a');
     link.href = url;
     link.download = 'algo-observatory-' + dataset.id.replace(/[^a-zA-Z0-9_-]/g, '-') + '.csv';
-    // Attaching the link and revoking the object URL later is more reliable in Safari.
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -98,175 +114,135 @@ export function Explore({ dataset }: ExploreProps) {
   };
 
   return (
-    <main className="ao-interior ao-data">
-      <section className="border-b border-neutral-200">
-        <div className="mx-auto max-w-[1440px] px-5 pb-14 pt-12 sm:px-8 lg:px-12 lg:pb-16">
-          <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">Observatoire / 04 — Données</p>
-          <div className="grid gap-7 lg:grid-cols-[1fr_0.55fr] lg:items-end">
-            <h1 className="max-w-3xl text-[clamp(2.9rem,5.5vw,5.2rem)] font-semibold leading-[1.04] tracking-[-0.065em]">
-              Sous les classements, <span className="text-neutral-400">les données.</span>
-            </h1>
-            <p className="max-w-lg text-sm leading-8 text-neutral-600 sm:text-base">
-              Explorez chaque contenu et les métriques qui alimentent nos stratégies.
-              Filtrez, triez et exportez les valeurs affichées, avec leur provenance.
-            </p>
+    <main className="dw-workbench" aria-labelledby="dw-title">
+      <header className="dw-heading">
+        <div className="dw-crumb"><span className="dw-crumb-mark" aria-hidden="true" /> OBSERVATOIRE <span>/</span> 05 — DONNÉES</div>
+        <div className="dw-heading-row">
+          <div>
+            <h1 id="dw-title">Explorez les données<span>.</span></h1>
+            <p>Deux sources identifiées. Quatre métriques comparables. Aucun classement de plateforme observé.</p>
           </div>
+          <div className="dw-count" aria-live="polite">
+            <strong>{dataset.items.length.toString().padStart(2, '0')}</strong>
+            <span>CONTENUS<br />DANS LA SOURCE</span>
+          </div>
+        </div>
+      </header>
+
+      <section className="dw-sources" aria-label="Choisir le jeu de données">
+        <div className="dw-source-tabs">
+          <button type="button" aria-pressed={dataset.kind === 'example'} onClick={() => switchSource('example')} className={dataset.kind === 'example' ? 'is-active' : ''}>
+            <span className="dw-source-index">01</span>
+            <span><strong>Jeu d’exemple</strong><small>8 contenus · simulation</small></span>
+          </button>
+          <button type="button" aria-pressed={dataset.kind === 'real'} onClick={() => switchSource('tournesol')} className={dataset.kind === 'real' ? 'is-active' : ''}>
+            <span className="dw-source-index">02</span>
+            <span><strong>Tournesol</strong><small>24 contenus · instantané public</small></span>
+          </button>
+        </div>
+        <div className="dw-source-status">
+          <span className={'dw-source-dot ' + (dataset.kind === 'real' ? 'is-real' : '')} aria-hidden="true" />
+          <strong>{dataset.kind === 'real' ? 'SOURCE PUBLIQUE DATÉE' : 'SIMULATION PÉDAGOGIQUE'}</strong>
+          <span>{dataset.freshness}</span>
         </div>
       </section>
 
-      <div className="mx-auto max-w-[1440px] space-y-8 px-5 py-10 sm:px-8 lg:px-12 lg:py-14">
-        <section className="grid gap-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 sm:grid-cols-3" aria-label="Informations sur le jeu de données">
-          {[
-            { label: 'Contenus dans le catalogue', value: String(dataset.items.length) },
-            { label: 'Type de données', value: dataset.kind === 'example' ? 'Simulation pédagogique' : 'Source publique' },
-            { label: 'Origine', value: dataset.source },
-          ].map((item) => (
-            <div key={item.label} className="min-w-0 bg-white p-6">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.13em] text-neutral-500">{item.label}</p>
-              <p className="mt-3 break-words text-lg font-semibold tracking-tight">{item.value}</p>
-            </div>
-          ))}
-        </section>
-
-        <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white" aria-labelledby="explore-table-title">
-          <div className="border-b border-neutral-100 p-6 lg:p-8">
-            <div className="flex flex-wrap items-start justify-between gap-5">
-              <div>
-                <p className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.13em] text-neutral-500">
-                  <SlidersHorizontal size={14} aria-hidden="true" /> Exploration directe
-                </p>
-                <h2 id="explore-table-title" className="text-2xl font-semibold tracking-[-0.04em]">
-                  Contenus et métriques
-                </h2>
-                <p className="mt-2 text-xs leading-6 text-neutral-500">
-                  Valeurs normalisées de 0 à 1, affichées en pourcentage pour faciliter la lecture.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={exportCsv}
-                disabled={filtered.length === 0}
-                className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-xs font-semibold text-neutral-800 transition hover:border-neutral-400 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                <Download size={15} aria-hidden="true" /> Exporter CSV
+      <div className="dw-layout">
+        <aside className="dw-sidebar" aria-label="Filtres et provenance">
+          <div className="dw-aside-title"><span>01 / FILTRER</span><span aria-hidden="true">↙</span></div>
+          <label htmlFor="dataset-search">Rechercher</label>
+          <div className="dw-search">
+            <Search size={17} aria-hidden="true" />
+            <input id="dataset-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)}
+              placeholder="Titre, auteur, catégorie…" autoComplete="off" />
+            {query && <button type="button" aria-label="Effacer la recherche" onClick={() => setQuery('')}><X size={15} aria-hidden="true" /></button>}
+          </div>
+          <label htmlFor="category-filter">Catégorie</label>
+          <select id="category-filter" value={category} onChange={(event) => setCategory(event.target.value)}>
+            <option value="all">Toutes les catégories</option>
+            {categories.map((value) => <option key={value} value={value}>{value}</option>)}
+          </select>
+          <div className="dw-mobile-sort">
+            <label htmlFor="dw-sort-mobile">Trier par</label>
+            <div className="dw-sort-controls">
+              <select id="dw-sort-mobile" value={sort} onChange={(event) => setSorting(event.target.value as SortKey)}>
+                {sorts.map((item) => <option value={item.value} key={item.value}>{item.label}</option>)}
+              </select>
+              <button type="button" aria-label={direction === 'asc' ? 'Tri croissant' : 'Tri décroissant'} title="Inverser l’ordre" onClick={() => setDirection((value) => value === 'asc' ? 'desc' : 'asc')}>
+                {direction === 'asc' ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
               </button>
             </div>
-            <div className="mt-7 grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
-              <div className="relative">
-                <Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" aria-hidden="true" />
-                <label htmlFor="dataset-search" className="sr-only">Rechercher un contenu</label>
-                <input
-                  id="dataset-search"
-                  type="search"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Rechercher un titre, un auteur…"
-                  className="w-full rounded-lg border border-neutral-200 bg-neutral-50 py-3 pl-11 pr-4 text-sm placeholder:text-neutral-400"
-                />
-              </div>
-              <div>
-                <label htmlFor="category-filter" className="sr-only">Filtrer par catégorie</label>
-                <select
-                  id="category-filter"
-                  value={category}
-                  onChange={(event) => setCategory(event.target.value)}
-                  className="h-full min-h-[44px] w-full rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-2 text-sm"
-                >
-                  <option value="all">Toutes les catégories</option>
-                  {categories.map((option) => <option key={option} value={option}>{option}</option>)}
-                </select>
-              </div>
-            </div>
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-xs text-neutral-500">
-              <span role="status">{filtered.length} résultat{filtered.length > 1 ? 's' : ''} sur {dataset.items.length}</span>
-              {(query || category !== 'all') && (
-                <button
-                  type="button"
-                  onClick={() => { setQuery(''); setCategory('all'); }}
-                  className="inline-flex items-center gap-1 font-semibold text-neutral-700 underline-offset-4 hover:underline"
-                >
-                  <X size={13} aria-hidden="true" /> Effacer les filtres
-                </button>
-              )}
-            </div>
           </div>
+          <div className="dw-filter-footer">
+            <strong role="status">{filtered.length} résultat{filtered.length > 1 ? 's' : ''} sur {dataset.items.length}</strong>
+            {(query || category !== 'all') && <button type="button" onClick={() => { setQuery(''); setCategory('all'); }}><X size={13} /> Effacer les filtres</button>}
+          </div>
+          <div className="dw-provenance">
+            <div className="dw-aside-title">02 / PROVENANCE</div>
+            <dl>
+              <div><dt>ORIGINE</dt><dd>{dataset.source}</dd></div>
+              <div><dt>LICENCE</dt><dd>{dataset.license}</dd></div>
+              <div><dt>ÉTAT</dt><dd>{dataset.kind === 'example' ? 'Exemple fictif' : 'Capture publique, pas un flux en direct'}</dd></div>
+            </dl>
+            {dataset.sourceUrl && <a href={dataset.sourceUrl} target="_blank" rel="noopener noreferrer">Consulter la source <ArrowUpRight size={14} aria-hidden="true" /></a>}
+          </div>
+        </aside>
 
-          <p className="border-b border-[#adb0a4] bg-[#eeeae0] px-6 py-3 font-mono text-[11px] font-semibold text-[#4e5a50] md:hidden">
-            ← Faites défiler le tableau pour voir les quatre métriques →
-          </p>
-          <div className="overflow-x-auto" role="region" aria-label="Tableau des contenus, défilement horizontal pour consulter les métriques" tabIndex={0}>
-            <table className="min-w-[920px] w-full border-collapse text-left text-sm">
-              <thead>
-                <tr className="border-b border-neutral-100 bg-neutral-50">
-                  <th scope="col" className="px-6 py-4">
-                    <button type="button" onClick={() => setSorting('title')} className="inline-flex items-center gap-1 text-[11px] font-semibold text-neutral-500">
-                      Titre {sort === 'title' ? (direction === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />) : null}
-                    </button>
-                  </th>
-                  <th scope="col" className="px-5 py-4 text-[11px] font-semibold text-neutral-500">Catégorie</th>
-                  {metricKeys.map((key) => (
-                    <th scope="col" key={key} className="px-4 py-4 text-right">
-                      <button
-                        type="button"
-                        onClick={() => setSorting(key)}
-                        aria-label={'Trier par ' + metricLabels[key]}
-                        className="inline-flex items-center justify-end gap-1 whitespace-nowrap text-[11px] font-semibold text-neutral-500 hover:text-neutral-900"
-                      >
-                        {metricLabels[key]}
-                        {sort === key ? (direction === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />) : null}
-                      </button>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-100">
-                {filtered.map((item) => (
-                  <tr key={item.id} className="transition-colors hover:bg-neutral-50">
-                    <td className="px-6 py-5">
-                      <p className="max-w-xs font-semibold leading-5 text-neutral-900">{item.title}</p>
-                      <p className="mt-1 text-xs text-neutral-500">{item.author}</p>
-                    </td>
-                    <td className="whitespace-nowrap px-5 py-5 text-xs text-neutral-600">{item.category}</td>
-                    {metricKeys.map((key) => (
-                      <td key={key} className="px-4 py-5">
-                        <MetricCell label={metricLabels[key]} value={item.metrics[key]} />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+        <section className="dw-results" aria-labelledby="explore-table-title">
+          <div className="dw-results-head">
+            <div><span className="dw-section-code">03 / CATALOGUE</span><h2 id="explore-table-title">Contenus et métriques</h2></div>
+            <button type="button" className="dw-export" onClick={exportCsv} disabled={filtered.length === 0}>
+              <Download size={16} aria-hidden="true" /> Exporter CSV
+            </button>
+          </div>
+          <div className="dw-table-frame">
+            <table className="dw-data-table">
+              <thead><tr>
+                <th scope="col"><button type="button" onClick={() => setSorting('title')}>CONTENU {sort === 'title' ? (direction === 'asc' ? <ArrowUp size={13} /> : <ArrowDown size={13} />) : null}</button></th>
+                <th scope="col">CATÉGORIE</th>
+                {metricKeys.map((key) => <th scope="col" key={key}><button type="button" onClick={() => setSorting(key)} aria-label={'Trier par ' + metricLabels[key]}>{metricLabels[key]} {sort === key && (direction === 'asc' ? <ArrowUp size={13} /> : <ArrowDown size={13} />)}</button></th>)}
+              </tr></thead>
+              <tbody>
+                {filtered.map((item, index) => <tr key={item.id} className={selected?.id === item.id ? 'is-selected' : ''}>
+                  <td><div className="dw-name"><span className="dw-row-index">{String(index + 1).padStart(2, '0')}</span>
+                    <button type="button" aria-pressed={selected?.id === item.id} onClick={() => setSelectedId(item.id)}><strong>{item.title}</strong><small>{item.author}</small></button>
+                  </div></td>
+                  <td><span className="dw-category">{item.category}</span></td>
+                  {metricKeys.map((key) => <td key={key}><MetricValue label={metricLabels[key]} value={item.metrics[key]} /></td>)}
+                </tr>)}
               </tbody>
             </table>
-            {filtered.length === 0 && (
-              <div className="min-w-[500px] px-6 py-16 text-center">
-                <Search size={25} className="mx-auto text-neutral-400" aria-hidden="true" />
-                <h3 className="mt-4 text-sm font-semibold">Aucun contenu trouvé</h3>
-                <p className="mt-2 text-xs text-neutral-500">Essayez une recherche ou une catégorie différente.</p>
-              </div>
-            )}
+            {filtered.length === 0 && <div className="dw-empty"><Search size={24} aria-hidden="true" /><h3>Aucun contenu trouvé</h3><p>Modifiez la recherche ou la catégorie.</p></div>}
           </div>
-          <div className="flex flex-wrap justify-between gap-3 border-t border-neutral-100 bg-neutral-50 px-6 py-5 text-xs leading-6 text-neutral-500">
-            <span>Licence : {dataset.license}</span>
-            <span>Fraîcheur : {dataset.freshness}</span>
+          <div className="dw-mobile-results">
+            {filtered.map((item, index) => <article key={item.id} className={'dw-mobile-item' + (selected?.id === item.id ? ' is-selected' : '')}>
+              <button type="button" aria-pressed={selected?.id === item.id} onClick={() => setSelectedId(item.id)} className="dw-mobile-item-heading">
+                <span className="dw-row-index">{String(index + 1).padStart(2, '0')}</span>
+                <span><strong>{item.title}</strong><small>{item.author} · {item.category}</small></span>
+                <span aria-hidden="true">↗</span>
+              </button>
+              <div className="dw-mobile-metrics">{metricKeys.map((key) => <div key={key}><span>{metricLabels[key]}</span><MetricValue label={metricLabels[key]} value={item.metrics[key]} /></div>)}</div>
+              {selected?.id === item.id && <div className="dw-inline-note">Sélectionné pour inspection ↓</div>}
+            </article>)}
+            {filtered.length === 0 && <div className="dw-empty"><h3>Aucun contenu trouvé</h3><p>Modifiez la recherche ou la catégorie.</p></div>}
           </div>
+          <p className="dw-results-foot">Métriques normalisées de 0 à 1. Les rangs présentés ci-dessous sont calculés par l’application, et non observés sur une plateforme.</p>
         </section>
 
-        <div className="flex flex-col justify-between gap-6 rounded-2xl border border-neutral-200 bg-white p-6 sm:flex-row sm:items-center sm:p-8">
-          <div>
-            <p className="text-sm font-semibold">{dataset.kind === 'example' ? 'Jeu de données simulé' : 'Données publiques'}</p>
-            <p className="mt-2 max-w-xl text-xs leading-6 text-neutral-600">
-              {dataset.kind === 'example'
-                ? 'Ces valeurs ont été construites pour la démonstration. Elles ne décrivent ni des utilisateurs réels ni des décisions prises par une plateforme.'
-                : 'Les valeurs viennent d’une source publique identifiée ; les classements présentés dans le laboratoire restent des simulations de stratégies.'}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setView('lab')}
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-neutral-900 px-5 py-3 text-xs font-semibold text-white transition hover:bg-neutral-700"
-          >
-            Comparer les classements <ArrowRight size={16} aria-hidden="true" />
-          </button>
-        </div>
+        <aside className="dw-inspector" aria-label="Inspecter le contenu sélectionné">
+          <div className="dw-aside-title">04 / INSPECTER <span aria-hidden="true">↗</span></div>
+          {selected ? <>
+            <div className="dw-inspector-title"><span>CONTENU SÉLECTIONNÉ</span><h2>{selected.title}</h2><p>{selected.author} · {selected.category}</p></div>
+            <div className="dw-inspector-metrics">
+              {metricKeys.map((key) => <div key={key}><span>{metricLabels[key]}</span><strong>{Math.round(selected.metrics[key] * 100)}<small> / 100</small></strong></div>)}
+            </div>
+            <div className="dw-inspector-ranks">
+              <span>RANGS CALCULÉS · SIMULATION</span>
+              {selectedRanks.map((rank) => <div key={rank.id}><span>{rank.name}</span><strong>#{String(rank.rank).padStart(2, '0')}</strong></div>)}
+            </div>
+            <button type="button" className="dw-inspect-cta" onClick={() => setView('lab')}>Comparer dans le laboratoire <ArrowRight size={15} aria-hidden="true" /></button>
+          </> : <p className="dw-no-selection">Aucun contenu ne correspond aux filtres actuels.</p>}
+        </aside>
       </div>
     </main>
   );
