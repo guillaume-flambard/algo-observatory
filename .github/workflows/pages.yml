@@ -1,0 +1,78 @@
+name: Publish verified demo
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: algo-observatory-pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify and package static app
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.14.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - name: Install frozen dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Verify lint and types
+        run: |
+          pnpm lint:check
+          pnpm types:check
+      - name: Unit tests
+        run: pnpm test
+      - name: Install browser engines
+        run: pnpm exec playwright install --with-deps chromium webkit
+      - name: Browser journeys and accessibility (Chromium and WebKit)
+        run: pnpm test:e2e
+      - name: Build with GitHub Pages asset path and bundle budgets
+        run: pnpm run build:pages
+      - name: Verify absolute assets use the repository subpath
+        run: |
+          grep -q '/algo-observatory/assets/' dist/index.html
+          test -f dist/favicon.svg
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload verified app only
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+      - name: Keep browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pages-browser-evidence
+          path: test-results/playwright/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  deploy:
+    name: Publish on GitHub Pages
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy verified artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

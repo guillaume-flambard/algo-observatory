@@ -16,6 +16,8 @@ export default defineConfig({
   projects: [
     { name: 'desktop-chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 }, acceptDownloads: true } },
     { name: 'mobile-chromium', use: { ...devices['Pixel 7'], browserName: 'chromium', acceptDownloads: true } },
+    { name: 'desktop-webkit', use: { ...devices['Desktop Safari'], viewport: { width: 1440, height: 900 }, acceptDownloads: true } },
+    { name: 'mobile-webkit', use: { ...devices['iPhone 13'], browserName: 'webkit', acceptDownloads: true } },
   ],
   webServer: {
     command: 'pnpm dev --host 127.0.0.1 --port 5174 --strictPort',
