@@ -29,8 +29,8 @@ const sources = [
   },
   {
     name: 'Tournesol',
-    status: 'Connecteur expérimental',
-    note: 'Une source ouverte de comparaisons et de préférences collectives. Le laboratoire tente de charger les données via un adaptateur ; leur disponibilité dépend de l’API. Aucune donnée simulée ne remplace silencieusement un échec.',
+    status: 'Actif — instantané public',
+    note: '24 recommandations issues de l’API publique Tournesol, collectées le 25 octobre 2026 et conservées localement sous licence ODC-BY 1.0. Les vues YouTube, scores collectifs et notes de diversité-inclusion sont transformés en entrées normalisées. Aucun accès direct à l’API ni classement de YouTube n’est revendiqué.',
     url: 'https://tournesol.app/',
   },
   {
