@@ -3,6 +3,7 @@ import type { Dataset, Strategy } from '@/core/data/types';
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
 import { ALL_STRATEGIES, computeResults } from '@/core/data/strategies';
 import { DatasetProvenance } from '@/features/data/dataset-provenance';
+import { AccessibleRegion } from '@/core/ui/AccessibleRegion';
 
 interface StrategyCardProps {
   strategy: Strategy;
@@ -144,7 +145,7 @@ export function Lab() {
       </header>
 
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6" aria-label="Laboratoire de comparaison">
           <div className="col-span-1 md:col-span-3">
             <DatasetProvenance dataset={dataset} />
           </div>
@@ -171,7 +172,8 @@ export function Lab() {
           </aside>
 
           <main className="col-span-1 md:col-span-2 space-y-4">
-            <h2 className="text-lg font-bold text-slate-900">Résultats comparés</h2>
+            <AccessibleRegion aria-label="Résultats des stratégies sélectionnées">
+              <h2 className="text-lg font-bold text-slate-900">Résultats comparés</h2>
             <p className="text-sm text-slate-600">
               Chaque stratégie classe les mêmes contenus différemment. Le score indique la force
               du favoritisme de l'algorithme pour ce contenu.
@@ -191,6 +193,7 @@ export function Lab() {
                   />
                 ))}
             </div>
+            </AccessibleRegion>
           </main>
         </section>
 
