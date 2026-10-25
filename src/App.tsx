@@ -1,6 +1,6 @@
 import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { ArrowUpRight, BarChart3, Menu, X } from 'lucide-react';
+import { ArrowUpRight, Menu, X } from 'lucide-react';
 import { Home } from '@/features/home/Home';
 
 // Loading only the visited module keeps the first page fast on mobile.
@@ -100,27 +100,31 @@ function AppUI() {
       >
         Aller au contenu
       </a>
-      <header className="sticky top-0 z-30 border-b border-neutral-200/90 bg-[#f7f7f5]/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between gap-5 px-5 sm:px-8 lg:px-12">
+      <header className="ao-app-header sticky top-0 z-30 border-b border-[#a6a397] bg-[#ede9df]/95 backdrop-blur-xl">
+        <div className="mx-auto flex h-[66px] max-w-[1600px] items-center justify-between gap-5 px-5 sm:px-8 lg:px-12">
           <button
             type="button"
             onClick={() => navigate('home')}
             className="group flex min-w-0 items-center gap-3 text-left"
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-neutral-900 text-white">
-              <BarChart3 size={18} strokeWidth={1.8} aria-hidden="true" />
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-[#222b27] text-[#eae7db]">
+              <svg aria-hidden="true" width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <path d="M5 5v18h18" stroke="currentColor" strokeWidth="1.3"/>
+                <path d="M8 12h13M8 17h13" stroke="#8bafa1" strokeWidth="1" strokeDasharray="2 2"/>
+                <path d="M8 9c6 0 5 9 13 9M8 19c6 0 5-9 13-9" stroke="#f07c5c" strokeWidth="1.6"/>
+              </svg>
             </span>
             <span className="min-w-0">
-              <span data-testid="app-title" className="block whitespace-nowrap text-[14px] font-semibold tracking-[-0.025em]">
+              <span data-testid="app-title" className="block whitespace-nowrap text-[14px] font-bold uppercase tracking-[-0.045em]">
                 Algo Observatory
               </span>
               <span className="block text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-500">
-                Open algorithm lab
+                A FIELD GUIDE TO THE FEED
               </span>
             </span>
           </button>
 
-          <nav aria-label="Navigation principale" className="hidden items-center gap-0.5 lg:flex">
+          <nav aria-label="Navigation principale" className="hidden items-center gap-0 lg:flex">
             {navigation.map((item) => (
               <button
                 key={item.id}
@@ -129,10 +133,10 @@ function AppUI() {
                 data-testid={'nav-' + (item.id === 'home' ? 'accueil' : item.id === 'discover' ? 'decouvrir' : item.id === 'lab' ? 'laboratoire' : item.id === 'effects' ? 'effets' : item.id === 'explore' ? 'donnees' : 'methodologie')}
                 aria-current={view === item.id ? 'page' : undefined}
                 className={[
-                  'rounded-lg px-3 py-2.5 text-[12px] font-medium transition-colors',
+                  'ao-header-link border-b-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.035em] transition-colors',
                   view === item.id
-                    ? 'bg-white text-neutral-950 shadow-sm ring-1 ring-neutral-200'
-                    : 'text-neutral-500 hover:bg-white/70 hover:text-neutral-900',
+                    ? 'border-[#d65c3c] text-[#202926]'
+                    : 'border-transparent text-[#59625b] hover:border-[#a6a397] hover:text-[#202926]',
                 ].join(' ')}
               >
                 {item.label}
@@ -145,7 +149,7 @@ function AppUI() {
               href="https://github.com/guillaume-flambard/algo-observatory"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-medium transition hover:border-neutral-400"
+              className="inline-flex items-center gap-1 border-b border-[#202926] px-1 py-2 text-[11px] font-bold uppercase tracking-wider text-[#202926] transition hover:text-[#b74831]"
             >
               Code source <ArrowUpRight size={14} aria-hidden="true" />
             </a>
@@ -153,7 +157,7 @@ function AppUI() {
 
           <button
             type="button"
-            className="rounded-lg border border-neutral-200 bg-white p-2 lg:hidden"
+            className="border border-[#a6a397] bg-transparent p-2 lg:hidden"
             aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
             aria-expanded={menuOpen}
             aria-controls="mobile-navigation"
@@ -163,7 +167,7 @@ function AppUI() {
           </button>
         </div>
         {menuOpen && (
-          <nav id="mobile-navigation" aria-label="Navigation mobile" className="grid gap-1 border-t border-neutral-200 p-4 sm:grid-cols-2 lg:hidden">
+          <nav id="mobile-navigation" aria-label="Navigation mobile" className="grid gap-1 border-t border-[#a6a397] bg-[#ede9df] p-4 sm:grid-cols-2 lg:hidden">
             {navigation.map((item) => (
               <button
                 key={item.id}
@@ -172,7 +176,7 @@ function AppUI() {
                 aria-current={view === item.id ? 'page' : undefined}
                 className={[
                   'flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm',
-                  view === item.id ? 'bg-white font-semibold' : 'text-neutral-600',
+                  view === item.id ? 'bg-[#202926] font-semibold text-white' : 'text-[#4a5650]',
                 ].join(' ')}
               >
                 <span className="font-mono text-xs text-neutral-400">{item.number}</span>
