@@ -42,6 +42,8 @@ body { background: var(--studio-canvas); color: var(--studio-ink); }
 .ao-interior .bg-neutral-900 { background-color: var(--studio-ink); }
 .ao-interior .text-neutral-900 { color: var(--studio-ink); }
 .ao-interior .bg-neutral-900 .text-neutral-900 { color: #eff3f5; }
+/* Explicitly restore dark text inside white action buttons nested in dark panels. */
+.ao-interior .bg-neutral-900 button.bg-white.text-neutral-900 { color: var(--studio-ink); }
 .ao-interior .text-neutral-500 { color: #50616b; }
 .ao-interior .text-neutral-400 { color: #596873; }
 .ao-interior .bg-neutral-900 .text-neutral-500,
