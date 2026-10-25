@@ -1,15 +1,12 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { ApiTournesolAdapter } from '@/core/adapters/tournesol-adapter';
 import { Lab } from './Lab';
-
-afterEach(() => vi.restoreAllMocks());
 
 describe('Lab', () => {
   it('affiche la provenance de la simulation sans faire passer ces résultats pour réels', () => {
     render(<Lab />);
     expect(screen.getByTestId('provenance-badge')).toHaveTextContent(/données d'exemple — simulation/i);
-    expect(screen.getByRole('button', { name: /^Tournesol \(API\)$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Tournesol · données publiques/i })).toBeInTheDocument();
     expect(screen.getByText(/valeurs utilisées ici sont entièrement simulées/i)).toBeInTheDocument();
   });
 
@@ -24,13 +21,13 @@ describe('Lab', () => {
     expect(screen.getByRole('option', { name: 'Diversité' })).toBeInTheDocument();
   });
 
-  it('préserve les données simulées si Tournesol est indisponible', async () => {
-    vi.spyOn(ApiTournesolAdapter.prototype, 'isAvailable').mockResolvedValue(false);
+  it('charge les 24 recommandations publiques et revient à la simulation', async () => {
     render(<Lab />);
-    fireEvent.click(screen.getByRole('button', { name: /^Tournesol \(API\)$/i }));
-    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent(/source indisponible/i));
+    fireEvent.click(screen.getByRole('button', { name: /Tournesol · données publiques/i }));
+    await waitFor(() => expect(screen.getByTestId('provenance-badge')).toHaveTextContent('Données réelles'));
+    expect(screen.getByText(/24 contenus/)).toBeInTheDocument();
+    expect(screen.getByText(/score collectif et diversité-inclusion/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Données d’exemple/i }));
     expect(screen.getByTestId('provenance-badge')).toHaveTextContent(/simulation/i);
-    fireEvent.click(screen.getByRole('button', { name: /Utiliser les données d’exemple/i }));
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });
