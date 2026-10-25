@@ -27,7 +27,7 @@ const steps = [
 
 export function Discover({ onNavigate }: DiscoverProps) {
   return (
-    <main>
+    <main className="ao-interior ao-discover">
       <section className="border-b border-neutral-200">
         <div className="mx-auto max-w-[1440px] px-5 pb-16 pt-12 sm:px-8 lg:px-12 lg:pb-20">
           <button
