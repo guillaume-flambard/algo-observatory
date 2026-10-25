@@ -295,7 +295,7 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
                   source === 'simulation' ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400',
                 ].join(' ')}
               >
-                Données d’exemple <span className="text-[10px] font-normal opacity-70">Simulation</span>
+                Données d’exemple <span className="text-[10px] font-normal">Simulation</span>
               </button>
               <button
                 type="button"
@@ -308,7 +308,7 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
                 ].join(' ')}
               >
                 Tournesol (API)
-                {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <span aria-hidden="true" className="text-[10px] font-normal opacity-70">Publique</span>}
+                {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <span aria-hidden="true" className="text-[10px] font-normal">Publique</span>}
               </button>
             </div>
             <DatasetProvenance dataset={dataset} />
