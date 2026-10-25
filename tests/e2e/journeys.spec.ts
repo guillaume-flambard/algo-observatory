@@ -42,8 +42,8 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     await expect(page.getByLabel(/Évolution des rangs/)).toBeVisible();
     await page.getByTestId('strategy-hybrid').click();
     await expect(page.getByLabel('Poids popularité')).toBeVisible();
-    await page.getByLabel('Poids popularité').fill('0.8');
-    await expect(page.getByText('80%')).toBeVisible();
+    await page.getByLabel('Poids popularité').press('End');
+    await expect(page.getByText('100%')).toBeVisible();
   });
 
   test('une erreur Tournesol explicite ne remplace pas la simulation en silence', async ({ page }) => {
