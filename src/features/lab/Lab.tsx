@@ -2,17 +2,17 @@ import { useCallback, useMemo, useState } from 'react';
 import { AlertCircle, ArrowDown, ArrowUp, Check, ChevronDown, Database, Equal, FlaskConical, GitCompareArrows, Info, Loader2, RotateCcw, SlidersHorizontal } from 'lucide-react';
 import type { Dataset, Strategy } from '@/core/data/types';
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
+import { getTournesolPublicDataset } from '@/core/data/tournesol-public';
 import { ALL_STRATEGIES, computeResults } from '@/core/data/strategies';
 import type { TournesolDataset } from '@/core/domain/tournesol-types';
 import {
-  ApiTournesolAdapter,
   SimulationTournesolAdapter,
   adaptTournesolToInternal,
 } from '@/core/adapters/tournesol-adapter';
 import { DatasetProvenance } from '@/features/data/dataset-provenance';
 import { RankFlow } from './RankFlow';
 
-type DataSource = 'simulation' | 'api';
+type DataSource = 'simulation' | 'snapshot';
 interface LabProps {
   dataset?: Dataset;
   onDatasetChange?: (next: Dataset) => void;
@@ -161,7 +161,7 @@ function ResultColumn({
 }
 
 export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) {
-  const [source, setSource] = useState<DataSource>(() => sharedDataset?.kind === 'real' ? 'api' : 'simulation');
+  const [source, setSource] = useState<DataSource>(() => sharedDataset?.kind === 'real' ? 'snapshot' : 'simulation');
   const [localDataset, setLocalDataset] = useState<Dataset>(EXAMPLE_DATASET);
   const dataset = sharedDataset ?? localDataset;
   const setDataset = useCallback((next: Dataset) => {
@@ -185,17 +185,13 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
     setLoading(true);
     setError(null);
     try {
-      let tournesolDataset: TournesolDataset;
       if (requested === 'simulation') {
-        tournesolDataset = await new SimulationTournesolAdapter().getDataset();
+        const tournesolDataset: TournesolDataset = await new SimulationTournesolAdapter().getDataset();
+        setDataset(adaptTournesolToInternal(tournesolDataset));
       } else {
-        const adapter = new ApiTournesolAdapter();
-        if (!(await adapter.isAvailable())) {
-          throw new Error('La source Tournesol n’est pas disponible actuellement.');
-        }
-        tournesolDataset = await adapter.getDataset();
+        // No live API call: this versioned, attributed public snapshot is offline-ready.
+        setDataset(getTournesolPublicDataset());
       }
-      setDataset(adaptTournesolToInternal(tournesolDataset));
       setSource(requested);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'La source ne peut pas être chargée.');
@@ -282,7 +278,7 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
               <Database size={16} className="text-neutral-400" aria-hidden="true" />
             </div>
             <p className="mb-4 text-xs leading-6 text-neutral-500">
-              Commencez avec un exemple pédagogique, ou chargez les données publiques de Tournesol.
+              Commencez avec une simulation ou explorez 24 recommandations publiques Tournesol, enregistrées le 25 octobre 2026.
             </p>
             <div className="space-y-2">
               <button
@@ -299,16 +295,16 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
               </button>
               <button
                 type="button"
-                onClick={() => loadFromSource('api')}
+                onClick={() => loadFromSource('snapshot')}
                 disabled={loading}
-                aria-pressed={source === 'api'}
+                aria-pressed={source === 'snapshot'}
                 className={[
                   'flex w-full items-center justify-between gap-2 rounded-lg border px-3.5 py-3 text-left text-xs font-semibold transition disabled:opacity-50',
-                  source === 'api' ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400',
+                  source === 'snapshot' ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400',
                 ].join(' ')}
               >
-                Tournesol (API)
-                {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <span aria-hidden="true" className="text-[10px] font-normal">Publique</span>}
+                Tournesol · données publiques
+                {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <span aria-hidden="true" className="text-[10px] font-normal">Instantané</span>}
               </button>
             </div>
             <DatasetProvenance dataset={dataset} />
