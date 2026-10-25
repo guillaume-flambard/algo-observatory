@@ -18,7 +18,7 @@ export default defineConfig({
     { name: 'mobile-chromium', use: { ...devices['Pixel 7'], browserName: 'chromium', acceptDownloads: true } },
   ],
   webServer: {
-    command: 'pnpm run dev -- --host 127.0.0.1 --port 5174',
+    command: 'pnpm dev --host 127.0.0.1 --port 5174 --strictPort',
     url: 'http://127.0.0.1:5174',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
