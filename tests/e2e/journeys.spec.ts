@@ -1,66 +1,117 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-test.describe('Algo Observatory — parcours principaux', () => {
-  test('accueil affiche le titre et la description', async ({ page }) => {
+async function navigate(page: import('@playwright/test').Page, label: string) {
+  const menu = page.getByRole('button', { name: 'Ouvrir le menu' });
+  if (await menu.isVisible()) {
+    await menu.click();
+    await page.getByRole('navigation', { name: 'Navigation mobile' }).getByRole('button', { name: label }).click();
+  } else {
+    await page.getByRole('navigation', { name: 'Navigation principale' }).getByRole('button', { name: label }).click();
+  }
+}
+
+test.describe('Algo Observatory — expériences réelles des visiteurs', () => {
+  test('l’accueil explique le projet et permet de lancer l’expérience', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('app-title')).toContainText('Algo Observatory');
-    await expect(page.getByRole('heading', { name: /Algo Observatory/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Qui décide/i })).toBeVisible();
+    await expect(page.getByText(/L’aperçu ci-contre utilise uniquement des données simulées/i)).toBeVisible();
+    await page.getByRole('button', { name: /Lancer une expérience/i }).click();
+    await expect(page.getByRole('heading', { name: /Même contenu/i })).toBeVisible();
+    await expect(page.getByTestId('provenance-badge')).toContainText('simulation');
   });
 
-  test('navigation vers Découvrir affiche le parcours algorithme', async ({ page }) => {
+  test('l’explication mène au laboratoire', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Découvrir' }).click();
-    await expect(page.getByRole('heading', { name: /Qu'est-ce qu'un algorithme de recommandation/ })).toBeVisible();
+    await navigate(page, 'Découvrir');
+    await expect(page.getByRole('heading', { name: /Derrière chaque fil/i })).toBeVisible();
+    await page.getByRole('button', { name: /Ouvrir le laboratoire/i }).click();
+    await expect(page.getByRole('heading', { name: /Les classements, face à face/i })).toBeVisible();
   });
 
-  test('navigation vers Laboratoire affiche stratégies et provenance', async ({ page }) => {
+  test('les quatre stratégies et les trajectoires sont manipulables', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Laboratoire' }).click();
+    await navigate(page, 'Laboratoire');
     await expect(page.getByTestId('provenance-badge')).toBeVisible();
-    await expect(page.getByTestId('strategy-popularity')).toBeVisible();
-    await expect(page.getByTestId('strategy-collective')).toBeVisible();
-    await expect(page.getByTestId('strategy-diversity')).toBeVisible();
-    await expect(page.getByTestId('strategy-hybrid')).toBeVisible();
+    for (const id of ['popularity', 'collective', 'diversity', 'hybrid']) {
+      await expect(page.getByTestId('strategy-' + id)).toBeVisible();
+    }
+    await expect(page.getByRole('heading', { name: /Comment les positions changent/i })).toBeVisible();
+    await page.getByTestId('strategy-diversity').click();
+    await page.getByLabel('Comparer avec').selectOption('diversity');
+    await expect(page.getByLabel(/Évolution des rangs/)).toBeVisible();
+    await page.getByTestId('strategy-hybrid').click();
+    await expect(page.getByLabel('Poids popularité')).toBeVisible();
+    await page.getByLabel('Poids popularité').fill('0.8');
+    await expect(page.getByText('80%')).toBeVisible();
   });
 
-  test('navigation vers Comprendre les effets affiche les effets', async ({ page }) => {
+  test('une erreur Tournesol explicite ne remplace pas la simulation en silence', async ({ page }) => {
+    await page.route('https://api.tournesol.app/**', (route) => route.abort());
     await page.goto('/');
-    await page.getByRole('button', { name: 'Effets' }).click();
-    await expect(page.getByRole('heading', { name: /Les algorithmes ne sont pas neutres/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /Biais de popularité/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /Bulle de filtre/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /Homogénéité/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /Équilibre hybride/ })).toBeVisible();
+    await navigate(page, 'Laboratoire');
+    await page.getByRole('button', { name: /^Tournesol \(API\)$/i }).click();
+    await expect(page.getByRole('alert')).toContainText('Source indisponible');
+    await expect(page.getByTestId('provenance-badge')).toContainText('simulation');
+    await page.getByRole('button', { name: /Utiliser les données d’exemple/i }).click();
+    await expect(page.getByRole('alert')).toHaveCount(0);
   });
 
-  test('navigation vers Données affiche le tableau des contenus', async ({ page }) => {
+  test('la page effets ne confond pas les hypothèses et les preuves', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Données' }).click();
-    await expect(page.getByRole('heading', { name: /Contenus et métriques/ })).toBeVisible();
+    await navigate(page, 'Effets');
+    await expect(page.getByRole('heading', { name: /Les algorithmes ne sont pas neutres/i })).toBeVisible();
+    for (const title of ['Biais de popularité', 'Bulle de filtre', 'Homogénéité', 'Équilibre hybride']) {
+      await expect(page.getByRole('heading', { name: title })).toBeVisible();
+    }
+    await expect(page.getByText(/Ce laboratoire ne mesure donc pas l’existence d’une bulle de filtre/i)).toBeVisible();
+  });
+
+  test('les données sont filtrables, triables et exportables', async ({ page }) => {
+    await page.goto('/');
+    await navigate(page, 'Données');
+    await expect(page.getByRole('heading', { name: /Contenus et métriques/i })).toBeVisible();
+    await page.getByRole('searchbox', { name: 'Rechercher un contenu' }).fill('Chihiro');
+    await expect(page.locator('tbody tr')).toHaveCount(1);
     await expect(page.getByRole('cell', { name: /Le Voyage de Chihiro/ })).toBeVisible();
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole('button', { name: /Exporter CSV/i }).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/algo-observatory-.*\.csv/);
+    await page.getByRole('button', { name: /Effacer les filtres/i }).click();
+    await expect(page.locator('tbody tr')).toHaveCount(8);
   });
 
-  test('navigation vers Méthodologie affiche provenance et sources', async ({ page }) => {
+  test('la méthodologie explique les provenances et les limites', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Méthodologie' }).click();
-    await expect(page.getByRole('heading', { name: /Provenance/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /Licence/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /Tournesol/ })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /Bluesky/ })).toBeVisible();
+    await navigate(page, 'Méthodologie');
+    for (const title of ['Provenance', 'Licence', 'Tournesol', 'Bluesky']) {
+      await expect(page.getByRole('heading', { name: title })).toBeVisible();
+    }
+    await expect(page.getByText(/Aucune intégration Bluesky n’est opérationnelle/i)).toBeVisible();
   });
 
-  test("API Tournesol indisponible affiche une bannière d'erreur explicite", async ({ page }) => {
+  test('navigation directe et retour dans l’historique', async ({ page }) => {
+    await page.goto('/#/effects');
+    await expect(page.getByRole('heading', { name: /Les algorithmes ne sont pas neutres/i })).toBeVisible();
+    await navigate(page, 'Accueil');
+    await expect(page.getByRole('heading', { name: /Qui décide/i })).toBeVisible();
+    await page.goBack();
+    await expect(page.getByRole('heading', { name: /Les algorithmes ne sont pas neutres/i })).toBeVisible();
+  });
+
+  test('aucun débordement horizontal global sur l’appareil', async ({ page }, testInfo) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Laboratoire' }).click();
-    // Le bouton "Données réelles Tournesol (API)" tente l'API réelle (404)
-    await page.getByRole('button', { name: /Données réelles Tournesol \(API\)/ }).click();
-    await expect(page.getByRole('heading', { name: /Erreur de chargement/ })).toBeVisible();
-    await expect(page.getByText(/API Tournesol est indisponible/)).toBeVisible();
-  });
-
-  test('retour à l\'accueil depuis n\'importe quelle page fonctionne', async ({ page }) => {
-    await page.goto('/effects');
-    await page.getByRole('button', { name: 'Accueil' }).click();
-    await expect(page.getByTestId('app-title')).toContainText('Algo Observatory');
+    const views = ['Accueil', 'Découvrir', 'Laboratoire', 'Effets', 'Données', 'Méthodologie'];
+    for (const label of views) {
+      await navigate(page, label);
+      await expect.poll(() =>
+        page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)
+      ).toBeTruthy();
+    }
+    await navigate(page, 'Accueil');
+    await page.screenshot({ path: testInfo.outputPath('home.png'), fullPage: true });
+    await navigate(page, 'Laboratoire');
+    await page.screenshot({ path: testInfo.outputPath('laboratory.png'), fullPage: true });
   });
 });
