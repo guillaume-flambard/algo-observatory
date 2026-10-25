@@ -28,7 +28,7 @@ describe('The Ranking Machine — accueil interactif', () => {
     fireEvent.click(choice);
     expect(choice).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByText('Parasite', { selector: '.ao-readout-label strong' })).toBeInTheDocument();
-    expect(screen.getByText(/\d+ → \d+/)).toBeInTheDocument();
+    expect(screen.getByText(/\d+ → \d+/, { selector: '.ao-readout-delta small' })).toBeInTheDocument();
   });
 
   it('garde un accès direct au laboratoire et au contexte pédagogique', () => {
