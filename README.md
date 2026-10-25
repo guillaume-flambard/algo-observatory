@@ -19,7 +19,7 @@ Algo Observatory est un outil **pédagogique** : il permet de manipuler des stra
 
 - **Simulation** : données construites pour l’apprentissage. Aucun classement ne doit être présenté comme une observation réelle.
 - **Sources publiques** : chaque source affiche son statut, sa provenance, sa licence et sa fraîcheur lorsqu’elle est disponible.
-- **Tournesol** : le connecteur est expérimental et peut être indisponible. L’application indique l’erreur au lieu de remplacer silencieusement les résultats par des données fabriquées.
+- **Tournesol** : le laboratoire embarque 24 recommandations publiques collectées le 25 octobre 2026, sous licence ODC-BY 1.0. Cette sélection datée fonctionne hors ligne. Les données brutes et les règles de normalisation sont versionnées (`src/core/data/tournesol-public-snapshot.json`, `tournesol-public.ts`). Les valeurs de popularité, diversité-inclusion et fraîcheur sont dérivées de mesures sourcées ; elles ne constituent pas des observations des recommandations YouTube.
 - **Inférences** : le laboratoire ne révèle pas les paramètres cachés d’une plateforme et ne démontre pas à lui seul des effets sociaux comme les bulles de filtre.
 
 ## Démarrage
@@ -44,7 +44,7 @@ pnpm exec playwright install chromium
 pnpm test:e2e
 ~~~
 
-Les tests Playwright couvrent les parcours sur Chromium desktop et mobile, y compris l’échec du connecteur Tournesol, la navigation et l’absence de débordement horizontal global. Le workflow Frontend quality effectue ces vérifications à chaque changement soumis sur la branche de refonte.
+Les tests Playwright couvrent les parcours sur Chromium desktop et mobile, y compris le passage simulation → instantané Tournesol, la navigation et l’absence de débordement horizontal global. Le workflow Frontend quality effectue ces vérifications à chaque changement soumis sur la branche de refonte.
 
 ## Stack
 
