@@ -5,10 +5,10 @@
  * Run: node scripts/refresh-tournesol.mjs
  */
 import { writeFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { URL, fileURLToPath } from 'node:url';
 
 const endpoint = 'https://api.tournesol.app/polls/videos/recommendations/?limit=24';
-const result = await fetch(endpoint, { signal: AbortSignal.timeout(20_000), headers: { Accept: 'application/json' } });
+const result = await globalThis.fetch(endpoint, { signal: globalThis.AbortSignal.timeout(20_000), headers: { Accept: 'application/json' } });
 if (!result.ok) throw new Error('Tournesol HTTP ' + result.status);
 const data = await result.json();
 if (!Array.isArray(data.results) || data.results.length !== 24) {
@@ -46,4 +46,4 @@ const snapshot = {
 };
 const target = new URL('../src/core/data/tournesol-public-snapshot.json', import.meta.url);
 await writeFile(fileURLToPath(target), JSON.stringify(snapshot, null, 2) + '\n', 'utf8');
-process.stdout.write('Refreshed Tournesol snapshot: ' + items.length + ' / ' + data.count + ' entities. Review changes and attribution.\n');
+globalThis.process.stdout.write('Refreshed Tournesol snapshot: ' + items.length + ' / ' + data.count + ' entities. Review changes and attribution.\n');
