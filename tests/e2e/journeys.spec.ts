@@ -142,8 +142,13 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
       ? page.locator('.dw-mobile-item-heading').filter({ hasText: 'Parasite' })
       : page.locator('.dw-name button').filter({ hasText: 'Parasite' }));
     await (await item).click();
-    await expect(page.getByRole('complementary', { name: /Inspecter le contenu sélectionné/i })).toContainText('Parasite');
-    await expect(page.getByText('RANGS CALCULÉS · SIMULATION')).toBeVisible();
+    if (await page.locator('.dw-mobile-results').isVisible()) {
+      await expect(page.locator('.dw-mobile-detail')).toContainText('RANGS PAR STRATÉGIE · CALCULÉS');
+      await expect(page.locator('.dw-mobile-item.is-selected')).toContainText('Parasite');
+    } else {
+      await expect(page.getByRole('complementary', { name: /Inspecter le contenu sélectionné/i })).toContainText('Parasite');
+      await expect(page.getByText('RANGS CALCULÉS · SIMULATION')).toBeVisible();
+    }
     await expect(page.getByRole('button', { name: /Comparer dans le laboratoire/i })).toBeVisible();
   });
 
