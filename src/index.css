@@ -532,3 +532,6 @@
   .ao-source-detail p { font-size: 13px; }
   .ao-method-ending { padding-block: 70px 88px; }
 }
+
+/* Contrast of the 04 folio label on the darker closing sheet: >= 4.5:1. */
+.ao-method-ending .ao-section-number span { color: #91301d; }
