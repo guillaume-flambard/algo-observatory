@@ -222,7 +222,15 @@ export function Explore({ dataset }: ExploreProps) {
                 <span aria-hidden="true">↗</span>
               </button>
               <div className="dw-mobile-metrics">{metricKeys.map((key) => <div key={key}><span>{metricLabels[key]}</span><MetricValue label={metricLabels[key]} value={item.metrics[key]} /></div>)}</div>
-              {selected?.id === item.id && <div className="dw-inline-note">Sélectionné pour inspection ↓</div>}
+              {selected?.id === item.id && (
+                <div className="dw-mobile-detail">
+                  <span>RANGS PAR STRATÉGIE · CALCULÉS</span>
+                  <div className="dw-mobile-rank-grid">
+                    {selectedRanks.map((rank) => <div key={rank.id}><span>{rank.name}</span><strong>#{String(rank.rank).padStart(2, '0')}</strong></div>)}
+                  </div>
+                  <button type="button" onClick={() => setView('lab')}>Comparer dans le laboratoire <ArrowRight size={15} aria-hidden="true" /></button>
+                </div>
+              )}
             </article>)}
             {filtered.length === 0 && <div className="dw-empty"><h3>Aucun contenu trouvé</h3><p>Modifiez la recherche ou la catégorie.</p></div>}
           </div>
