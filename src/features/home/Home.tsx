@@ -75,7 +75,7 @@ export function Home({ onNavigate }: HomeProps) {
             </div>
           </div>
 
-          <div className="ao-machine" aria-label="Machine interactive de classement">
+          <div className="ao-machine" role="region" aria-label="Machine interactive de classement">
             <div className="ao-machine-top">
               <div className="ao-machine-identity">
                 <span className="ao-machine-led" aria-hidden="true" />
