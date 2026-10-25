@@ -30,7 +30,10 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     await slider.fill('100');
     await expect(slider).toHaveValue('100');
     await expect(page.getByText('0 / 8 POSITIONS MODIFIÉES')).toHaveCount(0);
-    const item = page.getByRole('button', { name: /Suivre Parasite dans les deux classements/i }).first();
+    const mobileLedger = page.locator('.ao-mobile-rank-list');
+    const item = await mobileLedger.isVisible()
+      ? mobileLedger.locator('button').filter({ hasText: 'Parasite' }).first()
+      : page.getByRole('button', { name: /Suivre Parasite dans les deux classements/i }).first();
     await item.click();
     await expect(item).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('.ao-readout-label strong')).toHaveText('Parasite');
