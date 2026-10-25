@@ -228,7 +228,7 @@
 
 .ao-field-guide { padding: clamp(80px, 10vw, 140px) clamp(20px, 3.4vw, 66px); border-top: 1px solid #9f9d91; }
 .ao-section-kicker { display: flex; align-items: center; gap: 22px; padding-bottom: 22px; border-bottom: 1px solid #a49d91; }
-.ao-section-kicker span { color: var(--ao-signal); }
+.ao-section-kicker span { color: #95351f; }
 .ao-field-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 11vw; padding-top: 49px; }
 .ao-field-grid h2 { margin: 0; font: 400 clamp(53px, 6.5vw, 105px)/.98 Georgia, serif; letter-spacing: -.067em; }
 .ao-field-grid h2 em { color: #bc4c35; font-style: italic; }
