@@ -25,6 +25,7 @@ export interface Dataset {
   licenseUrl?: string;
   freshness: string; // date de fraîcheur / génération
   itemCount: number;
+  methodologyNote?: string; // how public source fields were transformed into 0..1 experiment inputs
   items: Item[];
 }
 
