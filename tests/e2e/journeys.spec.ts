@@ -52,15 +52,18 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     await expect(page.locator('output[for="hybrid-w_popularity"]')).toHaveText('100%');
   });
 
-  test('une erreur Tournesol explicite ne remplace pas la simulation en silence', async ({ page }) => {
+  test('le catalogue public Tournesol est utilisable sans accès API direct', async ({ page }) => {
     await page.route('https://api.tournesol.app/**', (route) => route.abort());
     await page.goto('/');
     await navigate(page, 'Laboratoire');
-    await page.getByRole('button', { name: /^Tournesol \(API\)$/i }).click();
-    await expect(page.getByRole('alert')).toContainText('Source indisponible');
-    await expect(page.getByTestId('provenance-badge')).toContainText('simulation');
-    await page.getByRole('button', { name: /Utiliser les données d’exemple/i }).click();
-    await expect(page.getByRole('alert')).toHaveCount(0);
+    await page.getByRole('button', { name: /Tournesol · données publiques/i }).click();
+    await expect(page.getByTestId('provenance-badge')).toContainText('Données réelles');
+    await expect(page.getByText(/24 contenus/).first()).toBeVisible();
+    await page.getByText('Voir la provenance').click();
+    await expect(page.getByText(/transformation|transformés|transformées/i).first()).toBeVisible();
+    await navigate(page, 'Données');
+    await expect(page.locator('tbody tr')).toHaveCount(24);
+    await expect(page.getByRole('cell', { name: /Les milliardaires, compatibles avec la démocratie/i })).toBeVisible();
   });
 
   test('la page effets ne confond pas les hypothèses et les preuves', async ({ page }) => {
