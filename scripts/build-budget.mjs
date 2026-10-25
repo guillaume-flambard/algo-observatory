@@ -17,9 +17,22 @@ const budgets = [
   { name: 'Entrypoint JS (gzip)', path: entry, limit: 100_000 },
   { name: 'Styles (gzip)', path: stylesheet, limit: 12_000 },
 ];
+/**
+ * The src/href in dist/index.html includes the public Vite base path
+ * (e.g. /algo-observatory/assets/app.js), while dist/ itself only has assets/.
+ * Resolve and validate the asset-relative pathname before reading bytes.
+ */
+function resolveAssetFromPublicUrl(pathname) {
+  const match = pathname.match(/(?:^|\/)(assets\/[A-Za-z0-9._-]+\.(?:js|css))$/);
+  if (!match) {
+    throw new Error('Unexpected Vite asset path: ' + pathname);
+  }
+  return join(root.pathname, match[1]);
+}
+
 let failed = false;
 for (const item of budgets) {
-  const bytes = gzipSync(readFileSync(join(root.pathname, item.path))).byteLength;
+  const bytes = gzipSync(readFileSync(resolveAssetFromPublicUrl(item.path))).byteLength;
   const percent = Math.round((bytes / item.limit) * 100);
   console.log(item.name + ': ' + (bytes / 1000).toFixed(1) + ' kB / ' +
     (item.limit / 1000).toFixed(0) + ' kB (' + percent + '% of budget)');
