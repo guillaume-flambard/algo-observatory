@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { AlertCircle, ArrowDown, ArrowUp, Check, ChevronDown, Database, Equal, FlaskConical, GitCompareArrows, Info, Loader2, RotateCcw, SlidersHorizontal } from 'lucide-react';
 import type { Dataset, Strategy } from '@/core/data/types';
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
 import { ALL_STRATEGIES, computeResults } from '@/core/data/strategies';
@@ -9,100 +10,148 @@ import {
   adaptTournesolToInternal,
 } from '@/core/adapters/tournesol-adapter';
 import { DatasetProvenance } from '@/features/data/dataset-provenance';
-import { Button } from '@/core/ui/Button';
-import { Card } from '@/core/ui/Card';
-import { Section } from '@/core/ui/Section';
 
 type DataSource = 'simulation' | 'api';
+type ComputedResults = ReturnType<typeof computeResults>;
 
-interface StrategyCardProps {
-  strategy: Strategy;
-  active: boolean;
-  onToggle: () => void;
-  params: Record<string, number | boolean | string>;
-  onParamChange: (id: string, value: number | boolean | string) => void;
-  results: { item: ReturnType<typeof computeResults>[0]['item']; score: number; explanation: string }[];
-}
+const strategyAccent: Record<string, string> = {
+  popularity: 'bg-neutral-900',
+  collective: 'bg-slate-600',
+  diversity: 'bg-emerald-700',
+  hybrid: 'bg-amber-700',
+};
 
-function StrategyCard({
+function ResultColumn({
   strategy,
-  active,
-  onToggle,
+  results,
   params,
   onParamChange,
-  results,
-}: StrategyCardProps) {
+  referenceRanks,
+  comparisonEnabled,
+  reference,
+}: {
+  strategy: Strategy;
+  results: ComputedResults;
+  params: Record<string, number | boolean | string>;
+  onParamChange: (id: string, value: number) => void;
+  referenceRanks: Map<string, number>;
+  comparisonEnabled: boolean;
+  reference: boolean;
+}) {
+  const accent = strategyAccent[strategy.id] ?? 'bg-neutral-900';
+  const shown = results.slice(0, 8);
+
   return (
-    <Card
-      className={`${
-        active ? 'border-slate-900 bg-slate-50' : 'border-slate-200 bg-white'
-      } ${active ? 'shadow-sm' : ''}`}
-      padded={false}
-    >
-      <div className="p-4">
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onToggle}
-            className="w-full flex items-center gap-2 text-left bg-transparent border-transparent hover:bg-transparent shadow-none focus-visible:ring-0"
-          >
-            {active ? (
-              <span className="w-3 h-3 rounded-full bg-slate-900" />
-            ) : (
-              <span className="w-3 h-3 rounded-full border border-slate-300" />
-            )}
-            {strategy.name}
-          </Button>
-          <span className="text-xs text-slate-500">{results.length} résultats</span>
+    <section className="min-w-0 overflow-hidden rounded-2xl border border-neutral-200 bg-white" aria-label={'Résultats de la stratégie ' + strategy.name}>
+      <div className="border-b border-neutral-100 px-5 pb-5 pt-6 sm:px-6">
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className={'h-2.5 w-2.5 rounded-full ' + accent} aria-hidden="true" />
+            <h3 className="text-lg font-semibold tracking-[-0.03em]">{strategy.name}</h3>
+          </div>
+          {comparisonEnabled && reference && (
+            <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-600">
+              Référence
+            </span>
+          )}
         </div>
-        <p className="text-sm text-slate-600 mb-3">{strategy.description}</p>
+        <p className="min-h-[3rem] text-xs leading-6 text-neutral-500">{strategy.description}</p>
 
         {strategy.parameters.length > 0 && (
-          <div className="space-y-2 mb-3">
+          <div className="mt-4 space-y-4 border-t border-neutral-100 pt-5">
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.09em] text-neutral-500">
+              <SlidersHorizontal size={14} aria-hidden="true" />
+              Pondérations
+            </div>
             {strategy.parameters.map((param) => {
               const value = Number(params[param.id] ?? param.default);
+              const id = strategy.id + '-' + param.id;
               return (
-                <div key={param.id} className="flex items-center gap-3">
-                  <label className="text-sm text-slate-700 w-24">{param.name}</label>
+                <div key={param.id}>
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <label htmlFor={id} className="text-xs font-medium text-neutral-700">{param.name}</label>
+                    <output htmlFor={id} className="font-mono text-[11px] text-neutral-500">{Math.round(value * 100)}%</output>
+                  </div>
                   <input
+                    id={id}
                     type="range"
                     min={param.min ?? 0}
                     max={param.max ?? 1}
                     step={param.step ?? 0.1}
-                    value={String(value)}
-                    className="flex-1 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
-                    onChange={(e) => onParamChange(param.id, Number(e.target.value))}
+                    value={value}
+                    className="h-1.5 w-full cursor-pointer accent-neutral-900"
+                    onChange={(event) => onParamChange(param.id, Number(event.target.value))}
                   />
-                  <span className="text-sm text-slate-500 w-8 text-right">{value.toFixed(1)}</span>
                 </div>
               );
             })}
           </div>
         )}
+      </div>
 
-        <ul className="space-y-2">
-          {results.length === 0 ? (
-            <li className="text-sm text-slate-400 italic">Aucun résultat.</li>
-          ) : (
-            results.map(({ item, score, explanation }) => (
-              <li key={item.id} className="flex items-start gap-2 p-2 rounded border border-slate-100 bg-white">
-                <span className="flex-shrink-0 w-8 text-right text-xs font-bold text-slate-900">
-                  {Math.round(score * 100)}%
-                </span>
-                <div>
-                  <div className="text-sm font-semibold text-slate-900">{item.title}</div>
-                  <div className="text-xs text-slate-500">
-                    {item.author} · {item.category}
+      <div className="flex items-center justify-between border-b border-neutral-100 bg-neutral-50 px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.11em] text-neutral-500 sm:px-6">
+        <span>Classement</span>
+        <span>Score calculé</span>
+      </div>
+      {shown.length > 0 ? (
+        <ol className="divide-y divide-neutral-100">
+          {shown.map(({ item, score, explanation }, index) => {
+            const rank = index + 1;
+            const rankDelta = (referenceRanks.get(item.id) ?? rank) - rank;
+            return (
+              <li key={item.id} className="group px-5 py-4 sm:px-6">
+                <div className="flex items-start gap-3">
+                  <span className="w-5 shrink-0 pt-0.5 font-mono text-xs text-neutral-400">
+                    {String(rank).padStart(2, '0')}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="text-[13px] font-semibold leading-5 text-neutral-900">{item.title}</p>
+                      <span className="shrink-0 font-mono text-[11px] font-medium text-neutral-700">
+                        {Math.round(score * 100)}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-neutral-500">
+                      <span>{item.category}</span>
+                      <span aria-hidden="true">·</span>
+                      <span className="truncate">{item.author}</span>
+                      {comparisonEnabled && !reference && (
+                        <span
+                          className={[
+                            'ml-auto inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 font-mono',
+                            rankDelta > 0 ? 'bg-emerald-50 text-emerald-700' : rankDelta < 0 ? 'bg-rose-50 text-rose-700' : 'bg-neutral-100 text-neutral-500',
+                          ].join(' ')}
+                          title="Différence de rang par rapport à la stratégie de référence"
+                        >
+                          {rankDelta > 0 ? <ArrowUp size={11} aria-hidden="true" /> : rankDelta < 0 ? <ArrowDown size={11} aria-hidden="true" /> : <Equal size={11} aria-hidden="true" />}
+                          {rankDelta === 0 ? '0' : Math.abs(rankDelta)}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-neutral-100" aria-hidden="true">
+                      <div className={'h-full rounded-full transition-[width] duration-300 ' + accent} style={{ width: Math.round(score * 100) + '%' }} />
+                    </div>
+                    <details className="mt-3 text-xs">
+                      <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-neutral-500 hover:text-neutral-900">
+                        Pourquoi ce rang ? <ChevronDown size={12} aria-hidden="true" />
+                      </summary>
+                      <p className="mt-2 rounded-lg bg-neutral-50 p-3 leading-6 text-neutral-600">{explanation}</p>
+                    </details>
                   </div>
-                  <p className="mt-1 text-xs text-slate-600">{explanation}</p>
                 </div>
               </li>
-            ))
-          )}
-        </ul>
-      </div>
-    </Card>
+            );
+          })}
+        </ol>
+      ) : (
+        <p className="px-6 py-12 text-center text-sm text-neutral-500">Aucun contenu à classer dans ce jeu de données.</p>
+      )}
+      {results.length > shown.length && (
+        <p className="border-t border-neutral-100 px-6 py-4 text-xs text-neutral-500">
+          {shown.length} premiers résultats sur {results.length} contenus.
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -113,209 +162,272 @@ export function Lab() {
   const [error, setError] = useState<string | null>(null);
   const [activeIds, setActiveIds] = useState<string[]>(['popularity', 'collective']);
   const [params, setParams] = useState<Record<string, Record<string, number | boolean | string>>>(
-    ALL_STRATEGIES.reduce(
-      (acc, s) => {
-        acc[s.id] = s.parameters.reduce((p, param) => ({ ...p, [param.id]: param.default }), {});
+    () => ALL_STRATEGIES.reduce(
+      (acc, strategy) => {
+        acc[strategy.id] = Object.fromEntries(strategy.parameters.map((parameter) => [parameter.id, parameter.default]));
         return acc;
       },
       {} as Record<string, Record<string, number | boolean | string>>,
     ),
   );
 
-  const loadFromSource = useCallback(async (src: DataSource) => {
+  const loadFromSource = useCallback(async (requested: DataSource) => {
     setLoading(true);
     setError(null);
     try {
-      let tournesolDs: TournesolDataset;
-      if (src === 'simulation') {
-        const adapter = new SimulationTournesolAdapter();
-        tournesolDs = await adapter.getDataset();
+      let tournesolDataset: TournesolDataset;
+      if (requested === 'simulation') {
+        tournesolDataset = await new SimulationTournesolAdapter().getDataset();
       } else {
         const adapter = new ApiTournesolAdapter();
-        const available = await adapter.isAvailable();
-        if (!available) {
-          throw new Error("L'API Tournesol est indisponible (réponse non OK).");
+        if (!(await adapter.isAvailable())) {
+          throw new Error('La source Tournesol n’est pas disponible actuellement.');
         }
-        tournesolDs = await adapter.getDataset();
+        tournesolDataset = await adapter.getDataset();
       }
-      setDataset(adaptTournesolToInternal(tournesolDs));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur inconnue lors du chargement.');
+      setDataset(adaptTournesolToInternal(tournesolDataset));
+      setSource(requested);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'La source ne peut pas être chargée.');
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const strategies = useMemo(
-    () => ALL_STRATEGIES.map((s) => ({ strategy: s, active: activeIds.includes(s.id) })),
+  const selectSimulation = () => {
+    setError(null);
+    setSource('simulation');
+    setDataset(EXAMPLE_DATASET);
+  };
+
+  const selectedStrategies = useMemo(
+    () => ALL_STRATEGIES.filter((strategy) => activeIds.includes(strategy.id)),
     [activeIds],
   );
 
   const resultsByStrategy = useMemo(
-    () =>
-      Object.fromEntries(
-        strategies
-          .filter(({ active }) => active)
-          .map(({ strategy }) => [strategy.id, computeResults(dataset.items, strategy, params[strategy.id] ?? {})]),
-      ),
-    [dataset, strategies, params],
+    () => Object.fromEntries(
+      selectedStrategies.map((strategy) => [
+        strategy.id,
+        computeResults(dataset.items, strategy, params[strategy.id] ?? {}),
+      ]),
+    ) as Record<string, ComputedResults>,
+    [dataset, selectedStrategies, params],
+  );
+
+  const referenceStrategy = selectedStrategies[0];
+  const referenceRanks = useMemo(
+    () => new Map((referenceStrategy ? (resultsByStrategy[referenceStrategy.id] ?? []) : []).map(({ item }, index) => [item.id, index + 1])),
+    [referenceStrategy, resultsByStrategy],
   );
 
   const toggleStrategy = (id: string) => {
-    setActiveIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    setActiveIds((current) => current.includes(id) ? current.filter((value) => value !== id) : [...current, id]);
   };
 
-  const updateParam = (strategyId: string, paramId: string, value: number | boolean | string) => {
-    setParams((prev) => ({ ...prev, [strategyId]: { ...prev[strategyId], [paramId]: value } }));
-  };
-
-  const selectSimulation = () => {
-    setError(null);
-    setDataset(EXAMPLE_DATASET);
-    setSource('simulation');
+  const updateParam = (strategyId: string, paramId: string, value: number) => {
+    setParams((current) => ({
+      ...current,
+      [strategyId]: { ...current[strategyId], [paramId]: value },
+    }));
   };
 
   return (
-    <main className="min-h-screen flex flex-col bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Laboratoire</h1>
-            <p className="text-sm text-slate-600">
-              Comparez plusieurs stratégies de recommandation sur un même jeu de données.
-            </p>
+    <main>
+      <div className="border-b border-neutral-200">
+        <div className="mx-auto max-w-[1440px] px-5 pb-10 pt-12 sm:px-8 lg:px-12 lg:pb-12">
+          <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">
+            <FlaskConical size={14} aria-hidden="true" /> Laboratoire / 02
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant={source === 'simulation' && !error ? 'primary' : 'secondary'}
-              onClick={selectSimulation}
-              disabled={loading}
+          <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+            <div>
+              <h1 className="text-[clamp(2.8rem,5.2vw,5rem)] font-semibold leading-[1.05] tracking-[-0.065em]">
+                Même contenu. <span className="text-neutral-400">Autre classement.</span>
+              </h1>
+              <p className="mt-5 max-w-2xl text-sm leading-7 text-neutral-600 sm:text-base">
+                Choisissez des données, activez des stratégies, puis comparez ce qui monte ou descend.
+                Tout est calculé ici selon des règles transparentes.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                selectSimulation();
+                setActiveIds(['popularity', 'collective']);
+                setParams(Object.fromEntries(ALL_STRATEGIES.map((strategy) => [strategy.id, Object.fromEntries(strategy.parameters.map((parameter) => [parameter.id, parameter.default]))])));
+              }}
+              className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-xs font-medium transition hover:border-neutral-500"
             >
-              {loading ? 'Chargement…' : 'Données d\'exemple'}
-            </Button>
-            <Button
-              variant={source === 'api' && !error ? 'primary' : 'secondary'}
-              onClick={() => loadFromSource('api')}
-              disabled={loading}
-            >
-              {loading ? 'Tournesol (API)…' : 'Tournesol (API)'}
-            </Button>
+              <RotateCcw size={14} aria-hidden="true" /> Réinitialiser
+            </button>
           </div>
         </div>
-      </header>
+      </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
-        {/* Bannière d'erreur */}
-        {error && (
-          <Card className="border-red-200 bg-red-50">
-            <div className="flex gap-3 p-4">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-red-100 flex items-center justify-center">
-                <span className="text-[10px] text-red-700 font-bold">!</span>
-              </span>
-              <div>
-                <h3 className="text-sm font-semibold text-red-900">Erreur de chargement</h3>
-                <p className="mt-0.5 text-sm text-red-800">{error}</p>
-                <Button variant="ghost" size="sm" onClick={selectSimulation} className="mt-2 text-red-700">
-                  Revenir aux données d\'exemple
-                </Button>
+      <div className="mx-auto grid max-w-[1440px] gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-10 lg:px-12">
+        <aside className="space-y-6 lg:sticky lg:top-28 lg:self-start" aria-label="Paramètres du laboratoire">
+          <section className="rounded-2xl border border-neutral-200 bg-white p-5">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-sm font-semibold">01 / Données</h2>
+              <Database size={16} className="text-neutral-400" aria-hidden="true" />
+            </div>
+            <p className="mb-4 text-xs leading-6 text-neutral-500">
+              Commencez avec un exemple pédagogique, ou chargez les données publiques de Tournesol.
+            </p>
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={selectSimulation}
+                disabled={loading}
+                aria-pressed={source === 'simulation'}
+                className={[
+                  'flex w-full items-center justify-between gap-2 rounded-lg border px-3.5 py-3 text-left text-xs font-semibold transition disabled:opacity-50',
+                  source === 'simulation' ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400',
+                ].join(' ')}
+              >
+                Données d’exemple <span className="text-[10px] font-normal opacity-70">Simulation</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => loadFromSource('api')}
+                disabled={loading}
+                aria-pressed={source === 'api'}
+                className={[
+                  'flex w-full items-center justify-between gap-2 rounded-lg border px-3.5 py-3 text-left text-xs font-semibold transition disabled:opacity-50',
+                  source === 'api' ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400',
+                ].join(' ')}
+              >
+                Tournesol (API)
+                {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <span className="text-[10px] font-normal opacity-70">Publique</span>}
+              </button>
+            </div>
+            <DatasetProvenance dataset={dataset} />
+          </section>
+
+          <section className="rounded-2xl border border-neutral-200 bg-white p-5">
+            <div className="mb-5 flex items-center justify-between">
+              <h2 className="text-sm font-semibold">02 / Stratégies</h2>
+              <SlidersHorizontal size={16} className="text-neutral-400" aria-hidden="true" />
+            </div>
+            <p className="mb-4 text-xs leading-6 text-neutral-500">Sélectionnez les classements à afficher côte à côte.</p>
+            <div className="space-y-2">
+              {ALL_STRATEGIES.map((strategy) => {
+                const active = activeIds.includes(strategy.id);
+                return (
+                  <button
+                    key={strategy.id}
+                    type="button"
+                    data-testid={'strategy-' + strategy.id}
+                    aria-pressed={active}
+                    onClick={() => toggleStrategy(strategy.id)}
+                    disabled={loading}
+                    className={[
+                      'flex w-full items-center gap-3 rounded-lg border px-3.5 py-3 text-left text-xs font-semibold transition disabled:opacity-50',
+                      active ? 'border-neutral-300 bg-neutral-100 text-neutral-900' : 'border-transparent text-neutral-500 hover:border-neutral-200 hover:bg-neutral-50',
+                    ].join(' ')}
+                  >
+                    <span className={[
+                      'flex h-4 w-4 shrink-0 items-center justify-center rounded border',
+                      active ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white',
+                    ].join(' ')}>
+                      {active && <Check size={11} strokeWidth={2.8} aria-hidden="true" />}
+                    </span>
+                    {strategy.name}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-4 border-t border-neutral-100 pt-4 text-[11px] text-neutral-500">
+              {selectedStrategies.length} / {ALL_STRATEGIES.length} stratégies actives
+            </p>
+          </section>
+        </aside>
+
+        <div className="min-w-0 space-y-6">
+          {error && (
+            <div role="alert" className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+              <AlertCircle size={19} className="mt-0.5 shrink-0" aria-hidden="true" />
+              <div className="flex-1">
+                <p className="font-semibold">Source indisponible</p>
+                <p className="mt-1 leading-6">{error}</p>
+                <button type="button" onClick={selectSimulation} className="mt-2 text-xs font-semibold underline underline-offset-4">
+                  Utiliser les données d’exemple
+                </button>
               </div>
             </div>
-          </Card>
-        )}
+          )}
 
-        <Section title="Source de données" description="Choisissez l'origine des données. Les données d'exemple sont une simulation pédagogique.">
-          <div className="flex gap-3">
-            <Button
-              variant={source === 'simulation' ? 'primary' : 'secondary'}
-              onClick={selectSimulation}
-              disabled={loading}
-              className="flex-1"
-            >
-              {source === 'simulation' ? (
-                <span className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-white border border-slate-900" />
-                  Données d'exemple (simulation)
-                </span>
-              ) : (
-                'Données d\'exemple (simulation)'
-              )}
-            </Button>
-            <Button
-              variant={source === 'api' ? 'primary' : 'secondary'}
-              onClick={() => loadFromSource('api')}
-              disabled={loading}
-              className="flex-1"
-            >
-              {loading ? 'Chargement Tournesol…' : 'Données réelles Tournesol (API)'}
-            </Button>
-          </div>
-        </Section>
-
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="col-span-1 md:col-span-3">
-            <DatasetProvenance dataset={dataset} />
-          </div>
-
-          <aside className="space-y-4">
-            <Section title="Stratégies" description="Sélectionnez les stratégies à comparer." />
-            <div className="space-y-2">
-              {strategies.map(({ strategy, active }) => (
-                <Button
-                  key={strategy.id}
-                  dataTestid={`strategy-${strategy.id}`}
-                  variant={active ? 'primary' : 'secondary'}
-                  onClick={() => toggleStrategy(strategy.id)}
-                  disabled={loading}
-                  className="w-full flex items-center gap-3 text-left bg-transparent border-transparent shadow-none focus-visible:ring-0"
-                >
-                  {active ? (
-                    <span className="w-3 h-3 rounded-full bg-white border border-slate-900" />
-                  ) : (
-                    <span className="w-3 h-3 rounded-full border border-slate-300" />
-                  )}
-                  {strategy.name}
-                </Button>
-              ))}
+          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 sm:grid-cols-3">
+            <div className="bg-white p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-500">Contenus analysés</p>
+              <p className="mt-2 text-3xl font-semibold tracking-[-0.05em]">{dataset.items.length}</p>
             </div>
-          </aside>
+            <div className="bg-white p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-500">Stratégies actives</p>
+              <p className="mt-2 text-3xl font-semibold tracking-[-0.05em]">{selectedStrategies.length}</p>
+            </div>
+            <div className="col-span-2 bg-white p-5 sm:col-span-1">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-500">Nature des données</p>
+              <p className="mt-3 text-sm font-semibold">{dataset.kind === 'example' ? 'Simulation' : 'Source réelle'}</p>
+            </div>
+          </div>
 
-          <main className="col-span-1 md:col-span-2 space-y-4">
-            <Section title="Résultats comparés" description="Chaque stratégie classe les mêmes contenus différemment. Le score indique la force du favoritisme de l'algorithme pour ce contenu." />
-            <div className="grid gap-4 md:grid-cols-2">
-              {strategies
-                .filter(({ active }) => active)
-                .map(({ strategy }) => (
-                  <StrategyCard
+          <section aria-label="Comparaison des classements">
+            <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.13em] text-neutral-500">
+                  <GitCompareArrows size={15} aria-hidden="true" /> 03 / Comparaison
+                </div>
+                <h2 className="text-2xl font-semibold tracking-[-0.04em]">Les classements, face à face.</h2>
+                <p className="mt-2 max-w-xl text-xs leading-6 text-neutral-500">
+                  Les chiffres indiquent les scores propres à chaque stratégie, et non des mesures de visibilité réelle.
+                  {selectedStrategies.length > 1 && ' Les flèches indiquent les changements de rang par rapport à la première stratégie.'}
+                </p>
+              </div>
+            </div>
+            {loading && (
+              <p role="status" className="mb-4 flex items-center gap-2 text-xs text-neutral-500">
+                <Loader2 size={15} className="animate-spin" aria-hidden="true" /> Chargement des données…
+              </p>
+            )}
+            {selectedStrategies.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-neutral-300 bg-white px-8 py-20 text-center">
+                <Info size={25} className="mx-auto text-neutral-400" aria-hidden="true" />
+                <h3 className="mt-4 text-base font-semibold">Aucune stratégie sélectionnée</h3>
+                <p className="mt-2 text-sm text-neutral-500">Activez au moins une stratégie dans le panneau de gauche.</p>
+              </div>
+            ) : (
+              <div className="grid gap-5 xl:grid-cols-2" aria-live="polite">
+                {selectedStrategies.map((strategy, index) => (
+                  <ResultColumn
                     key={strategy.id}
                     strategy={strategy}
-                    active={true}
-                    onToggle={() => toggleStrategy(strategy.id)}
+                    results={resultsByStrategy[strategy.id] ?? []}
                     params={params[strategy.id] ?? {}}
                     onParamChange={(id, value) => updateParam(strategy.id, id, value)}
-                    results={resultsByStrategy[strategy.id] ?? []}
+                    referenceRanks={referenceRanks}
+                    comparisonEnabled={selectedStrategies.length > 1}
+                    reference={index === 0}
                   />
                 ))}
-            </div>
-          </main>
-        </section>
+              </div>
+            )}
+          </section>
 
-        <Card className="border-amber-200 bg-amber-50">
-          <div className="p-5">
-            <h3 className="text-sm font-semibold text-amber-900 mb-2">Comment lire ces résultats</h3>
-            <p className="text-sm text-amber-800 leading-relaxed mb-3">
-              Les mêmes contenus apparaissent dans chaque colonne, mais dans un ordre différent selon
-              la stratégie. La stratégie Popularité favorise les contenus les plus populaires, la
-              stratégie Score collectif ceux les mieux notés par la communauté, et la stratégie
-              Diversité ceux dont la catégorie est sous-représentée. La stratégie Hybride combine les
-              trois selon les poids que vous choisissez.
-            </p>
-            <p className="text-xs text-amber-700">
-              {dataset.kind === 'example'
-                ? 'Ces données sont un exemple pédagogique (simulation) et ne reflètent aucun comportement réellement observé sur une plateforme.'
-                : 'Ces données proviennent d’une source réelle ; leur provenance, licence et fraîcheur sont affichées ci-dessus.'}
-            </p>
-          </div>
-        </Card>
+          <section className="flex items-start gap-3 rounded-xl border border-neutral-200 bg-white p-5 text-xs leading-6 text-neutral-600">
+            <Info size={18} className="mt-0.5 shrink-0 text-neutral-400" aria-hidden="true" />
+            <div>
+              <h3 className="mb-1 text-sm font-semibold text-neutral-900">Ce que montre cette expérience</h3>
+              <p>
+                Chaque stratégie trie les mêmes contenus d’après ses règles et les scores calculés.
+                En ouvrant « Pourquoi ce rang ? », vous pouvez inspecter l’explication de ce calcul.
+                {dataset.kind === 'example'
+                  ? ' Les valeurs utilisées ici sont entièrement simulées et ne correspondent à aucune plateforme observée.'
+                  : ' Ces résultats sont recalculés sur un jeu de données public ; ils ne constituent pas le classement observé d’une plateforme.'}
+              </p>
+            </div>
+          </section>
+        </div>
       </div>
     </main>
   );
