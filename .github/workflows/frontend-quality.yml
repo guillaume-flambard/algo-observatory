@@ -1,9 +1,6 @@
 name: Frontend quality
 
 on:
-  push:
-    branches:
-      - feat/observatory-premium-2026
   pull_request:
     branches:
       - main
@@ -11,6 +8,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: frontend-quality-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   quality:
@@ -41,6 +42,8 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
       - name: Desktop and mobile user journeys
         run: pnpm run test:e2e
+        env:
+          DEBUG: pw:webserver
       - name: Keep browser evidence
         if: always()
         uses: actions/upload-artifact@v4
