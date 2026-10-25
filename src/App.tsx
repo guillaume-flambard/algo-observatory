@@ -90,7 +90,6 @@ function AppUI() {
             type="button"
             onClick={() => navigate('home')}
             className="group flex min-w-0 items-center gap-3 text-left"
-            aria-label="Algo Observatory, accueil"
           >
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-neutral-900 text-white">
               <BarChart3 size={18} strokeWidth={1.8} aria-hidden="true" />
