@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { ArrowDownRight, ArrowRight, ArrowUpRight, ArrowUpFromLine, Equal, MoveRight } from 'lucide-react';
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
 import { HYBRID_STRATEGY, POPULARITY_STRATEGY, computeResults } from '@/core/data/strategies';
@@ -101,7 +102,7 @@ export function Home({ onNavigate }: HomeProps) {
                 step="5"
                 value={collectiveWeight}
                 onChange={(event) => setCollectiveWeight(Number(event.target.value))}
-                style={{ '--ao-progress': collectiveWeight + '%' } as React.CSSProperties}
+                style={{ '--ao-progress': collectiveWeight + '%' } as CSSProperties}
               />
               <div className="ao-control-ends" aria-hidden="true">
                 <span>← POPULARITÉ</span>
