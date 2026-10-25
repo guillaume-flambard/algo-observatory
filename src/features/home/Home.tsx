@@ -1,150 +1,235 @@
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Database, SlidersHorizontal } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { ArrowDownRight, ArrowRight, ArrowUpRight, ArrowUpFromLine, Equal, MoveRight } from 'lucide-react';
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
-import { COLLECTIVE_STRATEGY, POPULARITY_STRATEGY, computeResults } from '@/core/data/strategies';
+import { HYBRID_STRATEGY, POPULARITY_STRATEGY, computeResults } from '@/core/data/strategies';
 
 interface HomeProps {
   onNavigate: (view: 'home' | 'discover' | 'lab') => void;
 }
 
-const comparisons = [
-  { name: 'Popularité', results: computeResults(EXAMPLE_DATASET.items, POPULARITY_STRATEGY, {}) },
-  { name: 'Score collectif', results: computeResults(EXAMPLE_DATASET.items, COLLECTIVE_STRATEGY, {}) },
-];
+const catalog = EXAMPLE_DATASET.items;
+const initial = computeResults(catalog, POPULARITY_STRATEGY, {});
+const initialRanks = new Map(initial.map(({ item }, index) => [item.id, index + 1]));
+const selectedDefault = 'i-6';
+
+const lineColor = '#b9b6a9';
+const signal = '#ee6746';
+const rowHeight = 48;
 
 export function Home({ onNavigate }: HomeProps) {
+  const [collectiveWeight, setCollectiveWeight] = useState(65);
+  const [selectedId, setSelectedId] = useState(selectedDefault);
+
+  // One controlled parameter and one deterministic scoring function: the animation
+  // never substitutes arbitrary ranks or claims to represent a platform's feed.
+  const result = useMemo(
+    () => computeResults(catalog, HYBRID_STRATEGY, {
+      w_popularity: (100 - collectiveWeight) / 100,
+      w_collective: collectiveWeight / 100,
+      w_diversity: 0,
+    }),
+    [collectiveWeight],
+  );
+  const currentRanks = useMemo(() => new Map(result.map(({ item }, index) => [item.id, index + 1])), [result]);
+  const selected = catalog.find((item) => item.id === selectedId) ?? catalog[0]!;
+  const before = initialRanks.get(selected.id) ?? 1;
+  const after = currentRanks.get(selected.id) ?? before;
+  const delta = before - after;
+  const changes = result.filter(({ item }) => initialRanks.get(item.id) !== currentRanks.get(item.id)).length;
+
   return (
-    <main>
-      <section className="border-b border-neutral-200">
-        <div className="mx-auto grid max-w-[1440px] gap-12 px-5 pb-16 pt-16 sm:px-8 md:pb-24 md:pt-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.82fr)] lg:items-center lg:gap-20 lg:px-12">
-          <div>
-            <div className="mb-8 inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">
-              <span className="h-px w-8 bg-neutral-500" />
-              Laboratoire indépendant · 001
-            </div>
-            <h1 className="max-w-3xl text-[clamp(3rem,6.3vw,6.6rem)] font-semibold leading-[1.015] tracking-[-0.075em]">
-              Qui décide
-              <br />
-              <span className="text-neutral-400">ce que vous</span>
-              <br />
-              voyez ?
+    <main className="ao-home">
+      <section className="ao-editorial-hero" aria-labelledby="hero-heading">
+        <div className="ao-hero-index">
+          <span>ALGO OBSERVATORY</span>
+          <span>FIELD NOTES / N° 001</span>
+          <span>INDEPENDENT RESEARCH INSTRUMENT</span>
+        </div>
+
+        <div className="ao-hero-layout">
+          <div className="ao-editorial-intro">
+            <p className="ao-eyebrow"><span aria-hidden="true">✳</span> EXPÉRIENCE N° 01 — LES CLASSEMENTS</p>
+            <h1 id="hero-heading" className="ao-manifesto">
+              Qui décide <em>ce que vous voyez&nbsp;?</em>
             </h1>
-            <p className="mt-8 max-w-xl text-base leading-8 text-neutral-600 sm:text-lg">
-              Les algorithmes ne montrent pas tous la même chose. Ici, vous pouvez voir comment
-              différentes règles de recommandation modifient un classement, sur des données
-              dont l’origine et les limites sont explicites.
+            <p className="ao-deck">
+              Huit œuvres. Deux règles. Des résultats qui ne racontent pas la même histoire.
+              <strong> Vous pouvez modifier l’algorithme.</strong>
             </p>
-            <div className="mt-10 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => onNavigate('lab')}
-                className="inline-flex items-center gap-3 rounded-xl bg-neutral-900 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-neutral-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4"
-              >
-                Lancer une expérience <ArrowRight size={17} aria-hidden="true" />
+            <div className="ao-hero-actions">
+              <button type="button" onClick={() => onNavigate('lab')} className="ao-action-primary">
+                Lancer une expérience <ArrowUpRight size={17} aria-hidden="true" />
               </button>
-              <button
-                type="button"
-                onClick={() => onNavigate('discover')}
-                className="inline-flex items-center gap-2 rounded-xl border border-neutral-300 bg-white px-6 py-3.5 text-sm font-semibold transition hover:border-neutral-500"
-              >
-                Comprendre le sujet <ArrowUpRight size={17} aria-hidden="true" />
+              <button type="button" onClick={() => onNavigate('discover')} className="ao-action-text">
+                Comprendre le sujet <ArrowRight size={17} aria-hidden="true" />
               </button>
             </div>
-            <p className="mt-6 flex items-center gap-2 text-xs text-neutral-500">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" aria-hidden="true" />
-              L’aperçu ci-contre utilise uniquement des données simulées.
-            </p>
+            <div className="ao-hero-credit">
+              <span className="ao-credit-marker" aria-hidden="true" />
+              <p>
+                <strong>Note de méthode.</strong> Les huit titres de cette démonstration
+                proviennent d’un jeu <em>entièrement simulé</em>. Aucune recommandation
+                d’une plateforme réelle n’est observée ici.
+              </p>
+            </div>
           </div>
 
-          <div className="overflow-hidden rounded-[24px] border border-neutral-200 bg-white shadow-[0_24px_80px_-60px_rgba(0,0,0,0.3)]">
-            <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-6 py-5">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-neutral-400">Aperçu pédagogique</p>
-                <h2 className="mt-1 text-lg font-semibold tracking-tight">Un catalogue, deux classements.</h2>
+          <div className="ao-machine" aria-label="Machine interactive de classement">
+            <div className="ao-machine-top">
+              <div className="ao-machine-identity">
+                <span className="ao-machine-led" aria-hidden="true" />
+                <span>RANKING MACHINE</span>
               </div>
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100">
-                <SlidersHorizontal size={17} className="text-neutral-600" aria-hidden="true" />
+              <span>MODEL / 01</span>
+            </div>
+            <div className="ao-machine-title">
+              <span className="ao-machine-caption">MÊME CATALOGUE / RÈGLES DIFFÉRENTES</span>
+              <h2>L’ordre des choses<br /><i>n’est pas neutre.</i></h2>
+              <p>Faites glisser le curseur. Observez les positions. Sélectionnez un contenu.</p>
+            </div>
+            <div className="ao-machine-controls">
+              <div className="ao-control-header">
+                <label htmlFor="hero-algorithm-weight">INFLUENCE DU SCORE COLLECTIF</label>
+                <output htmlFor="hero-algorithm-weight">{collectiveWeight}%</output>
+              </div>
+              <input
+                id="hero-algorithm-weight"
+                data-testid="hero-algorithm-weight"
+                type="range"
+                min="0"
+                max="100"
+                step="5"
+                value={collectiveWeight}
+                onChange={(event) => setCollectiveWeight(Number(event.target.value))}
+                style={{ '--ao-progress': collectiveWeight + '%' } as React.CSSProperties}
+              />
+              <div className="ao-control-ends" aria-hidden="true">
+                <span>← POPULARITÉ</span>
+                <span>SCORE COLLECTIF →</span>
               </div>
             </div>
-            <div className="grid grid-cols-2 divide-x divide-neutral-100">
-              {comparisons.map(({ name, results }) => (
-                <div key={name} className="min-w-0 p-4 sm:p-6">
-                  <div className="mb-5 text-xs font-semibold text-neutral-700">{name}</div>
-                  <ol className="space-y-4">
-                    {results.slice(0, 4).map(({ item, score }, index) => (
-                      <li key={item.id}>
-                        <div className="flex items-start gap-2">
-                          <span className="w-5 shrink-0 font-mono text-[11px] text-neutral-400">
-                            {String(index + 1).padStart(2, '0')}
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <p className="line-clamp-2 min-h-[2.5em] text-xs font-medium leading-5 text-neutral-800">
-                              {item.title}
-                            </p>
-                            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-neutral-100">
-                              <div className="h-full rounded-full bg-neutral-900" style={{ width: Math.round(score * 100) + '%' }} />
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ol>
+
+            <div className="ao-rank-stage" aria-label="Comparaison des positions">
+              <div className="ao-rank-headings">
+                <span>01 / ORDRE INITIAL</span>
+                <span>02 / APRÈS RÉGLAGE</span>
+              </div>
+              <div className="ao-rank-canvas">
+                <svg className="ao-rank-paths" viewBox="0 0 1000 384" preserveAspectRatio="none" aria-hidden="true">
+                  {initial.map(({ item }, index) => {
+                    const y1 = index * rowHeight + rowHeight / 2;
+                    const y2 = ((currentRanks.get(item.id) ?? index + 1) - 1) * rowHeight + rowHeight / 2;
+                    const active = item.id === selectedId;
+                    return (
+                      <path
+                        key={item.id}
+                        d={'M 431 ' + y1 + ' C 492 ' + y1 + ', 508 ' + y2 + ', 569 ' + y2}
+                        fill="none"
+                        stroke={active ? signal : lineColor}
+                        strokeWidth={active ? 3.5 : 1.25}
+                        strokeOpacity={active ? 1 : 0.45}
+                        strokeLinecap="round"
+                        className="ao-flow-path"
+                      />
+                    );
+                  })}
+                </svg>
+                <div className="ao-rank-column ao-rank-origin">
+                  {initial.map(({ item }, index) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setSelectedId(item.id)}
+                      aria-pressed={selectedId === item.id}
+                      aria-label={'Suivre ' + item.title + ' dans les deux classements'}
+                      className={'ao-rank-row' + (selectedId === item.id ? ' is-selected' : '')}
+                      style={{ top: index * rowHeight }}
+                    >
+                      <span className="ao-rank-number">{String(index + 1).padStart(2, '0')}</span>
+                      <span className="ao-rank-label">{item.title}</span>
+                    </button>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="flex items-center justify-between border-t border-neutral-100 bg-neutral-50 px-6 py-4 text-[11px] text-neutral-500">
-              <span>Simulation · {EXAMPLE_DATASET.itemCount} contenus</span>
-              <span>Les rangs changent <ArrowDownRight size={13} className="inline" aria-hidden="true" /></span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-[1440px] px-5 py-20 sm:px-8 lg:px-12">
-        <div className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
-          <div>
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">Le principe</p>
-            <h2 className="max-w-xl text-3xl font-semibold leading-tight tracking-[-0.045em] sm:text-4xl">
-              Moins d’affirmations. Plus de preuves.
-            </h2>
-          </div>
-          <p className="max-w-sm text-sm leading-7 text-neutral-600">
-            Un espace pour observer, manipuler et questionner des modèles de classement sans
-            confondre expériences et comportements réels de plateformes.
-          </p>
-        </div>
-
-        <div className="grid gap-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 md:grid-cols-3">
-          {[
-            { icon: Database, number: '01', title: 'Vérifier les données', text: 'Source, licence, date et nature des données visibles avant toute interprétation.' },
-            { icon: SlidersHorizontal, number: '02', title: 'Modifier les règles', text: 'Choisissez une stratégie et ajustez ses paramètres pour comparer les effets.' },
-            { icon: ArrowRight, number: '03', title: 'Expliquer les rangs', text: 'Découvrez pourquoi un contenu remonte ou recule et quelles limites restent.' },
-          ].map(({ icon: Icon, number, title, text }) => (
-            <div key={number} className="bg-white p-7 sm:p-9">
-              <div className="mb-10 flex items-center justify-between text-neutral-500">
-                <Icon size={20} strokeWidth={1.5} aria-hidden="true" />
-                <span className="font-mono text-xs">{number} / 03</span>
+                <div className="ao-rank-column ao-rank-result" aria-live="off">
+                  {result.map(({ item }) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setSelectedId(item.id)}
+                      aria-pressed={selectedId === item.id}
+                      aria-label={'Suivre ' + item.title + ' dans les deux classements'}
+                      className={'ao-rank-row' + (selectedId === item.id ? ' is-selected' : '')}
+                      style={{ top: ((currentRanks.get(item.id) ?? 1) - 1) * rowHeight }}
+                    >
+                      <span className="ao-rank-number">{String(currentRanks.get(item.id) ?? 0).padStart(2, '0')}</span>
+                      <span className="ao-rank-label">{item.title}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-              <h3 className="text-lg font-semibold tracking-[-0.025em]">{title}</h3>
-              <p className="mt-3 max-w-xs text-sm leading-7 text-neutral-600">{text}</p>
             </div>
-          ))}
+
+            <div className="ao-machine-readout" aria-live="polite" aria-atomic="true">
+              <div className="ao-readout-label">
+                <span>FOCUS / {selected.id.toUpperCase()}</span>
+                <strong>{selected.title}</strong>
+              </div>
+              <div className="ao-readout-delta">
+                {delta > 0 ? <ArrowUpFromLine size={18} aria-hidden="true" /> : delta < 0 ? <ArrowDownRight size={20} aria-hidden="true" /> : <Equal size={20} aria-hidden="true" />}
+                <span>{delta === 0 ? 'Rang inchangé' : (delta > 0 ? '+' : '−') + Math.abs(delta) + ' place' + (Math.abs(delta) > 1 ? 's' : '')}</span>
+                <small>{before} → {after}</small>
+              </div>
+            </div>
+            <div className="ao-machine-bottom">
+              <span>{changes} / {catalog.length} POSITIONS MODIFIÉES</span>
+              <span>SIMULATION / CALCUL DÉTERMINISTE</span>
+            </div>
+          </div>
+        </div>
+        <div className="ao-hero-bottom-rule">
+          <span>SCROLL TO INVESTIGATE</span>
+          <span aria-hidden="true">↓</span>
+          <span>01 — 03</span>
         </div>
       </section>
 
-      <section className="border-t border-neutral-200">
-        <div className="mx-auto flex max-w-[1440px] flex-col items-start justify-between gap-6 px-5 py-14 sm:px-8 md:flex-row md:items-center lg:px-12">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-neutral-500">Prêt à comparer ?</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight">Changez une règle. Observez le résultat.</h2>
+      <section className="ao-field-guide" aria-labelledby="field-guide-heading">
+        <div className="ao-section-kicker"><span>02</span> OBSERVER N’EST PAS EXPLIQUER</div>
+        <div className="ao-field-grid">
+          <h2 id="field-guide-heading">
+            L’algorithme<br />
+            <em>fait un choix.</em><br />
+            Montrons lequel.
+          </h2>
+          <div className="ao-guide-copy">
+            <p>Deux classements peuvent utiliser les mêmes contenus et produire des résultats opposés. Ce n’est pas une magie invisible : ce sont des <strong>critères, des poids et des arbitrages.</strong></p>
+            <p>Algo Observatory rend ces décisions manipulables. Chaque résultat peut être expliqué et chaque donnée a un statut : observée, dérivée ou simulée.</p>
+            <button type="button" onClick={() => onNavigate('discover')} className="ao-action-text">Lire le protocole <MoveRight size={17} aria-hidden="true" /></button>
           </div>
-          <button
-            type="button"
-            onClick={() => onNavigate('lab')}
-            className="inline-flex items-center gap-3 rounded-xl bg-neutral-900 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-neutral-700"
-          >
-            Entrer dans le laboratoire <ArrowRight size={17} aria-hidden="true" />
-          </button>
         </div>
+      </section>
+
+      <section className="ao-three-acts" aria-label="Trois étapes pour comprendre les algorithmes">
+        {[
+          { n: '01', t: 'LA SOURCE', h: 'D’où viennent les données ?', d: 'Regarder la provenance, la date, la licence et ce qui a réellement été mesuré.' },
+          { n: '02', t: 'LA RÈGLE', h: 'Qu’a-t-on demandé au modèle ?', d: 'Modifier les critères et observer les arbitrages. Les résultats restent calculables et reproductibles.' },
+          { n: '03', t: 'LA PREUVE', h: 'Qu’est-ce qu’on peut affirmer ?', d: 'Suivre un contenu jusqu’à son rang, sans confondre simulation et comportement réel.' },
+        ].map((act) => (
+          <article key={act.n}>
+            <span className="ao-act-index">{act.n} /</span>
+            <span className="ao-act-name">{act.t}</span>
+            <h3>{act.h}</h3>
+            <p>{act.d}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="ao-last-word">
+        <span>03 / OPEN EXPERIMENT</span>
+        <h2>Ne croyez pas<br />le classement. <em>Testez-le.</em></h2>
+        <button type="button" onClick={() => onNavigate('lab')}>
+          Explorer le laboratoire <ArrowUpRight size={19} aria-hidden="true" />
+        </button>
       </section>
     </main>
   );
