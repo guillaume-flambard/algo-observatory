@@ -38,6 +38,11 @@ jobs:
         run: pnpm run test
       - name: Production build
         run: pnpm run build
+      - name: Verify GitHub Pages release build (without publishing)
+        run: |
+          pnpm run build:pages
+          grep -q '/algo-observatory/assets/' dist/index.html
+          test -f dist/favicon.svg
       - name: Install Chromium
         run: pnpm exec playwright install --with-deps chromium webkit
       - name: Desktop and mobile user journeys
