@@ -82,6 +82,9 @@ function AppUI() {
   const navigate = (next: View) => {
     setView(next);
     setMenuOpen(false);
+    // A long explanation must never land users halfway down the next route.
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   };
 
   return (
