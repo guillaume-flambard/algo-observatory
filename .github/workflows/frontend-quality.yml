@@ -1,0 +1,55 @@
+name: Frontend quality
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-quality-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: TypeScript, lint, unit, build and browser journeys
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.14.0
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - name: Install reproducible dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Verify lint
+        run: pnpm run lint:check
+      - name: Verify types
+        run: pnpm run types:check
+      - name: Unit tests
+        run: pnpm run test
+      - name: Production build
+        run: pnpm run build
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Desktop and mobile user journeys
+        run: pnpm run test:e2e
+        env:
+          DEBUG: pw:webserver
+      - name: Keep browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: observatory-browser-evidence
+          path: |
+            test-results/playwright/
+          if-no-files-found: ignore
+          retention-days: 7

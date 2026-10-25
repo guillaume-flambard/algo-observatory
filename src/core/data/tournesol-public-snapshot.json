@@ -1,0 +1,403 @@
+{
+  "retrievedAt": "2026-10-25T17:43:38.014Z",
+  "endpoint": "https://api.tournesol.app/polls/videos/recommendations/?limit=24",
+  "sourceUrl": "https://tournesol.app/",
+  "license": "ODC-BY-1.0",
+  "totalAvailable": 4131,
+  "items": [
+    {
+      "uid": "yt:n-oujbO9fdQ",
+      "title": "Les milliardaires, compatibles avec la démocratie? Le Limitarisme (ft. @Osonscauser)",
+      "author": "Philoxime",
+      "views": 101197,
+      "language": "fr",
+      "tags": [
+        "éthique",
+        "théories de la justice",
+        "conséquentialisme"
+      ],
+      "publicationDate": "2023-12-21T16:07:34Z",
+      "tournesolScore": 71.44124989407324,
+      "nComparisons": 362,
+      "nContributors": 88,
+      "diversityInclusion": 40.06693478002326
+    },
+    {
+      "uid": "yt:lYXQvHhfKuM",
+      "title": "5 IA surpuissantes",
+      "author": "Science4All",
+      "views": 121249,
+      "language": "fr",
+      "tags": [
+        "Mathématiques",
+        "Science",
+        "Vulgarisation"
+      ],
+      "publicationDate": "2022-06-20T16:00:22Z",
+      "tournesolScore": 68.13397975947925,
+      "nComparisons": 959,
+      "nContributors": 286,
+      "diversityInclusion": 36.86987581832236
+    },
+    {
+      "uid": "yt:sAjm3-IaRtI",
+      "title": "Trafiquant d'humains et marchand de haine #FacebookFiles",
+      "author": "Science4All",
+      "views": 66354,
+      "language": "fr",
+      "tags": [
+        "Mathématiques",
+        "Science",
+        "Vulgarisation"
+      ],
+      "publicationDate": "2021-12-06T17:00:37Z",
+      "tournesolScore": 67.75616683329018,
+      "nComparisons": 472,
+      "nContributors": 131,
+      "diversityInclusion": 53.22411653010074
+    },
+    {
+      "uid": "yt:IVqXKP91L4E",
+      "title": "Google a empoisonné la communauté scientifique, qui amplifie maintenant sa désinformation",
+      "author": "Science4All",
+      "views": 78118,
+      "language": "fr",
+      "tags": [
+        "Mathématiques",
+        "Science",
+        "Vulgarisation"
+      ],
+      "publicationDate": "2022-10-17T16:00:13Z",
+      "tournesolScore": 67.66279543583079,
+      "nComparisons": 674,
+      "nContributors": 154,
+      "diversityInclusion": 34.36120068758192
+    },
+    {
+      "uid": "yt:kR3JaROyKuA",
+      "title": "LES ALGORITHMES MENACENT-ILS L'HUMANITÉ ?",
+      "author": "BLAST, Le souffle de l'info",
+      "views": 100644,
+      "language": "fr",
+      "tags": [
+        "blast",
+        "intelligence artificielle",
+        "sécurité"
+      ],
+      "publicationDate": "2023-08-26T16:00:35Z",
+      "tournesolScore": 66.8808404640667,
+      "nComparisons": 654,
+      "nContributors": 194,
+      "diversityInclusion": 47.62793430621815
+    },
+    {
+      "uid": "yt:x-2uVNze56s",
+      "title": "Ep26 La Pensée Bayésienne",
+      "author": "Hygiène Mentale",
+      "views": 371486,
+      "language": "fr",
+      "tags": [
+        "Zététique",
+        "Scepticisme",
+        "Bayes"
+      ],
+      "publicationDate": "2018-07-25T11:26:04Z",
+      "tournesolScore": 66.53281081808798,
+      "nComparisons": 351,
+      "nContributors": 110,
+      "diversityInclusion": 20.579884289996212
+    },
+    {
+      "uid": "yt:rtsw8rA5x7c",
+      "title": "La MÉTA-CRISE : le problème FONDAMENTAL de l'humanité ? ☄️ (feat. @lafabriquesociale )",
+      "author": "ApresLaBiere",
+      "views": 4330,
+      "language": "fr",
+      "tags": [
+        "meta-crisis",
+        "artificial intelligence",
+        "climate change"
+      ],
+      "publicationDate": "2023-06-05T17:00:07Z",
+      "tournesolScore": 66.4566871630211,
+      "nComparisons": 194,
+      "nContributors": 58,
+      "diversityInclusion": 30.77698856677448
+    },
+    {
+      "uid": "yt:QprkRP-Dylo",
+      "title": "Le vrai danger avec #ChatGPT",
+      "author": "Science4All",
+      "views": 94167,
+      "language": "fr",
+      "tags": [
+        "Mathématiques",
+        "Science",
+        "Vulgarisation"
+      ],
+      "publicationDate": "2023-01-23T17:00:22Z",
+      "tournesolScore": 66.36530416755834,
+      "nComparisons": 565,
+      "nContributors": 198,
+      "diversityInclusion": 33.719762738956234
+    },
+    {
+      "uid": "yt:zmCl5i_sEiM",
+      "title": "Pourquoi notre système de vote est nul (et le moyen le plus simple de l'améliorer)",
+      "author": "Monsieur Phi",
+      "views": 273717,
+      "language": "fr",
+      "tags": [
+        "philosophie"
+      ],
+      "publicationDate": "2022-04-05T15:09:47Z",
+      "tournesolScore": 66.28928224015336,
+      "nComparisons": 746,
+      "nContributors": 192,
+      "diversityInclusion": 24.537455925245986
+    },
+    {
+      "uid": "yt:E9c2y0eUBMs",
+      "title": "#ChatGPT, Top Gun, CR7, c'est... cool ? #CoolWashing #MuteNews",
+      "author": "Science4All",
+      "views": 32208,
+      "language": "fr",
+      "tags": [
+        "Mathématiques",
+        "Science",
+        "Vulgarisation"
+      ],
+      "publicationDate": "2023-01-16T17:00:06Z",
+      "tournesolScore": 66.14896581352123,
+      "nComparisons": 766,
+      "nContributors": 264,
+      "diversityInclusion": 41.293980331343285
+    },
+    {
+      "uid": "yt:lUWj0Mhr8bs",
+      "title": "Rénovation thermique : le meilleur investissement pour la France",
+      "author": "Osons Causer",
+      "views": 78043,
+      "language": "fr",
+      "tags": [
+        "osons causer",
+        "osons causer rénovation thermique",
+        "osons comprendre rénovation thermique"
+      ],
+      "publicationDate": "2022-03-21T16:30:08Z",
+      "tournesolScore": 66.05375254118059,
+      "nComparisons": 462,
+      "nContributors": 104,
+      "diversityInclusion": 32.66791386322571
+    },
+    {
+      "uid": "yt:XhRbt3R41hs",
+      "title": "Arrêter la Viande ? L'IMPACT DE NOTRE ALIMENTATION",
+      "author": "Chez Anatole",
+      "views": 30004,
+      "language": "fr",
+      "tags": [
+        "alimentation",
+        "alimentation climat",
+        "nourriture climat"
+      ],
+      "publicationDate": "2022-09-21T14:35:27Z",
+      "tournesolScore": 65.50677188778438,
+      "nComparisons": 511,
+      "nContributors": 129,
+      "diversityInclusion": 36.79141503892268
+    },
+    {
+      "uid": "yt:RVB3PBPxMWg",
+      "title": "MIEUX APPRENDRE & ÉTUDIER : les (vraies) techniques scientifiques",
+      "author": "ScienceEtonnante",
+      "views": 2508177,
+      "language": "fr",
+      "tags": [],
+      "publicationDate": "2023-09-01T15:00:19Z",
+      "tournesolScore": 65.36801436582263,
+      "nComparisons": 562,
+      "nContributors": 157,
+      "diversityInclusion": 1.8109052785884026
+    },
+    {
+      "uid": "yt:GuTgfnkILGs",
+      "title": "Le progrès des sciences nous condamne-t-il à l'apocalypse ? ⚛️",
+      "author": "Monsieur Phi",
+      "views": 190016,
+      "language": "fr",
+      "tags": [
+        "philosophie"
+      ],
+      "publicationDate": "2022-03-27T14:18:08Z",
+      "tournesolScore": 65.32938171762062,
+      "nComparisons": 702,
+      "nContributors": 149,
+      "diversityInclusion": 26.30873755195913
+    },
+    {
+      "uid": "yt:sGLiSLAlwrY",
+      "title": "La technologie que tous les écolos oublient (ft. @ChezAnatole)",
+      "author": "Science4All",
+      "views": 55345,
+      "language": "fr",
+      "tags": [
+        "Mathématiques",
+        "Science",
+        "Vulgarisation"
+      ],
+      "publicationDate": "2022-09-05T16:00:28Z",
+      "tournesolScore": 65.28341704087808,
+      "nComparisons": 715,
+      "nContributors": 237,
+      "diversityInclusion": 43.140979609638094
+    },
+    {
+      "uid": "yt:_OMlKhcb970",
+      "title": "CRISE DU LOGEMENT : On finira tous dans la rue 📉✊",
+      "author": "Stupid Economics",
+      "views": 298360,
+      "language": "fr",
+      "tags": [
+        "économie",
+        "argent",
+        "journalisme"
+      ],
+      "publicationDate": "2023-06-04T10:00:16Z",
+      "tournesolScore": 65.16931308959181,
+      "nComparisons": 337,
+      "nContributors": 90,
+      "diversityInclusion": 50.64015259795495
+    },
+    {
+      "uid": "yt:iW0LiIMYqrU",
+      "title": "TikTok : la machine de propagande la plus puissante de l'histoire (ft. @ApresLaBiere)",
+      "author": "Science4All",
+      "views": 42885,
+      "language": "fr",
+      "tags": [
+        "Mathématiques",
+        "Science",
+        "Vulgarisation"
+      ],
+      "publicationDate": "2022-11-21T17:00:39Z",
+      "tournesolScore": 65.07100314900536,
+      "nComparisons": 504,
+      "nContributors": 154,
+      "diversityInclusion": 40.06229804526016
+    },
+    {
+      "uid": "yt:VlWvnhSiuck",
+      "title": "Nous sommes spécistes. Justifions-le. | Avec @Philoxime",
+      "author": "Monsieur Phi",
+      "views": 197765,
+      "language": "fr",
+      "tags": [
+        "philosophie"
+      ],
+      "publicationDate": "2022-09-25T16:00:09Z",
+      "tournesolScore": 64.98716638245143,
+      "nComparisons": 586,
+      "nContributors": 160,
+      "diversityInclusion": 57.31250219247677
+    },
+    {
+      "uid": "yt:Aj7PKDTrbjQ",
+      "title": "Deux notions de JUSTICE (et pourquoi aucune ne justifie l'héritage)",
+      "author": "Monsieur Phi",
+      "views": 293747,
+      "language": "fr",
+      "tags": [
+        "philosophie"
+      ],
+      "publicationDate": "2022-02-27T10:10:47Z",
+      "tournesolScore": 64.80134423173416,
+      "nComparisons": 671,
+      "nContributors": 173,
+      "diversityInclusion": 38.19119089276967
+    },
+    {
+      "uid": "yt:ZdEVVDk48L4",
+      "title": "Climat : comment faire pour que les gens se bougent (une fois qu’ils ont été bien informés)",
+      "author": "EvoSapiens",
+      "views": 15717,
+      "language": "fr",
+      "tags": [
+        "climat",
+        "coopération",
+        "changement climatique"
+      ],
+      "publicationDate": "2022-12-23T15:50:44Z",
+      "tournesolScore": 64.74508785648884,
+      "nComparisons": 533,
+      "nContributors": 162,
+      "diversityInclusion": 37.46667871966527
+    },
+    {
+      "uid": "yt:R2fjRbc9Sa0",
+      "title": "De quoi ChatGPT est-il VRAIMENT capable ? | Ft. Science4All",
+      "author": "Monsieur Phi",
+      "views": 523970,
+      "language": "fr",
+      "tags": [
+        "philosophie"
+      ],
+      "publicationDate": "2023-01-08T17:01:07Z",
+      "tournesolScore": 64.14699008901474,
+      "nComparisons": 1225,
+      "nContributors": 467,
+      "diversityInclusion": 31.399932097047994
+    },
+    {
+      "uid": "yt:5bPshVQMcuY",
+      "title": "Une bonne idée ? Les pays qui l'utilisent déjà ? Les réformes à venir...",
+      "author": "Heu?reka",
+      "views": 153571,
+      "language": "fr",
+      "tags": [
+        "Heu?reka",
+        "Heu7reka",
+        "Euhreka"
+      ],
+      "publicationDate": "2023-06-06T16:10:03Z",
+      "tournesolScore": 64.05719970300431,
+      "nComparisons": 248,
+      "nContributors": 55,
+      "diversityInclusion": 18.50684396284353
+    },
+    {
+      "uid": "yt:Wxp__MZgwAI",
+      "title": "Ce que le gouvernement ne dit pas",
+      "author": "Heu?reka",
+      "views": 355242,
+      "language": "fr",
+      "tags": [
+        "Heu?reka",
+        "Heu7reka",
+        "Euhreka"
+      ],
+      "publicationDate": "2023-01-31T08:54:18Z",
+      "tournesolScore": 64.01911966580847,
+      "nComparisons": 455,
+      "nContributors": 167,
+      "diversityInclusion": 35.937080157694005
+    },
+    {
+      "uid": "yt:lqfNjyuMKeY",
+      "title": "4 aspects terrifiants de #DontLookUp",
+      "author": "Science4All",
+      "views": 33746,
+      "language": "fr",
+      "tags": [
+        "Mathématiques",
+        "Science",
+        "Vulgarisation"
+      ],
+      "publicationDate": "2022-03-14T17:00:29Z",
+      "tournesolScore": 63.831242431065895,
+      "nComparisons": 640,
+      "nContributors": 187,
+      "diversityInclusion": 34.45658251812141
+    }
+  ]
+}
