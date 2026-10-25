@@ -8,12 +8,15 @@ import { Effects } from '@/features/effects/Effects';
 import { Explore } from '@/features/explore/Explore';
 import { Methodology } from '@/features/methodology/Methodology';
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
+import type { Dataset } from '@/core/data/types';
 
 type View = 'home' | 'discover' | 'lab' | 'effects' | 'explore' | 'methodology';
 
 interface AppContextType {
   view: View;
   setView: (view: View) => void;
+  dataset: Dataset;
+  setDataset: (next: Dataset) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -41,6 +44,7 @@ export function useApp() {
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [view, updateView] = useState<View>(currentHashView);
+  const [dataset, setDataset] = useState<Dataset>(EXAMPLE_DATASET);
 
   useEffect(() => {
     const sync = () => updateView(currentHashView());
@@ -55,11 +59,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  return <AppContext.Provider value={{ view, setView }}>{children}</AppContext.Provider>;
+  return <AppContext.Provider value={{ view, setView, dataset, setDataset }}>{children}</AppContext.Provider>;
 }
 
 function AppUI() {
-  const { view, setView } = useApp();
+  const { view, setView, dataset, setDataset } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navigate = (next: View) => {
@@ -69,7 +73,15 @@ function AppUI() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#f7f7f5] text-neutral-900">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-3">
+      <a
+        href="#main-content"
+        onClick={(event) => {
+          // Hash-based routing also uses location.hash. Keep the current view on skip-link activation.
+          event.preventDefault();
+          document.getElementById('main-content')?.focus();
+        }}
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-3"
+      >
         Aller au contenu
       </a>
       <header className="sticky top-0 z-30 border-b border-neutral-200/90 bg-[#f7f7f5]/95 backdrop-blur-xl">
@@ -156,17 +168,17 @@ function AppUI() {
         )}
       </header>
 
-      <div id="main-content" className="flex-1">
+      <div id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
         {view === 'home' ? (
           <Home onNavigate={navigate} />
         ) : view === 'discover' ? (
           <Discover onNavigate={navigate} />
         ) : view === 'lab' ? (
-          <Lab />
+          <Lab dataset={dataset} onDatasetChange={setDataset} />
         ) : view === 'effects' ? (
           <Effects />
         ) : view === 'explore' ? (
-          <Explore dataset={EXAMPLE_DATASET} />
+          <Explore dataset={dataset} />
         ) : (
           <Methodology />
         )}
