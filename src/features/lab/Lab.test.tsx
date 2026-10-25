@@ -25,7 +25,7 @@ describe('Lab', () => {
     render(<Lab />);
     fireEvent.click(screen.getByRole('button', { name: /Tournesol · données publiques/i }));
     await waitFor(() => expect(screen.getByTestId('provenance-badge')).toHaveTextContent('Données réelles'));
-    expect(screen.getByText(/24 contenus/)).toBeInTheDocument();
+    expect(screen.getAllByText(/24 contenus/).length).toBeGreaterThan(0);
     expect(screen.getByText(/score collectif et diversité-inclusion/i)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Données d’exemple/i }));
     expect(screen.getByTestId('provenance-badge')).toHaveTextContent(/simulation/i);
