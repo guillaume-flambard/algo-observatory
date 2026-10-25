@@ -15,10 +15,30 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     await page.goto('/');
     await expect(page.getByTestId('app-title')).toContainText('Algo Observatory');
     await expect(page.getByRole('heading', { name: /Qui décide/i })).toBeVisible();
-    await expect(page.getByText(/L’aperçu ci-contre utilise uniquement des données simulées/i)).toBeVisible();
+    await expect(page.getByText(/entièrement simulé/i)).toBeVisible();
     await page.getByRole('button', { name: /Lancer une expérience/i }).click();
     await expect(page.getByRole('heading', { name: /Même contenu/i })).toBeVisible();
     await expect(page.getByTestId('provenance-badge')).toContainText('simulation');
+  });
+
+  test('la machine de classement réagit réellement au réglage, sur clavier et tactile', async ({ page }) => {
+    await page.goto('/');
+    const slider = page.getByRole('slider', { name: /Influence du score collectif/i });
+    await expect(slider).toHaveValue('65');
+    await slider.fill('0');
+    await expect(page.getByText('0 / 8 POSITIONS MODIFIÉES')).toBeVisible();
+    await slider.fill('100');
+    await expect(slider).toHaveValue('100');
+    await expect(page.getByText('0 / 8 POSITIONS MODIFIÉES')).toHaveCount(0);
+    const item = page.getByRole('button', { name: /Suivre Parasite dans les deux classements/i }).first();
+    await item.click();
+    await expect(item).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('.ao-readout-label strong')).toHaveText('Parasite');
+    const currentRank = await page.locator('.ao-readout-delta small').textContent();
+    expect(currentRank).toMatch(/^\d+ → \d+$/);
+    await expect.poll(() =>
+      page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)
+    ).toBeTruthy();
   });
 
   test('l’explication mène au laboratoire', async ({ page }) => {
