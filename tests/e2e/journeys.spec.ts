@@ -33,6 +33,22 @@ test.describe('Algo Observatory — parcours principaux', () => {
     await expect(page.getByRole('heading', { name: /Équilibre hybride/ })).toBeVisible();
   });
 
+  test('navigation vers Données affiche le tableau des contenus', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Données' }).click();
+    await expect(page.getByRole('heading', { name: /Contenus et métriques/ })).toBeVisible();
+    await expect(page.getByRole('cell', { name: /Le Voyage de Chihiro/ })).toBeVisible();
+  });
+
+  test('navigation vers Méthodologie affiche provenance et sources', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Méthodologie' }).click();
+    await expect(page.getByRole('heading', { name: /Provenance/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Licence/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Tournesol/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Bluesky/ })).toBeVisible();
+  });
+
   test('retour à l\'accueil depuis n\'importe quelle page fonctionne', async ({ page }) => {
     await page.goto('/effects');
     await page.getByRole('button', { name: 'Accueil' }).click();
