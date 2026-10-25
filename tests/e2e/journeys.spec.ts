@@ -49,6 +49,15 @@ test.describe('Algo Observatory — parcours principaux', () => {
     await expect(page.getByRole('heading', { name: /Bluesky/ })).toBeVisible();
   });
 
+  test("API Tournesol indisponible affiche une bannière d'erreur explicite", async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Laboratoire' }).click();
+    // Le bouton "Données réelles Tournesol (API)" tente l'API réelle (404)
+    await page.getByRole('button', { name: /Données réelles Tournesol \(API\)/ }).click();
+    await expect(page.getByRole('heading', { name: /Erreur de chargement/ })).toBeVisible();
+    await expect(page.getByText(/API Tournesol est indisponible/)).toBeVisible();
+  });
+
   test('retour à l\'accueil depuis n\'importe quelle page fonctionne', async ({ page }) => {
     await page.goto('/effects');
     await page.getByRole('button', { name: 'Accueil' }).click();
