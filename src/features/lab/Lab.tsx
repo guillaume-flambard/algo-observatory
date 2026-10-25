@@ -10,6 +10,7 @@ import {
   adaptTournesolToInternal,
 } from '@/core/adapters/tournesol-adapter';
 import { DatasetProvenance } from '@/features/data/dataset-provenance';
+import { RankFlow } from './RankFlow';
 
 type DataSource = 'simulation' | 'api';
 type ComputedResults = ReturnType<typeof computeResults>;
@@ -372,6 +373,10 @@ export function Lab() {
             </div>
           </div>
 
+          {selectedStrategies.length > 1 && (
+            <RankFlow strategies={selectedStrategies} resultsByStrategy={resultsByStrategy} />
+          )}
+
           <section aria-label="Comparaison des classements">
             <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -380,7 +385,7 @@ export function Lab() {
                 </div>
                 <h2 className="text-2xl font-semibold tracking-[-0.04em]">Les classements, face à face.</h2>
                 <p className="mt-2 max-w-xl text-xs leading-6 text-neutral-500">
-                  Les chiffres indiquent les scores propres à chaque stratégie, et non des mesures de visibilité réelle.
+                  Les chiffres indiquent les scores calculés, qui ne sont pas directement comparables entre stratégies et ne mesurent aucune visibilité réelle.
                   {selectedStrategies.length > 1 && ' Les flèches indiquent les changements de rang par rapport à la première stratégie.'}
                 </p>
               </div>
