@@ -1,12 +1,14 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, lazy, Suspense, useContext, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ArrowUpRight, BarChart3, Menu, X } from 'lucide-react';
 import { Home } from '@/features/home/Home';
-import { Lab } from '@/features/lab/Lab';
-import { Discover } from '@/features/discover/Discover';
-import { Effects } from '@/features/effects/Effects';
-import { Explore } from '@/features/explore/Explore';
-import { Methodology } from '@/features/methodology/Methodology';
+
+// Loading only the visited module keeps the first page fast on mobile.
+const Lab = lazy(() => import('@/features/lab/Lab').then((mod) => ({ default: mod.Lab })));
+const Discover = lazy(() => import('@/features/discover/Discover').then((mod) => ({ default: mod.Discover })));
+const Effects = lazy(() => import('@/features/effects/Effects').then((mod) => ({ default: mod.Effects })));
+const Explore = lazy(() => import('@/features/explore/Explore').then((mod) => ({ default: mod.Explore })));
+const Methodology = lazy(() => import('@/features/methodology/Methodology').then((mod) => ({ default: mod.Methodology })));
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
 import type { Dataset } from '@/core/data/types';
 
@@ -65,6 +67,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
 function AppUI() {
   const { view, setView, dataset, setDataset } = useApp();
   const [menuOpen, setMenuOpen] = useState(false);
+  const firstView = useRef(true);
+
+  useEffect(() => {
+    document.title = (navigation.find((item) => item.id === view)?.label ?? 'Accueil') + ' — Algo Observatory';
+    if (firstView.current) {
+      firstView.current = false;
+      return;
+    }
+    // Focus the new content instead of leaving screen-reader users in the navigation.
+    document.getElementById('main-content')?.focus();
+  }, [view]);
 
   const navigate = (next: View) => {
     setView(next);
@@ -168,19 +181,26 @@ function AppUI() {
       </header>
 
       <div id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
-        {view === 'home' ? (
-          <Home onNavigate={navigate} />
-        ) : view === 'discover' ? (
-          <Discover onNavigate={navigate} />
-        ) : view === 'lab' ? (
-          <Lab dataset={dataset} onDatasetChange={setDataset} />
-        ) : view === 'effects' ? (
-          <Effects />
-        ) : view === 'explore' ? (
-          <Explore dataset={dataset} />
-        ) : (
-          <Methodology />
-        )}
+        <Suspense fallback={
+          <div role="status" aria-live="polite" className="mx-auto max-w-[1440px] px-5 py-20 sm:px-8 lg:px-12">
+            <div className="h-1 w-24 animate-pulse rounded-full bg-neutral-300" aria-hidden="true" />
+            <p className="mt-5 text-sm text-neutral-600">Ouverture de l’espace…</p>
+          </div>
+        }>
+          {view === 'home' ? (
+            <Home onNavigate={navigate} />
+          ) : view === 'discover' ? (
+            <Discover onNavigate={navigate} />
+          ) : view === 'lab' ? (
+            <Lab dataset={dataset} onDatasetChange={setDataset} />
+          ) : view === 'effects' ? (
+            <Effects />
+          ) : view === 'explore' ? (
+            <Explore dataset={dataset} />
+          ) : (
+            <Methodology />
+          )}
+        </Suspense>
       </div>
 
       <footer className="border-t border-neutral-200">
