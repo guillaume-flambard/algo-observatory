@@ -216,8 +216,8 @@ export function Lab() {
   );
 
   const referenceStrategy = selectedStrategies[0];
-  const referenceRanks = useMemo(
-    () => new Map((referenceStrategy ? (resultsByStrategy[referenceStrategy.id] ?? []) : []).map(({ item }, index) => [item.id, index + 1])),
+  const referenceRanks = useMemo<Map<string, number>>(
+    () => new Map<string, number>((referenceStrategy ? (resultsByStrategy[referenceStrategy.id] ?? []) : []).map(({ item }, index): [string, number] => [item.id, index + 1])),
     [referenceStrategy, resultsByStrategy],
   );
 
@@ -298,7 +298,7 @@ export function Lab() {
                 ].join(' ')}
               >
                 Tournesol (API)
-                {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <span className="text-[10px] font-normal opacity-70">Publique</span>}
+                {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <span aria-hidden="true" className="text-[10px] font-normal opacity-70">Publique</span>}
               </button>
             </div>
             <DatasetProvenance dataset={dataset} />
