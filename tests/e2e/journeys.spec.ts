@@ -86,7 +86,11 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     await expect(page.getByText(/transformation|transformés|transformées/i).first()).toBeVisible();
     await navigate(page, 'Données');
     await expect(page.locator('tbody tr')).toHaveCount(24);
-    await expect(page.getByRole('cell', { name: /Les milliardaires, compatibles avec la démocratie/i })).toBeVisible();
+    if (await page.locator('.dw-mobile-results').isVisible()) {
+      await expect(page.locator('.dw-mobile-item').filter({ hasText: /Les milliardaires, compatibles avec la démocratie/i })).toBeVisible();
+    } else {
+      await expect(page.getByRole('cell', { name: /Les milliardaires, compatibles avec la démocratie/i })).toBeVisible();
+    }
   });
 
   test('la page effets ne confond pas les hypothèses et les preuves', async ({ page }) => {
@@ -105,13 +109,49 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     await expect(page.getByRole('heading', { name: /Contenus et métriques/i })).toBeVisible();
     await page.getByRole('searchbox', { name: 'Rechercher un contenu' }).fill('Chihiro');
     await expect(page.locator('tbody tr')).toHaveCount(1);
-    await expect(page.getByRole('cell', { name: /Le Voyage de Chihiro/ })).toBeVisible();
+    if (await page.locator('.dw-mobile-results').isVisible()) {
+      await expect(page.locator('.dw-mobile-item').filter({ hasText: /Le Voyage de Chihiro/ })).toBeVisible();
+    } else {
+      await expect(page.getByRole('cell', { name: /Le Voyage de Chihiro/ })).toBeVisible();
+    }
     const downloadPromise = page.waitForEvent('download');
     await page.getByRole('button', { name: /Exporter CSV/i }).click();
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toMatch(/algo-observatory-.*\.csv/);
     await page.getByRole('button', { name: /Effacer les filtres/i }).click();
     await expect(page.locator('tbody tr')).toHaveCount(8);
+  });
+
+  test('les sources publiques sont accessibles directement depuis Données', async ({ page }) => {
+    await page.goto('/');
+    await navigate(page, 'Données');
+    const publicSource = page.getByRole('button', { name: /Tournesol 24 contenus/i });
+    await publicSource.click();
+    await expect(publicSource).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.getByText('SOURCE PUBLIQUE DATÉE')).toBeVisible();
+    await expect(page.locator('tbody tr')).toHaveCount(24);
+    await page.getByRole('button', { name: /Jeu d’exemple 8 contenus/i }).click();
+    await expect(page.locator('tbody tr')).toHaveCount(8);
+    await expect(page.getByText('SIMULATION PÉDAGOGIQUE')).toBeVisible();
+  });
+
+  test('l’inspecteur montre le détail et les rangs calculés d’un contenu', async ({ page }) => {
+    await page.goto('/');
+    await navigate(page, 'Données');
+    await expect(page.getByRole('heading', { name: /Contenus et métriques/i })).toBeVisible();
+    const mobile = await page.locator('.dw-mobile-results').isVisible();
+    const item = mobile
+      ? page.locator('.dw-mobile-item-heading').filter({ hasText: 'Parasite' })
+      : page.locator('.dw-name button').filter({ hasText: 'Parasite' });
+    await item.click();
+    if (await page.locator('.dw-mobile-results').isVisible()) {
+      await expect(page.locator('.dw-mobile-detail')).toContainText('RANGS PAR STRATÉGIE · CALCULÉS');
+      await expect(page.locator('.dw-mobile-item.is-selected')).toContainText('Parasite');
+    } else {
+      await expect(page.getByRole('complementary', { name: /Inspecter le contenu sélectionné/i })).toContainText('Parasite');
+      await expect(page.getByText('RANGS CALCULÉS · SIMULATION')).toBeVisible();
+    }
+    await expect(page.getByRole('button', { name: /Comparer dans le laboratoire/i })).toBeVisible();
   });
 
   test('la méthodologie explique les provenances et les limites', async ({ page }) => {
@@ -158,5 +198,11 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     await page.screenshot({ path: testInfo.outputPath('home.png'), fullPage: true });
     await navigate(page, 'Laboratoire');
     await page.screenshot({ path: testInfo.outputPath('laboratory.png'), fullPage: true });
+    await navigate(page, 'Données');
+    await expect(page.getByRole('heading', { name: /Contenus et métriques/i })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('data-workbench.png'), fullPage: true });
+    await navigate(page, 'Méthodologie');
+    await expect(page.getByRole('heading', { name: /Les résultats comptent/i })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('methodology.png'), fullPage: true });
   });
 });
