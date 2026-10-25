@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ArrowDown, ArrowRight, ArrowUp, Download, Search, SlidersHorizontal, X } from 'lucide-react';
 import type { Dataset, Item } from '@/core/data/types';
+import { escapeCsvCell } from '@/core/data/csv';
 import { useApp } from '@/App';
 
 interface ExploreProps {
@@ -30,11 +31,6 @@ function MetricCell({ value, label }: { value: number; label: string }) {
       <span className="w-9 text-right font-mono text-xs text-neutral-700">{percent}%</span>
     </div>
   );
-}
-
-function escapeCsv(value: string | number) {
-  const raw = String(value);
-  return '"' + raw.replace(/"/g, '""') + '"';
 }
 
 export function Explore({ dataset }: ExploreProps) {
@@ -88,14 +84,17 @@ export function Explore({ dataset }: ExploreProps) {
       ['Fraîcheur', dataset.freshness],
       [],
     ];
-    const lines = [...metadata, headings, ...dataRows].map((row) => row.map(escapeCsv).join(';')).join('\r\n');
+    const lines = [...metadata, headings, ...dataRows].map((row) => row.map(escapeCsvCell).join(';')).join('\r\n');
     const blob = new Blob(['\uFEFF' + lines], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = 'algo-observatory-' + dataset.id.replace(/[^a-zA-Z0-9_-]/g, '-') + '.csv';
+    // Attaching the link and revoking the object URL later is more reliable in Safari.
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   return (
