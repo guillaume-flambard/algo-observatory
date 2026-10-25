@@ -47,6 +47,9 @@ export interface Strategy {
   // score(item, params) => number ; plus le score est élevé, plus l'item est remonté
   score: (item: Item, params: Record<string, number | boolean | string>) => number;
   explain: (item: Item, params: Record<string, number | boolean | string>, score: number) => string;
+  // Lorsque true, computeResults applique une sélection itérative qui favorise
+  // la diversité des catégories au lieu d'un simple tri par score.
+  diverseSelection?: boolean;
 }
 
 export interface StrategyResult {
