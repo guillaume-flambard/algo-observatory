@@ -109,8 +109,9 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
 
   test('une nouvelle vue reprend en haut, même après une longue lecture', async ({ page }) => {
     await page.goto('/#/methodology');
+    await expect(page.getByRole('heading', { name: /Les résultats comptent/i })).toBeVisible();
     await page.evaluate(() => {
-      document.documentElement.scrollTop = document.documentElement.scrollHeight;
+      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
     });
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
     await navigate(page, 'Laboratoire');
