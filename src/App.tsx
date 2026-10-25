@@ -3,7 +3,10 @@ import { Home } from '@/features/home/Home';
 import { Lab } from '@/features/lab/Lab';
 import { Discover } from '@/features/discover/Discover';
 import { Effects } from '@/features/effects/Effects';
-type View = 'home' | 'discover' | 'lab' | 'effects';
+import { Explore } from '@/features/explore/Explore';
+import { Methodology } from '@/features/methodology/Methodology';
+import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
+type View = 'home' | 'discover' | 'lab' | 'effects' | 'explore' | 'methodology';
 
 export function App() {
   const [view, setView] = useState<View>('home');
@@ -39,6 +42,16 @@ export function App() {
               active={view === 'effects'}
               onClick={() => setView('effects')}
             />
+            <NavItem
+              label="Données"
+              active={view === 'explore'}
+              onClick={() => setView('explore')}
+            />
+            <NavItem
+              label="Méthodologie"
+              active={view === 'methodology'}
+              onClick={() => setView('methodology')}
+            />
           </nav>
         </div>
       </header>
@@ -50,8 +63,12 @@ export function App() {
           <Discover />
         ) : view === 'lab' ? (
           <Lab />
-        ) : (
+        ) : view === 'effects' ? (
           <Effects />
+        ) : view === 'explore' ? (
+          <Explore dataset={EXAMPLE_DATASET} />
+        ) : (
+          <Methodology />
         )}
       </div>
     </div>
