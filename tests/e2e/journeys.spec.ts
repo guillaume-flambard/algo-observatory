@@ -191,5 +191,8 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     await page.screenshot({ path: testInfo.outputPath('home.png'), fullPage: true });
     await navigate(page, 'Laboratoire');
     await page.screenshot({ path: testInfo.outputPath('laboratory.png'), fullPage: true });
+    await navigate(page, 'Données');
+    await expect(page.getByRole('heading', { name: /Contenus et métriques/i })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('data-workbench.png'), fullPage: true });
   });
 });
