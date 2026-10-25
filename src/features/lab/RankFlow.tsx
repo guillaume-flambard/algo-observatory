@@ -69,7 +69,7 @@ export function RankFlow({ strategies, resultsByStrategy }: RankFlowProps) {
       </div>
 
       <div className="grid gap-6 p-5 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-start lg:p-6">
-        <div className="min-w-0 overflow-x-auto">
+        <div className="hidden min-w-0 overflow-x-auto sm:block">
           <div className="min-w-[560px]">
             <div className="flex justify-between px-3 pb-3 text-[11px] font-semibold text-neutral-500">
               <span>{reference.name}</span>
@@ -113,7 +113,7 @@ export function RankFlow({ strategies, resultsByStrategy }: RankFlowProps) {
           </p>
         </div>
         <div className="min-w-0">
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.13em] text-neutral-500">Suivre un contenu</p>
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.13em] text-neutral-500">Évolution par contenu</p>
           <div className="max-h-[292px] space-y-1 overflow-y-auto pr-1">
             {movements.map((movement) => {
               const difference = movement.before - movement.after;
@@ -130,6 +130,7 @@ export function RankFlow({ strategies, resultsByStrategy }: RankFlowProps) {
                 >
                   <span className="min-w-0 truncate text-xs font-medium">{movement.title}</span>
                   <span className="flex shrink-0 items-center gap-0.5 font-mono text-[11px]">
+                    <span className="mr-1 sm:hidden">{movement.before} → {movement.after}</span>
                     {difference > 0 ? <ArrowUp size={12} aria-hidden="true" /> : difference < 0 ? <ArrowDown size={12} aria-hidden="true" /> : null}
                     {difference === 0 ? '=' : Math.abs(difference)}
                   </span>
@@ -137,6 +138,14 @@ export function RankFlow({ strategies, resultsByStrategy }: RankFlowProps) {
               );
             })}
           </div>
+          <p className="mt-4 rounded-lg bg-neutral-50 p-3 text-xs leading-6 text-neutral-600 sm:hidden" aria-live="polite">
+            {(() => {
+              const movement = movements.find((item) => item.id === highlight);
+              if (!movement) return 'Choisissez un contenu pour voir son évolution.';
+              const difference = movement.before - movement.after;
+              return movement.title + ' : rang ' + movement.before + ' avec ' + reference.name + ', rang ' + movement.after + ' avec ' + target.name + (difference === 0 ? ' (position inchangée).' : difference > 0 ? ' (monte de ' + difference + ' rangs).' : ' (descend de ' + Math.abs(difference) + ' rangs).');
+            })()}
+          </p>
         </div>
       </div>
       <div className="flex flex-wrap items-center gap-6 border-t border-neutral-100 bg-neutral-50 px-6 py-4 text-xs">
