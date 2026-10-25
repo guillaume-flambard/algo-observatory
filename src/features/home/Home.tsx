@@ -168,6 +168,29 @@ export function Home({ onNavigate }: HomeProps) {
                   ))}
                 </div>
               </div>
+              <div className="ao-mobile-rank-list" aria-label="Évolution des rangs sur mobile">
+                {result.map(({ item }) => {
+                  const from = initialRanks.get(item.id) ?? 1;
+                  const to = currentRanks.get(item.id) ?? from;
+                  const movement = from - to;
+                  return (
+                    <button
+                      type="button"
+                      key={item.id}
+                      onClick={() => setSelectedId(item.id)}
+                      aria-pressed={selectedId === item.id}
+                      className={'ao-mobile-rank-item' + (selectedId === item.id ? ' is-selected' : '')}
+                    >
+                      <span className="ao-mobile-rank-place">{String(to).padStart(2, '0')}</span>
+                      <span className="ao-mobile-rank-title">{item.title}</span>
+                      <span className="ao-mobile-rank-movement" aria-label={'Du rang ' + from + ' au rang ' + to}>
+                        <span>{from} → {to}</span>
+                        <strong>{movement > 0 ? '↑ ' + movement : movement < 0 ? '↓ ' + Math.abs(movement) : '—'}</strong>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="ao-machine-readout" aria-live="polite" aria-atomic="true">
