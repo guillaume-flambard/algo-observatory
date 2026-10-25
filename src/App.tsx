@@ -1,32 +1,68 @@
 import { useState } from 'react';
-import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
-import { DatasetProvenance } from '@/features/data/dataset-provenance';
 import { Home } from '@/features/home/Home';
 import { Lab } from '@/features/lab/Lab';
+import { Discover } from '@/features/discover/Discover';
+type View = 'home' | 'discover' | 'lab';
 
 export function App() {
-  const [view, setView] = useState<'home' | 'lab'>('home');
+  const [view, setView] = useState<View>('home');
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {view === 'home' ? (
-        <>
-          <Home />
-          <section className="max-w-4xl mx-auto px-6 py-12">
-            <DatasetProvenance dataset={EXAMPLE_DATASET} />
-            <div className="mt-6 flex gap-3">
-              <button
-                onClick={() => setView('lab')}
-                className="inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
-              >
-                Ouvrir le laboratoire
-              </button>
-            </div>
-          </section>
-        </>
-      ) : (
-        <Lab />
-      )}
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      <header className="border-b border-slate-200 bg-white sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span data-testid="app-title" className="font-bold text-slate-900 tracking-tight">
+              Algo Observatory
+            </span>
+            <span className="text-xs text-slate-400">· laboratoire de transparence algorithmique</span>
+          </div>
+          <nav className="flex gap-1">
+            <NavItem
+              label="Accueil"
+              active={view === 'home'}
+              onClick={() => setView('home')}
+            />
+            <NavItem
+              label="Découvrir"
+              active={view === 'discover'}
+              onClick={() => setView('discover')}
+            />
+            <NavItem
+              label="Laboratoire"
+              active={view === 'lab'}
+              onClick={() => setView('lab')}
+            />
+          </nav>
+        </div>
+      </header>
+
+      <div className="flex-1">
+        {view === 'home' ? <Home /> : view === 'discover' ? <Discover /> : <Lab />}
+      </div>
     </div>
+  );
+}
+
+function NavItem({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+        active
+          ? 'bg-slate-900 text-white'
+          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+      }`}
+    >
+      {label}
+    </button>
   );
 }

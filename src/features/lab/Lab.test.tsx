@@ -3,11 +3,11 @@ import { render, screen } from '@testing-library/react';
 import { Lab } from './Lab';
 
 describe('Lab', () => {
-  it('affiche les données d\'exemple par défaut avec leur provenance', () => {
+  it('affiche les données d’exemple par défaut avec leur provenance', () => {
     render(<Lab />);
-    expect(screen.getByText(/données d'exemple — simulation/i)).toBeInTheDocument();
-    expect(screen.getByText(/algo observatory — données d'exemple/i)).toBeInTheDocument();
-    expect(screen.getByText(/tournesol \(api\)/i)).toBeInTheDocument();
+    expect(screen.getByTestId('provenance-badge')).toBeInTheDocument();
+    expect(screen.getByTestId('provenance-badge')).toHaveTextContent(/données d'exemple — simulation/i);
+    expect(screen.getByRole('button', { name: /^tournesol \(api\)$/i })).toBeInTheDocument();
   });
 
   it('affiche quatre stratégies disponibles dans le sélecteur', () => {

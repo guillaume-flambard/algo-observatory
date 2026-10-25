@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
+import type { Dataset, Strategy } from '@/core/data/types';
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
 import { ALL_STRATEGIES, computeResults } from '@/core/data/strategies';
-import type { Dataset, Strategy } from '@/core/data/types';
 import type { TournesolDataset } from '@/core/domain/tournesol-types';
 import {
   ApiTournesolAdapter,
@@ -9,7 +9,9 @@ import {
   adaptTournesolToInternal,
 } from '@/core/adapters/tournesol-adapter';
 import { DatasetProvenance } from '@/features/data/dataset-provenance';
-import { AccessibleRegion } from '@/core/ui/AccessibleRegion';
+import { Button } from '@/core/ui/Button';
+import { Card } from '@/core/ui/Card';
+import { Section } from '@/core/ui/Section';
 
 type DataSource = 'simulation' | 'api';
 
@@ -31,61 +33,76 @@ function StrategyCard({
   results,
 }: StrategyCardProps) {
   return (
-    <section className={`rounded-lg border p-4 ${active ? 'border-slate-900 bg-slate-50' : 'border-slate-200 bg-white'}`}>
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <button
-          onClick={onToggle}
-          className="flex items-center gap-2 rounded-md bg-white px-3 py-1.5 text-sm font-medium shadow-sm ring-1 ring-inset ring-slate-300 hover:bg-slate-50"
-        >
-          {active ? <span className="block w-4 h-4 rounded-full bg-slate-900" /> : <span className="block w-4 h-4 rounded-full border border-slate-300" />}
-          {strategy.name}
-        </button>
-        <span className="text-xs text-slate-500">{results.length} résultats</span>
-      </div>
-      <p className="text-sm text-slate-600 mb-3">{strategy.description}</p>
-
-      {strategy.parameters.length > 0 && (
-        <div className="space-y-2 mb-3">
-          {strategy.parameters.map((param) => {
-            const value = Number(params[param.id] ?? param.default);
-            return (
-              <div key={param.id} className="flex items-center gap-3">
-                <label className="text-sm text-slate-700 w-24">{param.name}</label>
-                <input
-                  type="range"
-                  min={param.min ?? 0}
-                  max={param.max ?? 1}
-                  step={param.step ?? 0.1}
-                  value={String(value)}
-                  className="flex-1 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
-                  onChange={(e) => onParamChange(param.id, Number(e.target.value))}
-                />
-                <span className="text-sm text-slate-500 w-8 text-right">{value.toFixed(1)}</span>
-              </div>
-            );
-          })}
+    <Card
+      className={`${
+        active ? 'border-slate-900 bg-slate-50' : 'border-slate-200 bg-white'
+      } ${active ? 'shadow-sm' : ''}`}
+      padded={false}
+    >
+      <div className="p-4">
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggle}
+            className="w-full flex items-center gap-2 text-left bg-transparent border-transparent hover:bg-transparent shadow-none focus-visible:ring-0"
+          >
+            {active ? (
+              <span className="w-3 h-3 rounded-full bg-slate-900" />
+            ) : (
+              <span className="w-3 h-3 rounded-full border border-slate-300" />
+            )}
+            {strategy.name}
+          </Button>
+          <span className="text-xs text-slate-500">{results.length} résultats</span>
         </div>
-      )}
+        <p className="text-sm text-slate-600 mb-3">{strategy.description}</p>
 
-      <ul className="space-y-2">
-        {results.length === 0 ? (
-          <li className="text-sm text-slate-400 italic">Aucun résultat.</li>
-        ) : (
-          results.map(({ item, score, explanation }) => (
-            <li key={item.id} className="flex items-start gap-2 p-2 rounded border border-slate-100 bg-white">
-              <span className="flex-shrink-0 w-8 text-right text-xs font-bold text-slate-900">
-                {Math.round(score * 100)}%
-              </span>
-              <div>
-                <div className="text-sm font-semibold text-slate-900">{item.title}</div>
-                <div className="text-xs text-slate-500">{item.author} · {item.category}</div>
-                <p className="mt-1 text-xs text-slate-600">{explanation}</p>
-              </div>
-            </li>
-          ))
+        {strategy.parameters.length > 0 && (
+          <div className="space-y-2 mb-3">
+            {strategy.parameters.map((param) => {
+              const value = Number(params[param.id] ?? param.default);
+              return (
+                <div key={param.id} className="flex items-center gap-3">
+                  <label className="text-sm text-slate-700 w-24">{param.name}</label>
+                  <input
+                    type="range"
+                    min={param.min ?? 0}
+                    max={param.max ?? 1}
+                    step={param.step ?? 0.1}
+                    value={String(value)}
+                    className="flex-1 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
+                    onChange={(e) => onParamChange(param.id, Number(e.target.value))}
+                  />
+                  <span className="text-sm text-slate-500 w-8 text-right">{value.toFixed(1)}</span>
+                </div>
+              );
+            })}
+          </div>
         )}
-      </ul>
-    </section>
+
+        <ul className="space-y-2">
+          {results.length === 0 ? (
+            <li className="text-sm text-slate-400 italic">Aucun résultat.</li>
+          ) : (
+            results.map(({ item, score, explanation }) => (
+              <li key={item.id} className="flex items-start gap-2 p-2 rounded border border-slate-100 bg-white">
+                <span className="flex-shrink-0 w-8 text-right text-xs font-bold text-slate-900">
+                  {Math.round(score * 100)}%
+                </span>
+                <div>
+                  <div className="text-sm font-semibold text-slate-900">{item.title}</div>
+                  <div className="text-xs text-slate-500">
+                    {item.author} · {item.category}
+                  </div>
+                  <p className="mt-1 text-xs text-slate-600">{explanation}</p>
+                </div>
+              </li>
+            ))
+          )}
+        </ul>
+      </div>
+    </Card>
   );
 }
 
@@ -159,36 +176,30 @@ export function Lab() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="min-h-screen flex flex-col bg-slate-50">
       <header className="border-b border-slate-200 bg-white">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Laboratoire</h1>
-            <p className="text-sm text-slate-600">Comparez plusieurs stratégies de recommandation sur un même jeu de données.</p>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Laboratoire</h1>
+            <p className="text-sm text-slate-600">
+              Comparez plusieurs stratégies de recommandation sur un même jeu de données.
+            </p>
           </div>
           <div className="flex gap-2">
-            <button
+            <Button
+              variant={source === 'simulation' && !error ? 'primary' : 'secondary'}
               onClick={selectSimulation}
               disabled={loading}
-              className={`rounded-md px-4 py-2 text-sm font-semibold shadow-sm transition ${
-                source === 'simulation' && !error
-                  ? 'bg-slate-900 text-white hover:bg-slate-800'
-                  : 'bg-white text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50'
-              }`}
             >
               {loading ? 'Chargement…' : 'Données d\'exemple'}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant={source === 'api' && !error ? 'primary' : 'secondary'}
               onClick={() => loadFromSource('api')}
               disabled={loading}
-              className={`rounded-md px-4 py-2 text-sm font-semibold shadow-sm transition ${
-                source === 'api' && !error
-                  ? 'bg-slate-900 text-white hover:bg-slate-800'
-                  : 'bg-white text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50'
-              }`}
             >
               {loading ? 'Tournesol (API)…' : 'Tournesol (API)'}
-            </button>
+            </Button>
           </div>
         </div>
       </header>
@@ -196,24 +207,49 @@ export function Lab() {
       <div className="max-w-6xl mx-auto px-6 py-8 space-y-8">
         {/* Bannière d'erreur */}
         {error && (
-          <section className="rounded-lg border border-red-200 bg-red-50 p-4">
-            <div className="flex gap-3">
+          <Card className="border-red-200 bg-red-50">
+            <div className="flex gap-3 p-4">
               <span className="flex-shrink-0 w-5 h-5 rounded-full bg-red-100 flex items-center justify-center">
                 <span className="text-[10px] text-red-700 font-bold">!</span>
               </span>
               <div>
                 <h3 className="text-sm font-semibold text-red-900">Erreur de chargement</h3>
                 <p className="mt-0.5 text-sm text-red-800">{error}</p>
-                <button
-                  onClick={selectSimulation}
-                  className="mt-2 inline-flex items-center rounded-md bg-white px-3 py-1.5 text-xs font-semibold text-red-700 shadow-sm ring-1 ring-inset ring-red-300 hover:bg-red-50"
-                >
+                <Button variant="ghost" size="sm" onClick={selectSimulation} className="mt-2 text-red-700">
                   Revenir aux données d\'exemple
-                </button>
+                </Button>
               </div>
             </div>
-          </section>
+          </Card>
         )}
+
+        <Section title="Source de données" description="Choisissez l'origine des données. Les données d'exemple sont une simulation pédagogique.">
+          <div className="flex gap-3">
+            <Button
+              variant={source === 'simulation' ? 'primary' : 'secondary'}
+              onClick={selectSimulation}
+              disabled={loading}
+              className="flex-1"
+            >
+              {source === 'simulation' ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-white border border-slate-900" />
+                  Données d'exemple (simulation)
+                </span>
+              ) : (
+                'Données d\'exemple (simulation)'
+              )}
+            </Button>
+            <Button
+              variant={source === 'api' ? 'primary' : 'secondary'}
+              onClick={() => loadFromSource('api')}
+              disabled={loading}
+              className="flex-1"
+            >
+              {loading ? 'Chargement Tournesol…' : 'Données réelles Tournesol (API)'}
+            </Button>
+          </div>
+        </Section>
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="col-span-1 md:col-span-3">
@@ -221,68 +257,65 @@ export function Lab() {
           </div>
 
           <aside className="space-y-4">
-            <h2 className="text-lg font-bold text-slate-900">Stratégies</h2>
-            <p className="text-sm text-slate-600">Sélectionnez les stratégies à comparer.</p>
+            <Section title="Stratégies" description="Sélectionnez les stratégies à comparer." />
             <div className="space-y-2">
               {strategies.map(({ strategy, active }) => (
-                <button
+                <Button
                   key={strategy.id}
-                  data-testid={`strategy-${strategy.id}`}
+                  dataTestid={`strategy-${strategy.id}`}
+                  variant={active ? 'primary' : 'secondary'}
                   onClick={() => toggleStrategy(strategy.id)}
                   disabled={loading}
-                  className={`w-full flex items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm transition ${
-                    active
-                      ? 'bg-slate-100 border-slate-900 text-slate-900'
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
+                  className="w-full flex items-center gap-3 text-left bg-transparent border-transparent shadow-none focus-visible:ring-0"
                 >
                   {active ? (
-                    <span className="flex-shrink-0 w-4 h-4 rounded-full bg-slate-900" />
+                    <span className="w-3 h-3 rounded-full bg-white border border-slate-900" />
                   ) : (
-                    <span className="flex-shrink-0 w-4 h-4 rounded-full border border-slate-300" />
+                    <span className="w-3 h-3 rounded-full border border-slate-300" />
                   )}
                   {strategy.name}
-                </button>
+                </Button>
               ))}
             </div>
           </aside>
 
-          <AccessibleRegion aria-label="Résultats des stratégies sélectionnées">
-            <main className="col-span-1 md:col-span-2 space-y-4">
-              <h2 className="text-lg font-bold text-slate-900">Résultats comparés</h2>
-              <p className="text-sm text-slate-600">
-                Chaque stratégie classe les mêmes contenus différemment. Le score indique la force du favoritisme de l'algorithme pour ce contenu.
-              </p>
-              <div className="grid gap-4 md:grid-cols-2">
-                {strategies
-                  .filter(({ active }) => active)
-                  .map(({ strategy }) => (
-                    <StrategyCard
-                      key={strategy.id}
-                      strategy={strategy}
-                      active={true}
-                      onToggle={() => toggleStrategy(strategy.id)}
-                      params={params[strategy.id] ?? {}}
-                      onParamChange={(id, value) => updateParam(strategy.id, id, value)}
-                      results={resultsByStrategy[strategy.id] ?? []}
-                    />
-                  ))}
-              </div>
-            </main>
-          </AccessibleRegion>
+          <main className="col-span-1 md:col-span-2 space-y-4">
+            <Section title="Résultats comparés" description="Chaque stratégie classe les mêmes contenus différemment. Le score indique la force du favoritisme de l'algorithme pour ce contenu." />
+            <div className="grid gap-4 md:grid-cols-2">
+              {strategies
+                .filter(({ active }) => active)
+                .map(({ strategy }) => (
+                  <StrategyCard
+                    key={strategy.id}
+                    strategy={strategy}
+                    active={true}
+                    onToggle={() => toggleStrategy(strategy.id)}
+                    params={params[strategy.id] ?? {}}
+                    onParamChange={(id, value) => updateParam(strategy.id, id, value)}
+                    results={resultsByStrategy[strategy.id] ?? []}
+                  />
+                ))}
+            </div>
+          </main>
         </section>
 
-        <section className="p-5 rounded-lg border border-amber-200 bg-amber-50">
-          <h3 className="font-semibold text-amber-900">Comment lire ces résultats</h3>
-          <p className="mt-1 text-sm text-amber-800 leading-relaxed">
-            Les mêmes contenus apparaissent dans chaque colonne, mais dans un ordre différent selon la stratégie. La stratégie Popularité favorise les contenus les plus populaires, la stratégie Score collectif ceux les mieux notés par la communauté, et la stratégie Diversité ceux dont la catégorie est sous-représentée. La stratégie Hybride combine les trois selon les poids que vous choisissez.
-          </p>
-          <p className="mt-2 text-xs text-amber-700">
-            {dataset.kind === 'example'
-              ? 'Ces données sont un exemple pédagogique (simulation) et ne reflètent aucun comportement réellement observé sur une plateforme.'
-              : 'Ces données proviennent d\'une source réelle ; leur provenance, licence et fraîcheur sont affichées ci-dessus.'}
-          </p>
-        </section>
+        <Card className="border-amber-200 bg-amber-50">
+          <div className="p-5">
+            <h3 className="text-sm font-semibold text-amber-900 mb-2">Comment lire ces résultats</h3>
+            <p className="text-sm text-amber-800 leading-relaxed mb-3">
+              Les mêmes contenus apparaissent dans chaque colonne, mais dans un ordre différent selon
+              la stratégie. La stratégie Popularité favorise les contenus les plus populaires, la
+              stratégie Score collectif ceux les mieux notés par la communauté, et la stratégie
+              Diversité ceux dont la catégorie est sous-représentée. La stratégie Hybride combine les
+              trois selon les poids que vous choisissez.
+            </p>
+            <p className="text-xs text-amber-700">
+              {dataset.kind === 'example'
+                ? 'Ces données sont un exemple pédagogique (simulation) et ne reflètent aucun comportement réellement observé sur une plateforme.'
+                : 'Ces données proviennent d’une source réelle ; leur provenance, licence et fraîcheur sont affichées ci-dessus.'}
+            </p>
+          </div>
+        </Card>
       </div>
     </main>
   );
