@@ -98,7 +98,7 @@ export function Explore({ dataset }: ExploreProps) {
   };
 
   return (
-    <main>
+    <main className="ao-interior ao-data">
       <section className="border-b border-neutral-200">
         <div className="mx-auto max-w-[1440px] px-5 pb-14 pt-12 sm:px-8 lg:px-12 lg:pb-16">
           <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">Observatoire / 04 — Données</p>
