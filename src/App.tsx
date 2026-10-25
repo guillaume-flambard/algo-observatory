@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, createContext, useContext } from 'react';
 import { Home } from '@/features/home/Home';
 import { Lab } from '@/features/lab/Lab';
 import { Discover } from '@/features/discover/Discover';
@@ -8,11 +8,35 @@ import { Methodology } from '@/features/methodology/Methodology';
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
 type View = 'home' | 'discover' | 'lab' | 'effects' | 'explore' | 'methodology';
 
-export function App() {
+interface AppContextType {
+  view: View;
+  setView: (view: View) => void;
+}
+
+const AppContext = createContext<AppContextType | undefined>(undefined);
+
+export function useApp() {
+  const ctx = useContext(AppContext);
+  if (!ctx) {
+    throw new Error('useApp must be used within an AppProvider');
+  }
+  return ctx;
+}
+
+export function AppProvider({ children }: { children: React.ReactNode }) {
   const [view, setView] = useState<View>('home');
+  return (
+    <AppContext.Provider value={{ view, setView }}>
+      <div className="min-h-screen flex flex-col bg-slate-50">{children}</div>
+    </AppContext.Provider>
+  );
+}
+
+function AppUI() {
+  const { view, setView } = useApp();
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <>
       <header className="border-b border-slate-200 bg-white sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -71,7 +95,15 @@ export function App() {
           <Methodology />
         )}
       </div>
-    </div>
+    </>
+  );
+}
+
+export function App() {
+  return (
+    <AppProvider>
+      <AppUI />
+    </AppProvider>
   );
 }
 

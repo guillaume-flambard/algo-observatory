@@ -67,4 +67,38 @@ describe('strategies', () => {
     expect(DIVERSITY_STRATEGY.id).toBe('diversity');
     expect(COLLECTIVE_STRATEGY.id).toBe('collective');
   });
+
+  it('DIVERSITY_STRATEGY interleaves categories instead of clustering them', () => {
+    const animation1: Item = {
+      id: 'a-1', title: 'Anim 1', author: 'A1', category: 'Animation',
+      metrics: { popularity: 0.5, collectiveScore: 0.5, diversityScore: 0.9, freshness: 0.5 },
+    };
+    const animation2: Item = {
+      id: 'a-2', title: 'Anim 2', author: 'A2', category: 'Animation',
+      metrics: { popularity: 0.5, collectiveScore: 0.5, diversityScore: 0.9, freshness: 0.5 },
+    };
+    const animation3: Item = {
+      id: 'a-3', title: 'Anim 3', author: 'A3', category: 'Animation',
+      metrics: { popularity: 0.5, collectiveScore: 0.5, diversityScore: 0.9, freshness: 0.5 },
+    };
+    const drame1: Item = {
+      id: 'd-1', title: 'Drame 1', author: 'D1', category: 'Drame',
+      metrics: { popularity: 0.5, collectiveScore: 0.5, diversityScore: 0.8, freshness: 0.5 },
+    };
+    const drame2: Item = {
+      id: 'd-2', title: 'Drame 2', author: 'D2', category: 'Drame',
+      metrics: { popularity: 0.5, collectiveScore: 0.5, diversityScore: 0.8, freshness: 0.5 },
+    };
+
+    const results = computeResults(
+      [animation1, animation2, animation3, drame1, drame2],
+      DIVERSITY_STRATEGY,
+      {},
+    );
+
+    const categories = results.map((r) => r.item.category);
+    // Les trois premiers résultats ne doivent pas tous être de la même catégorie.
+    const firstThree = categories.slice(0, 3);
+    expect(new Set(firstThree).size).toBeGreaterThan(1);
+  });
 });

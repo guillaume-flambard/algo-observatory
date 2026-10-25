@@ -29,13 +29,14 @@ export const COLLECTIVE_STRATEGY: Strategy = {
 export const DIVERSITY_STRATEGY: Strategy = {
   id: 'diversity',
   name: 'Diversité',
-  description: 'Fait remonter les contenus peu représentés afin de diversifier les catégories proposées.',
+  description: 'Fait remonter les contenus peu représentés afin de diversifier les catégories proposées. La sélection itérative évite de enchaîner plusieurs contenus de la même catégorie.',
   parameters: [],
   score: (item) => item.metrics.diversityScore,
   explain: (item) =>
     `Ce contenu est favorisé par la stratégie Diversité car sa catégorie est sous-représentée (score de diversité ${Math.round(
       item.metrics.diversityScore * 100,
     )}%).`,
+  diverseSelection: true,
 };
 
 export const HYBRID_STRATEGY: Strategy = {
@@ -82,6 +83,9 @@ export function computeResults(
   strategy: Strategy,
   params: Record<string, number | boolean | string>,
 ): { item: Item; score: number; explanation: string }[] {
+  if (strategy.diverseSelection) {
+    return computeDiverseResults(items, strategy, params);
+  }
   return items
     .map((item) => {
       const score = strategy.score(item, params);
@@ -89,4 +93,49 @@ export function computeResults(
       return { item, score, explanation };
     })
     .sort((a, b) => b.score - a.score);
+}
+
+/**
+ * Sélection itérative qui favorise la diversité des catégories.
+ *
+ * À chaque étape, l'item retenu est celui qui maximise un score ajusté :
+ * score de base pénalisé par la présence déjà sélectionnée de sa catégorie.
+ * Cela évite d'enchaîner plusieurs contenus de la même catégorie et fait
+ * émerger des catégories sous-représentées plus tôt dans le classement.
+ */
+function computeDiverseResults(
+  items: Item[],
+  strategy: Strategy,
+  params: Record<string, number | boolean | string>,
+): { item: Item; score: number; explanation: string }[] {
+  const remaining = [...items];
+  const selected: { item: Item; score: number; explanation: string }[] = [];
+  const categoryCount = new Map<string, number>();
+
+  while (remaining.length > 0) {
+    let bestIndex = 0;
+    let bestAdjustedScore = -Infinity;
+
+    for (let i = 0; i < remaining.length; i++) {
+      const item = remaining[i]!;
+      const baseScore = strategy.score(item, params);
+      const alreadySelected = categoryCount.get(item.category) ?? 0;
+      // Pénalité de 0.2 par item déjà sélectionné de la même catégorie.
+      const penalty = 0.2 * alreadySelected;
+      const adjustedScore = baseScore * Math.max(0, 1 - penalty);
+
+      if (adjustedScore > bestAdjustedScore) {
+        bestAdjustedScore = adjustedScore;
+        bestIndex = i;
+      }
+    }
+
+    const item = remaining.splice(bestIndex, 1)[0]!;
+    const score = strategy.score(item, params);
+    const explanation = strategy.explain(item, params, score);
+    selected.push({ item, score, explanation });
+    categoryCount.set(item.category, (categoryCount.get(item.category) ?? 0) + 1);
+  }
+
+  return selected;
 }

@@ -1,7 +1,19 @@
 import { Card } from '@/core/ui/Card';
 import { Section } from '@/core/ui/Section';
+import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
+import { ALL_STRATEGIES, computeResults } from '@/core/data/strategies';
+import { useApp } from '@/App';
 
 export function Effects() {
+  const { setView } = useApp();
+  const strategyOrders = ALL_STRATEGIES.map((strategy) => {
+    const results = computeResults(EXAMPLE_DATASET.items, strategy, {});
+    return {
+      id: strategy.id,
+      name: strategy.name,
+      items: results.map((r) => r.item.title),
+    };
+  });
   return (
     <main className="min-h-screen flex flex-col bg-slate-50">
       <header className="border-b border-slate-200 bg-white sticky top-0 z-10">
@@ -15,7 +27,10 @@ export function Effects() {
             </h1>
           </div>
           <div className="flex gap-2">
-            <button className="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-slate-900 border border-slate-200 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2">
+            <button
+              onClick={() => setView('lab')}
+              className="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-slate-900 border border-slate-200 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
+            >
               Ouvrir le laboratoire
             </button>
           </div>
@@ -90,37 +105,42 @@ export function Effects() {
 
         <Section
           title="Même catalogue, ordre différent"
-          description="Exemple illustratif : huit contenus classés par quatre stratégies. L'ordre change, pas le catalogue."
+          description="Huit contenus de même catalogue classés par quatre stratégies sur les mêmes données d'exemple (simulation). L'ordre change, pas le catalogue."
         >
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {[
-              { label: 'Popularité', variant: 'bg-amber-50 border-amber-200' },
-              { label: 'Score collectif', variant: 'bg-emerald-50 border-emerald-200' },
-              { label: 'Diversité', variant: 'bg-slate-50 border-slate-200' },
-              { label: 'Hybride', variant: 'bg-indigo-50 border-indigo-200' },
-            ].map((col) => (
-              <Card key={col.label} className={col.variant} padded={false}>
-                <div className="p-4">
-                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-                    {col.label}
-                  </h3>
-                  <ol className="space-y-2 text-sm text-slate-600">
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                      <li key={n} className="flex items-start gap-2">
-                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-900">
-                          {n}
-                        </span>
-                        <span>Contenu {n}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              </Card>
-            ))}
+            {strategyOrders.map((col) => {
+              const variant =
+                col.id === 'popularity'
+                  ? 'bg-amber-50 border-amber-200'
+                  : col.id === 'collective'
+                  ? 'bg-emerald-50 border-emerald-200'
+                  : col.id === 'diversity'
+                  ? 'bg-slate-50 border-slate-200'
+                  : 'bg-indigo-50 border-indigo-200';
+              return (
+                <Card key={col.id} className={variant} padded={false}>
+                  <div className="p-4">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                      {col.name}
+                    </h3>
+                    <ol className="space-y-2 text-sm text-slate-600">
+                      {col.items.map((title, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-900">
+                            {i + 1}
+                          </span>
+                          <span className="line-clamp-1">{title}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                </Card>
+              );
+            })}
           </div>
           <p className="text-xs text-slate-500 text-center mt-4">
-            Ordre illustratif. Dans le laboratoire, vous pouvez observer cet effet sur de vraies
-            données avec vos propres paramètres.
+            Ordres calculés par les vraies stratégies sur le jeu de données d'exemple (simulation).
+            Dans le laboratoire, vous pouvez observer ces effets avec vos propres paramètres.
           </p>
         </Section>
 
@@ -160,7 +180,10 @@ export function Effects() {
             modifiez les paramètres et voyez comment le classement change.
           </p>
           <div className="flex gap-3">
-            <button className="inline-flex items-center rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2">
+            <button
+              onClick={() => setView('lab')}
+              className="inline-flex items-center rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
+            >
               Ouvrir le laboratoire
             </button>
           </div>
