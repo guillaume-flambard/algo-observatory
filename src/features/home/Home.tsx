@@ -142,7 +142,7 @@ export function Home({ onNavigate }: HomeProps) {
                       type="button"
                       onClick={() => setSelectedId(item.id)}
                       aria-pressed={selectedId === item.id}
-                      aria-label={String(index + 1).padStart(2, '0') + ' ' + item.title + ' — Suivre ' + item.title + ' dans les deux classements'}
+
                       className={'ao-rank-row' + (selectedId === item.id ? ' is-selected' : '')}
                       style={{ top: index * rowHeight }}
                     >
@@ -158,7 +158,7 @@ export function Home({ onNavigate }: HomeProps) {
                       type="button"
                       onClick={() => setSelectedId(item.id)}
                       aria-pressed={selectedId === item.id}
-                      aria-label={String(currentRanks.get(item.id) ?? 0).padStart(2, '0') + ' ' + item.title + ' — Suivre ' + item.title + ' dans les deux classements'}
+
                       className={'ao-rank-row' + (selectedId === item.id ? ' is-selected' : '')}
                       style={{ top: ((currentRanks.get(item.id) ?? 1) - 1) * rowHeight }}
                     >
