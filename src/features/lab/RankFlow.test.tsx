@@ -34,7 +34,7 @@ describe('RankFlow sur un catalogue volumineux', () => {
     const flow = screen.getByRole('img', { name: /Évolution des rangs/i });
     expect(flow.querySelectorAll('path')).toHaveLength(12);
     expect(screen.getByText(/100 contenus changent de position/i)).toBeInTheDocument();
-    const entry = screen.getByRole('button', { name: /Contenu 1/i });
+    const entry = screen.getByRole('button', { name: /^Contenu 1\\b/i });
     fireEvent.click(entry);
     expect(entry).toHaveAttribute('aria-pressed', 'true');
     expect(container.querySelectorAll('svg[role="img"]')).toHaveLength(1);
