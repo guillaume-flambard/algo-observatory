@@ -1,62 +1,87 @@
 # Algo Observatory
 
-**Qui décide ce que vous voyez ?** Un laboratoire interactif, indépendant et reproductible pour comprendre comment des algorithmes de recommandation transforment un catalogue en classement.
+**Qui décide de ce que vous voyez ?** Un laboratoire open source pour rendre les algorithmes de recommandation compréhensibles et comparables, plutôt que de les traiter comme des boîtes noires.
 
-Algo Observatory est un outil **pédagogique** : il permet de manipuler des stratégies explicites, d’inspecter les scores et de suivre les changements de rang sans prétendre reconstituer les mécanismes internes d’une plateforme réelle.
+[**Essayer la démo publique**](https://guillaume-flambard.github.io/algo-observatory/) · [Ouvrir le laboratoire](https://guillaume-flambard.github.io/algo-observatory/#/lab) · [Examiner la méthode](https://guillaume-flambard.github.io/algo-observatory/#/methodology)
 
-## Ce que l’application permet de faire
+![Page d’accueil d’Algo Observatory sur ordinateur : deux classements pédagogiques comparés côte à côte](docs/screenshots/home-desktop.jpg)
 
-| Espace | Fonction |
+<table>
+  <tr>
+    <td width="70%">
+      <img src="docs/screenshots/ranking-comparison-desktop.jpg" alt="Laboratoire desktop : 24 recommandations publiques Tournesol, source identifiée et courbes de changements de rang" width="100%">
+    </td>
+    <td width="30%">
+      <img src="docs/screenshots/home-mobile.jpg" alt="Accueil responsive sur mobile avec navigation et appel à expérimenter" width="100%">
+    </td>
+  </tr>
+  <tr>
+    <td><small>Comparaison interactive sur des données Tournesol publiques et datées.</small></td>
+    <td><small>Interface mobile, accessible au clavier et aux technologies d’assistance.</small></td>
+  </tr>
+</table>
+
+## Pourquoi ce projet existe
+
+Les règles de recommandation influencent la visibilité des contenus. Mais il est difficile de distinguer les **métriques d’entrée**, les **règles de classement** et les **résultats observés**. Algo Observatory permet de modifier explicitement les règles et de suivre leurs conséquences sur un même catalogue.
+
+**Ce n’est pas un simulateur officiel des algorithmes de YouTube ni un outil de mesure du comportement d’une plateforme réelle.** Chaque expérience affiche sa source et la frontière entre données observées et classement simulé.
+
+## Explorer l’application
+
+| Espace | À découvrir |
 | --- | --- |
-| Accueil | Comprendre le projet et comparer deux classements simulés |
-| Découvrir | Parcours accessible sur les mécanismes de recommandation |
-| Laboratoire | Choisir une source, activer des stratégies, modifier des poids, inspecter les déplacements de rang |
-| Effets | Explorer visuellement les différences et les limites des interprétations |
-| Données | Rechercher, filtrer, trier, consulter les métriques et exporter le catalogue en CSV |
-| Méthodologie | Vérifier les règles, les sources, la licence et les limites du projet |
+| **Accueil** | Deux ordres pour un même catalogue pédagogique |
+| **Découvrir** | Explications accessibles des mécanismes de recommandation |
+| **Laboratoire** | Popularité, score collectif, diversité et hybride ; pondérations et explications des rangs |
+| **Effets** | Trajectoires de classement, hypothèses et limites d’interprétation |
+| **Données** | Recherche, filtres, tri par métriques, export CSV protégé |
+| **Méthodologie** | Provenance, licences, fraîcheur, transformations et reproductibilité |
 
-### Vérité des données
+### Des données publiques réellement traçables
 
-- **Simulation** : données construites pour l’apprentissage. Aucun classement ne doit être présenté comme une observation réelle.
-- **Sources publiques** : chaque source affiche son statut, sa provenance, sa licence et sa fraîcheur lorsqu’elle est disponible.
-- **Tournesol** : le laboratoire embarque 24 recommandations publiques collectées le 25 octobre 2026, sous licence ODC-BY 1.0. Cette sélection datée fonctionne hors ligne. Les données brutes et les règles de normalisation sont versionnées (`src/core/data/tournesol-public-snapshot.json`, `tournesol-public.ts`). Les valeurs de popularité, diversité-inclusion et fraîcheur sont dérivées de mesures sourcées ; elles ne constituent pas des observations des recommandations YouTube.
-- **Inférences** : le laboratoire ne révèle pas les paramètres cachés d’une plateforme et ne démontre pas à lui seul des effets sociaux comme les bulles de filtre.
+Le laboratoire contient un **instantané de 24 recommandations publiques Tournesol**, collectées le **25 octobre 2026** sous licence **ODC-BY 1.0**. Les identifiants, titres, vues et scores sont conservés dans [la capture versionnée](src/core/data/tournesol-public-snapshot.json).
 
-## Démarrage
+Les métriques d’expérience sur l’échelle de 0 à 1 sont dérivées de ces données : les règles exactes sont dans [tournesol-public.ts](src/core/data/tournesol-public.ts). Elles **ne représentent pas un classement réellement observé chez YouTube**. Le catalogue d’exemple est explicitement marqué *simulation*.
 
-Prérequis : Node.js 22 ou supérieur et pnpm 10.14.
+Le jeu Tournesol fonctionne sans appel navigateur à l’API externe et peut être actualisé volontairement avec `node scripts/refresh-tournesol.mjs` après vérification des données récupérées.
 
-~~~bash
+## Frontend, ingénierie et qualité
+
+- **React 19, TypeScript strict, Vite 6**, Tailwind CSS et Lucide.
+- Modules chargés à la demande (`React.lazy`), navigation responsive et navigation directe par URL.
+- Modèles de classement déterministes, explications des scores et graphes de trajectoires utilisables sur desktop comme sur mobile.
+- Accessibilité : focus clavier, contrastes, état des contrôles, réduction du mouvement et tests automatisés WCAG 2.2 AA avec axe.
+- Tests : Vitest/Testing Library et **Playwright sur Chromium et WebKit**, formats desktop et mobile.
+- CI : lint, typage, tests, build normal et Pages, budget du JavaScript initial (**100 Ko gzip**) et du CSS (**12 Ko gzip**), puis déploiement GitHub Pages seulement après validation.
+
+**Audit ponctuel de la démo, 25 octobre 2026 :** Lighthouse mobile 12.8.2 — performance **100**, accessibilité **100**, bonnes pratiques **100**, SEO **100**. Ces valeurs proviennent d’un test synthétique unique, pas de métriques d’utilisateurs réels ; elles peuvent varier selon le matériel, le réseau et la version du navigateur.
+
+## Développement local
+
+Node.js 22+ et pnpm 10.14+ :
+
+```bash
 pnpm install --frozen-lockfile
 pnpm dev
-~~~
+```
 
-Ouvrez l’URL locale fournie par Vite.
+Vérifier :
 
-## Vérifications
-
-~~~bash
+```bash
 pnpm lint:check
 pnpm types:check
 pnpm test
 pnpm build
-pnpm exec playwright install chromium
+pnpm exec playwright install chromium webkit
 pnpm test:e2e
-~~~
+pnpm build:pages
+```
 
-Les tests Playwright couvrent les parcours sur Chromium desktop et mobile, y compris le passage simulation → instantané Tournesol, la navigation et l’absence de débordement horizontal global. Le workflow Frontend quality effectue ces vérifications à chaque changement soumis sur la branche de refonte.
-
-## Stack
-
-- React 19, TypeScript strict, Vite 6
-- Tailwind CSS 3 et Lucide pour l’interface
-- Vitest, Testing Library, Playwright
-- Calculs déterministes de classement en TypeScript
-
-Le code est organisé par fonctionnalités dans src/features/, avec les modèles et adaptateurs dans src/core/. La visualisation des trajectoires est dans src/features/lab/RankFlow.tsx.
+Le projet se découpe en `src/features/` (interfaces), `src/core/data/` (jeu de données et stratégies), `src/core/adapters/` (adaptateurs) et `tests/e2e/` (parcours navigateur). Le graphe interactif se trouve dans [RankFlow.tsx](src/features/lab/RankFlow.tsx).
 
 ## Contribuer
 
-Les contributions sont bienvenues, en particulier sur l’accessibilité, l’explicabilité, les sources publiques vérifiables et la reproductibilité. Voir [CONTRIBUTING.md](docs/CONTRIBUTING.md).
+Les contributions portant sur l’accessibilité, l’explicabilité, les référentiels publics et les tests de reproductibilité sont les bienvenues. Voir [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
-**Principe de livraison** : des tests verts ne suffisent pas à déclarer le produit prêt. Les parcours doivent être validés dans un navigateur et sur un environnement proche de la production avant diffusion publique.
+Projet indépendant : aucune affiliation ou partenariat officiel avec Tournesol, YouTube ou Data for Good n’est revendiqué.
