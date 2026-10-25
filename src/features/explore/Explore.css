@@ -43,7 +43,7 @@
 .dw-source-tabs button + button { padding-left: 22px; border-left: 1px solid #d5dcdf; }
 .dw-source-tabs button.is-active { color: var(--dw-ink); border-bottom-color: var(--dw-accent); }
 .dw-source-tabs button:hover strong { color: var(--dw-accent); }
-.dw-source-index { color: #6a7881; align-self: start; padding-top: 1px; }
+.dw-source-index { color: #46525b; align-self: start; padding-top: 1px; }
 .dw-source-tabs strong { display: block; font-size: 14px; font-weight: 650; }
 .dw-source-tabs small { display: block; margin-top: 3px; font-size: 11px; color: #52626d; }
 .dw-source-status { display: flex; align-items: center; gap: 10px; justify-content: end; font-size: 11px; flex-wrap: wrap; }
@@ -79,7 +79,7 @@
 .dw-provenance { border-top: 1px solid #c7d1d6; margin-top: 50px; padding-top: 20px; }
 .dw-provenance dl { margin: 9px 0 0; }
 .dw-provenance dl > div { padding: 12px 0; border-bottom: 1px solid #d1d9dd; }
-.dw-provenance dt { font: 700 10px ui-monospace,Menlo,monospace; letter-spacing: .04em; color: #687984; }
+.dw-provenance dt { font: 700 10px ui-monospace,Menlo,monospace; letter-spacing: .04em; color: #46545e; }
 .dw-provenance dd { margin: 6px 0 0; font-size: 12px; color: #41515c; line-height: 1.5; overflow-wrap: anywhere; }
 .dw-provenance a { display:inline-flex;align-items:center;gap:8px;margin-top:16px;color:#163ebc;font-size:12px;text-decoration:underline;text-underline-offset:4px; }
 .dw-results { background: #fff; border: 1px solid var(--dw-line); }
@@ -104,11 +104,11 @@
 .dw-data-table td { padding: 15px 9px; color:#40505b;vertical-align:middle;overflow-wrap:anywhere; }
 .dw-data-table td:first-child { padding-left:18px; }
 .dw-name { display:flex;align-items:flex-start;gap:9px; }
-.dw-row-index { font:700 10px/1.6 ui-monospace,Menlo,monospace; color:#74828d; flex:0 0 auto; }
+.dw-row-index { font:700 10px/1.6 ui-monospace,Menlo,monospace; color:#485661; flex:0 0 auto; }
 .dw-name button { display:block;text-align:left;min-width:0; }
 .dw-name button strong { display:block;color:#1c2933;font:650 12px/1.4 Inter,system-ui,sans-serif; }
 .dw-name button:hover strong { color:var(--dw-accent); }
-.dw-name button small { display:block; font-size:11px;margin-top:3px;color:#677984;line-height:1.4; }
+.dw-name button small { display:block; font-size:11px;margin-top:3px;color:#4a5963;line-height:1.4; }
 .dw-category { display:block; font-size:11px; color:#596974; line-height:1.4; }
 .dw-metric { display:flex; align-items:center; justify-content:flex-end; gap:7px; }
 .dw-meter { display:block; width:38px;height:4px;background:#d8dfe4;overflow:hidden;flex:0 0 auto; }
