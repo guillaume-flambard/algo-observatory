@@ -138,10 +138,12 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
   test('l’inspecteur montre le détail et les rangs calculés d’un contenu', async ({ page }) => {
     await page.goto('/');
     await navigate(page, 'Données');
-    const item = page.locator('.dw-mobile-results').isVisible().then((mobile) => mobile
+    await expect(page.getByRole('heading', { name: /Contenus et métriques/i })).toBeVisible();
+    const mobile = await page.locator('.dw-mobile-results').isVisible();
+    const item = mobile
       ? page.locator('.dw-mobile-item-heading').filter({ hasText: 'Parasite' })
-      : page.locator('.dw-name button').filter({ hasText: 'Parasite' }));
-    await (await item).click();
+      : page.locator('.dw-name button').filter({ hasText: 'Parasite' });
+    await item.click();
     if (await page.locator('.dw-mobile-results').isVisible()) {
       await expect(page.locator('.dw-mobile-detail')).toContainText('RANGS PAR STRATÉGIE · CALCULÉS');
       await expect(page.locator('.dw-mobile-item.is-selected')).toContainText('Parasite');
