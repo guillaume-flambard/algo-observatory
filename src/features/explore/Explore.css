@@ -232,3 +232,19 @@
   .dw-mobile-detail > button { display:inline-flex;align-items:center;justify-content:space-between;width:100%;gap:10px;background:#1c3bb8;color:#fff;padding:12px;font-size:12px;font-weight:750; }
   .dw-mobile-detail > button:hover { background:#162d8a; }
 }
+
+/* Mobile inspection lives with the selected item; no duplicated dark pane
+   hundreds of pixels below the list. Controls get full-width tap targets. */
+@media (max-width:810px) {
+  .dw-inspector { display: none; }
+}
+@media (max-width:480px) {
+  .dw-sidebar { grid-template-columns:1fr; }
+  .dw-sidebar > label:nth-of-type(1) { grid-column:1;grid-row:2; }
+  .dw-search { grid-column:1;grid-row:3; }
+  .dw-sidebar > label:nth-of-type(2) { grid-column:1;grid-row:4; }
+  .dw-sidebar > select { grid-column:1;grid-row:5; }
+  .dw-mobile-sort { grid-row:6; }
+  .dw-filter-footer { grid-row:7; }
+  .dw-provenance { grid-row:8; }
+}
