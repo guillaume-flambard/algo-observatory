@@ -31,7 +31,7 @@ const sorts: { value: SortKey; label: string }[] = [
 function MetricValue({ value, label }: { value: number; label: string }) {
   const percentage = Math.round(value * 100);
   return (
-    <span className="dw-metric" aria-label={label + ' : ' + percentage + ' %'}>
+    <span className="dw-metric" role="img" aria-label={label + ' : ' + percentage + ' %'}>
       <span className="dw-meter" aria-hidden="true"><span style={{ width: percentage + '%' }} /></span>
       <span className="dw-metric-number">{percentage}</span>
     </span>
@@ -150,7 +150,7 @@ export function Explore({ dataset }: ExploreProps) {
       <div className="dw-layout">
         <aside className="dw-sidebar" aria-label="Filtres et provenance">
           <div className="dw-aside-title"><span>01 / FILTRER</span><span aria-hidden="true">↙</span></div>
-          <label htmlFor="dataset-search">Rechercher</label>
+          <label htmlFor="dataset-search">Rechercher un contenu</label>
           <div className="dw-search">
             <Search size={17} aria-hidden="true" />
             <input id="dataset-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)}
