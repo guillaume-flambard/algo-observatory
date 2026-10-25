@@ -88,7 +88,7 @@ function AppUI() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f7f7f5] text-neutral-900">
+    <div className="flex min-h-screen flex-col bg-[#f3f6f7] text-[#172129]">
       <a
         href="#main-content"
         onClick={(event) => {
@@ -100,18 +100,18 @@ function AppUI() {
       >
         Aller au contenu
       </a>
-      <header className="ao-app-header sticky top-0 z-30 border-b border-[#a6a397] bg-[#ede9df]/95 backdrop-blur-xl">
+      <header className="ao-app-header sticky top-0 z-30 border-b border-[#cbd4d8] bg-white/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[66px] max-w-[1600px] items-center justify-between gap-5 px-5 sm:px-8 lg:px-12">
           <button
             type="button"
             onClick={() => navigate('home')}
             className="group flex min-w-0 items-center gap-3 text-left"
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-[#222b27] text-[#eae7db]">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-[#172129] text-white">
               <svg aria-hidden="true" width="28" height="28" viewBox="0 0 28 28" fill="none">
                 <path d="M5 5v18h18" stroke="currentColor" strokeWidth="1.3"/>
-                <path d="M8 12h13M8 17h13" stroke="#8bafa1" strokeWidth="1" strokeDasharray="2 2"/>
-                <path d="M8 9c6 0 5 9 13 9M8 19c6 0 5-9 13-9" stroke="#f07c5c" strokeWidth="1.6"/>
+                <path d="M8 12h13M8 17h13" stroke="#b2c4d7" strokeWidth="1" strokeDasharray="2 2"/>
+                <path d="M8 9c6 0 5 9 13 9M8 19c6 0 5-9 13-9" stroke="#d9f36b" strokeWidth="1.6"/>
               </svg>
             </span>
             <span className="min-w-0">
@@ -119,7 +119,7 @@ function AppUI() {
                 Algo Observatory
               </span>
               <span className="block text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-500">
-                A FIELD GUIDE TO THE FEED
+                STUDIO D’EXPÉRIMENTATION
               </span>
             </span>
           </button>
@@ -135,8 +135,8 @@ function AppUI() {
                 className={[
                   'ao-header-link border-b-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.035em] transition-colors',
                   view === item.id
-                    ? 'border-[#d65c3c] text-[#202926]'
-                    : 'border-transparent text-[#59625b] hover:border-[#a6a397] hover:text-[#202926]',
+                    ? 'border-[#2446d5] text-[#172129]'
+                    : 'border-transparent text-[#52636d] hover:border-[#b5c3cb] hover:text-[#172129]',
                 ].join(' ')}
               >
                 {item.label}
@@ -149,7 +149,7 @@ function AppUI() {
               href="https://github.com/guillaume-flambard/algo-observatory"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 border-b border-[#202926] px-1 py-2 text-[11px] font-bold uppercase tracking-wider text-[#202926] transition hover:text-[#b74831]"
+              className="inline-flex items-center gap-1 border-b border-[#172129] px-1 py-2 text-[11px] font-bold uppercase tracking-wider text-[#172129] transition hover:text-[#2446d5]"
             >
               Code source <ArrowUpRight size={14} aria-hidden="true" />
             </a>
@@ -157,7 +157,7 @@ function AppUI() {
 
           <button
             type="button"
-            className="border border-[#a6a397] bg-transparent p-2 lg:hidden"
+            className="border border-[#b9c6cc] bg-white p-2 lg:hidden"
             aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
             aria-expanded={menuOpen}
             aria-controls="mobile-navigation"
@@ -167,7 +167,7 @@ function AppUI() {
           </button>
         </div>
         {menuOpen && (
-          <nav id="mobile-navigation" aria-label="Navigation mobile" className="grid gap-1 border-t border-[#a6a397] bg-[#ede9df] p-4 sm:grid-cols-2 lg:hidden">
+          <nav id="mobile-navigation" aria-label="Navigation mobile" className="grid gap-1 border-t border-[#cbd4d8] bg-white p-4 sm:grid-cols-2 lg:hidden">
             {navigation.map((item) => (
               <button
                 key={item.id}
@@ -176,7 +176,7 @@ function AppUI() {
                 aria-current={view === item.id ? 'page' : undefined}
                 className={[
                   'flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm',
-                  view === item.id ? 'bg-[#202926] font-semibold text-white' : 'text-[#4a5650]',
+                  view === item.id ? 'bg-[#2446d5] font-semibold text-white' : 'text-[#334954]',
                 ].join(' ')}
               >
                 <span className="font-mono text-xs text-neutral-400">{item.number}</span>
@@ -210,7 +210,7 @@ function AppUI() {
         </Suspense>
       </div>
 
-      <footer className="border-t border-neutral-200">
+      <footer className="border-t border-[#cbd4d8] bg-white">
         <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-3 px-5 py-7 text-xs text-neutral-500 sm:flex-row sm:px-8 lg:px-12">
           <span>Algo Observatory · Comprendre les classements, sans boîte noire.</span>
           <span>Données observées et simulations toujours distinguées.</span>
