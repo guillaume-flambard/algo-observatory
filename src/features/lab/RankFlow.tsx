@@ -28,14 +28,22 @@ export function RankFlow({ strategies, resultsByStrategy }: RankFlowProps) {
     }));
   }, [left, right]);
 
-  const highlight = selectedId && movements.some((item) => item.id === selectedId) ? selectedId : movements[0]?.id;
+  // Limit the plotted paths, not the ranking computation. Public datasets can have
+  // thousands of items; drawing every path creates unusable scrolling on phones.
+  const visibleMovements = movements.slice(0, 12);
+  const targetSlots = new Map(
+    [...visibleMovements]
+      .sort((a, b) => a.after - b.after)
+      .map((item, index) => [item.id, index + 1]),
+  );
+  const highlight = selectedId && visibleMovements.some((item) => item.id === selectedId) ? selectedId : visibleMovements[0]?.id;
   const biggestMove = movements.reduce((max, item) => Math.max(max, Math.abs(item.before - item.after)), 0);
   const movedCount = movements.filter((item) => item.before !== item.after).length;
 
   if (!reference || !target || movements.length === 0) return null;
 
   const rowHeight = 38;
-  const chartHeight = movements.length * rowHeight + 34;
+  const chartHeight = visibleMovements.length * rowHeight + 34;
   return (
     <section className="overflow-hidden rounded-2xl border border-neutral-200 bg-white" aria-labelledby="rank-flow-heading">
       <div className="flex flex-col justify-between gap-4 border-b border-neutral-100 p-5 sm:flex-row sm:items-center sm:p-6">
@@ -47,7 +55,7 @@ export function RankFlow({ strategies, resultsByStrategy }: RankFlowProps) {
             Comment les positions changent.
           </h3>
           <p className="mt-2 text-xs leading-6 text-neutral-500">
-            Sélectionnez un contenu pour suivre son parcours d’un classement à l’autre.
+            Sélectionnez un contenu pour suivre son parcours d’un classement à l’autre. Les positions affichées restent celles du catalogue complet.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -81,9 +89,9 @@ export function RankFlow({ strategies, resultsByStrategy }: RankFlowProps) {
               role="img"
               aria-label={'Évolution des rangs de ' + reference.name + ' vers ' + target.name}
             >
-              {movements.map((movement) => {
+              {visibleMovements.map((movement) => {
                 const y1 = 17 + (movement.before - 1) * rowHeight;
-                const y2 = 17 + (movement.after - 1) * rowHeight;
+                const y2 = 17 + ((targetSlots.get(movement.id) ?? 1) - 1) * rowHeight;
                 const active = movement.id === highlight;
                 return (
                   <g key={movement.id}>
@@ -109,13 +117,13 @@ export function RankFlow({ strategies, resultsByStrategy }: RankFlowProps) {
             </svg>
           </div>
           <p className="mt-3 flex items-center gap-2 text-[11px] text-neutral-500">
-            <MousePointer2 size={13} aria-hidden="true" /> Choisissez un titre à droite pour isoler sa trajectoire.
+            <MousePointer2 size={13} aria-hidden="true" /> {visibleMovements.length} contenus de référence · les traits montrent leur ordre relatif et les nombres leurs rangs réels.
           </p>
         </div>
         <div className="min-w-0">
-          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.13em] text-neutral-500">Évolution par contenu</p>
-          <div className="max-h-[292px] space-y-1 overflow-y-auto pr-1">
-            {movements.map((movement) => {
+          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.13em] text-neutral-500">Évolution par contenu · {visibleMovements.length} / {movements.length}</p>
+          <div className="max-h-[380px] space-y-1 overflow-y-auto pr-1">
+            {visibleMovements.map((movement) => {
               const difference = movement.before - movement.after;
               return (
                 <button
@@ -140,7 +148,7 @@ export function RankFlow({ strategies, resultsByStrategy }: RankFlowProps) {
           </div>
           <p className="mt-4 rounded-lg bg-neutral-50 p-3 text-xs leading-6 text-neutral-600 sm:hidden" aria-live="polite">
             {(() => {
-              const movement = movements.find((item) => item.id === highlight);
+              const movement = visibleMovements.find((item) => item.id === highlight);
               if (!movement) return 'Choisissez un contenu pour voir son évolution.';
               const difference = movement.before - movement.after;
               return movement.title + ' : rang ' + movement.before + ' avec ' + reference.name + ', rang ' + movement.after + ' avec ' + target.name + (difference === 0 ? ' (position inchangée).' : difference > 0 ? ' (monte de ' + difference + ' rangs).' : ' (descend de ' + Math.abs(difference) + ' rangs).');
