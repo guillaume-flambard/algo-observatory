@@ -1,13 +1,10 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { ApiTournesolAdapter } from '@/core/adapters/tournesol-adapter';
-import type { TournesolDataset } from '@/core/domain/tournesol-types';
 import { App } from './App';
 
 beforeEach(() => {
   window.location.hash = '';
 });
-afterEach(() => vi.restoreAllMocks());
 
 describe('Algo Observatory navigation', () => {
   it('affiche la marque et une page d’accueil compréhensible', () => {
@@ -48,28 +45,16 @@ describe('Algo Observatory navigation', () => {
     expect(screen.getByRole('heading', { name: /Même contenu/i })).toBeInTheDocument();
   });
 
-  it('présente dans Données le catalogue chargé depuis le Laboratoire', async () => {
-    const observed: TournesolDataset = {
-      id: 'observations-fixture', title: 'Observations — fixture de test',
-      kind: 'real', source: 'API simulée dans le test', license: 'Licence de test',
-      freshness: '2026-10-25', itemCount: 1,
-      items: [{
-        uid: 'observation-1', title: 'Contenu de test chargé', author: 'Observatoire',
-        platform: 'Vidéo', scores: [], collectiveScore: 0.7,
-        popularity: 0.8, diversityScore: 0.3, nComparisons: 8,
-      }],
-    };
-    vi.spyOn(ApiTournesolAdapter.prototype, 'isAvailable').mockResolvedValue(true);
-    vi.spyOn(ApiTournesolAdapter.prototype, 'getDataset').mockResolvedValue(observed);
+  it('partage les véritables données Tournesol entre laboratoire et explorateur', async () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Lancer une expérience/i }));
-    fireEvent.click(await screen.findByRole('button', { name: /^Tournesol \(API\)$/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /Tournesol · données publiques/i }));
     await waitFor(() => expect(screen.getByTestId('provenance-badge')).toHaveTextContent('Données réelles'));
     const primaryNav = screen.getByRole('navigation', { name: 'Navigation principale' });
     fireEvent.click(primaryNav.querySelectorAll('button')[4]!);
-    expect(await screen.findByRole('cell', { name: /Contenu de test chargé/i })).toBeInTheDocument();
-    expect(screen.queryByRole('cell', { name: /Le Voyage de Chihiro/i })).not.toBeInTheDocument();
-    expect(screen.getByText('API simulée dans le test')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Contenus et métriques/i })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: /Les milliardaires, compatibles avec la démocratie/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('row')).toHaveLength(25);
+    expect(screen.getByText('Tournesol — recommandations vidéos')).toBeInTheDocument();
   });
-
 });
