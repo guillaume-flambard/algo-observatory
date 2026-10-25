@@ -183,7 +183,7 @@ export function Home({ onNavigate }: HomeProps) {
                     >
                       <span className="ao-mobile-rank-place">{String(to).padStart(2, '0')}</span>
                       <span className="ao-mobile-rank-title">{item.title}</span>
-                      <span className="ao-mobile-rank-movement" aria-label={'Du rang ' + from + ' au rang ' + to}>
+                      <span className="ao-mobile-rank-movement">
                         <span>{from} → {to}</span>
                         <strong>{movement > 0 ? '↑ ' + movement : movement < 0 ? '↓ ' + Math.abs(movement) : '—'}</strong>
                       </span>
