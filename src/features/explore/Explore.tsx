@@ -191,7 +191,10 @@ export function Explore({ dataset }: ExploreProps) {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <p className="border-b border-[#adb0a4] bg-[#eeeae0] px-6 py-3 font-mono text-[11px] font-semibold text-[#4e5a50] md:hidden">
+            ← Faites défiler le tableau pour voir les quatre métriques →
+          </p>
+          <div className="overflow-x-auto" role="region" aria-label="Tableau des contenus, défilement horizontal pour consulter les métriques" tabIndex={0}>
             <table className="min-w-[920px] w-full border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-neutral-100 bg-neutral-50">
