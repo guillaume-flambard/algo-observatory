@@ -39,7 +39,7 @@ jobs:
       - name: Production build
         run: pnpm run build
       - name: Install Chromium
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium webkit
       - name: Desktop and mobile user journeys
         run: pnpm run test:e2e
         env:
