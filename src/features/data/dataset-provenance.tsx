@@ -45,10 +45,16 @@ export function DatasetProvenance({ dataset }: DatasetProvenanceProps) {
             Source des données <ExternalLink size={12} aria-hidden="true" />
           </a>
         )}
+        {dataset.methodologyNote && (
+          <p className="mt-4 rounded-lg bg-neutral-50 p-3 text-[11px] leading-6 text-neutral-700">
+            <strong className="block font-semibold">Construction des métriques</strong>
+            {dataset.methodologyNote}
+          </p>
+        )}
         <p className="mt-4 text-[11px] leading-5 text-neutral-500">
           {example
             ? 'Jeu fabriqué pour apprendre : il ne décrit aucun comportement réellement observé.'
-            : 'Données publiques utilisées pour une expérience de classement. Aucune plateforme n’est observée ici.'}
+            : 'Mesures publiques collectées auprès de Tournesol, recalculées pour une expérience de classement. Aucune recommandation observée sur YouTube.'}
         </p>
       </details>
     </div>
