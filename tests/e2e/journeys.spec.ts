@@ -120,7 +120,7 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     for (const title of ['Provenance', 'Licence', 'Tournesol', 'Bluesky']) {
       await expect(page.getByRole('heading', { name: title })).toBeVisible();
     }
-    await expect(page.getByText(/Aucune intégration Bluesky n’est opérationnelle/i)).toBeVisible();
+    await expect(page.getByText(/n’observe actuellement ni flux Bluesky/i)).toBeVisible();
   });
 
   test('navigation directe et retour dans l’historique', async ({ page }) => {

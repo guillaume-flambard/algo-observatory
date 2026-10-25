@@ -98,7 +98,7 @@ export function Explore({ dataset }: ExploreProps) {
   };
 
   return (
-    <main>
+    <main className="ao-interior ao-data">
       <section className="border-b border-neutral-200">
         <div className="mx-auto max-w-[1440px] px-5 pb-14 pt-12 sm:px-8 lg:px-12 lg:pb-16">
           <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">Observatoire / 04 — Données</p>
@@ -191,7 +191,10 @@ export function Explore({ dataset }: ExploreProps) {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <p className="border-b border-[#adb0a4] bg-[#eeeae0] px-6 py-3 font-mono text-[11px] font-semibold text-[#4e5a50] md:hidden">
+            ← Faites défiler le tableau pour voir les quatre métriques →
+          </p>
+          <div className="overflow-x-auto" role="region" aria-label="Tableau des contenus, défilement horizontal pour consulter les métriques" tabIndex={0}>
             <table className="min-w-[920px] w-full border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-neutral-100 bg-neutral-50">

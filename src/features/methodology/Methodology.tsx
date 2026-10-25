@@ -1,167 +1,135 @@
-import { ArrowRight, ArrowUpRight, BookOpenCheck, Database, Fingerprint, RefreshCcw, ShieldCheck, SlidersHorizontal } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BookOpenCheck, Database, Fingerprint, RefreshCcw, ShieldCheck } from 'lucide-react';
 import { useApp } from '@/App';
 
 const principles = [
-  {
-    number: '01', icon: Database, title: 'Provenance',
-    description: 'Afficher d’où viennent les données et distinguer explicitement une observation publique d’une simulation pédagogique.',
-  },
-  {
-    number: '02', icon: ShieldCheck, title: 'Licence',
-    description: 'Indiquer les conditions de réutilisation connues et ne pas présenter des données sans origine documentée comme publiques.',
-  },
-  {
-    number: '03', icon: RefreshCcw, title: 'Fraîcheur',
-    description: 'Documenter la date ou la méthode de génération, et ne jamais présenter une donnée d’exemple comme une mesure actuelle.',
-  },
-  {
-    number: '04', icon: Fingerprint, title: 'Reproductibilité',
-    description: 'Appliquer des règles déterministes : mêmes contenus, même stratégie et mêmes paramètres produisent le même ordre.',
-  },
+  { number: '01', icon: Database, title: 'Provenance', description: 'Afficher d’où viennent les données. Une observation publique n’est pas une simulation.' },
+  { number: '02', icon: ShieldCheck, title: 'Licence', description: 'Identifier les conditions de réutilisation et les limites imposées par la source.' },
+  { number: '03', icon: RefreshCcw, title: 'Fraîcheur', description: 'Dater la collecte ou la génération. Une capture historique n’est pas une mesure en direct.' },
+  { number: '04', icon: Fingerprint, title: 'Reproductibilité', description: 'Mêmes contenus, même stratégie, mêmes paramètres : le classement calculé doit être identique.' },
 ];
 
 const sources = [
   {
-    name: 'Données d’exemple',
-    status: 'Actif — simulation',
-    note: 'Un petit catalogue construit pour les démonstrations. Les valeurs des métriques sont fabriquées, et les noms des œuvres ne sont pas des observations de plateforme.',
-    url: null as string | null,
+    number: 'S-001', name: 'Données d’exemple', status: 'SIMULATION', className: 'ao-source-demo',
+    note: 'Huit œuvres et des scores construits pour enseigner le classement. Il ne s’agit pas d’observations de plateforme.',
+    evidence: 'Valeurs fabriquées · provenance signalée',
+    href: null as string | null,
   },
   {
-    name: 'Tournesol',
-    status: 'Actif — instantané public',
-    note: '24 recommandations issues de l’API publique Tournesol, collectées le 25 octobre 2026 et conservées localement sous licence ODC-BY 1.0. Les vues YouTube, scores collectifs et notes de diversité-inclusion sont transformés en entrées normalisées. Aucun accès direct à l’API ni classement de YouTube n’est revendiqué.',
-    url: 'https://tournesol.app/',
+    number: 'S-002', name: 'Tournesol', status: 'INSTANTANÉ PUBLIC', className: 'ao-source-public',
+    note: '24 recommandations de l’API publique, recueillies le 25 octobre 2026 sous licence ODC-BY 1.0. Vues YouTube, scores collectifs et diversité-inclusion servent à calculer des entrées normalisées.',
+    evidence: 'Collecte datée · transformations documentées',
+    href: 'https://tournesol.app/',
   },
   {
-    name: 'Bluesky',
-    status: 'Piste de recherche',
-    note: 'Une éventuelle future étude des flux publics et de leurs mécanismes de sélection. Aucune intégration Bluesky n’est opérationnelle dans le laboratoire actuel.',
-    url: 'https://bsky.social/',
+    number: 'S-003', name: 'Bluesky', status: 'NON CONNECTÉ', className: 'ao-source-future',
+    note: 'Une piste de recherche, pas une source active. Le projet n’observe actuellement ni flux Bluesky ni recommandations issues de ce réseau.',
+    evidence: 'Aucune mesure · aucun classement',
+    href: 'https://bsky.social/',
   },
+];
+
+const strategies = [
+  ['01', 'Popularité', 'Classement par le signal de popularité du jeu de données.'],
+  ['02', 'Score collectif', 'Classement par le signal de préférence collective.'],
+  ['03', 'Diversité', 'Sélection itérative tenant compte des catégories déjà retenues.'],
+  ['04', 'Hybride', 'Combinaison pondérée des signaux avec paramètres modifiables.'],
 ];
 
 export function Methodology() {
   const { setView } = useApp();
 
   return (
-    <main>
-      <section className="border-b border-neutral-200">
-        <div className="mx-auto max-w-[1440px] px-5 pb-16 pt-14 sm:px-8 lg:px-12 lg:pb-20">
-          <p className="mb-6 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">
-            <BookOpenCheck size={15} aria-hidden="true" /> Méthode / 05 — Sources
-          </p>
-          <div className="grid gap-10 lg:grid-cols-[1fr_0.58fr] lg:items-end">
-            <h1 className="max-w-4xl text-[clamp(2.9rem,5.7vw,5.5rem)] font-semibold leading-[1.04] tracking-[-0.065em]">
-              Les résultats comptent. <span className="text-neutral-400">La méthode aussi.</span>
-            </h1>
-            <p className="max-w-lg text-base leading-8 text-neutral-600">
-              Chaque expérience doit permettre de vérifier la nature des données, les règles
-              de calcul et les limites de ce qu’on peut raisonnablement en déduire.
-            </p>
+    <main className="ao-interior ao-methodology">
+      <section className="ao-chapter-opening" aria-labelledby="methodology-title">
+        <div className="ao-chapter-index">
+          <span><BookOpenCheck size={15} aria-hidden="true" /> THE FIELD GUIDE / 06</span>
+          <span>PROTOCOLE / VERSION 01</span>
+        </div>
+        <div className="ao-chapter-grid">
+          <div>
+            <p className="ao-chapter-kicker">LE DOSSIER DES PREUVES</p>
+            <h1 id="methodology-title">Les résultats comptent. <em>La méthode aussi.</em></h1>
           </div>
+          <div className="ao-chapter-aside">
+            <span>NOTE 001 — À LIRE AVANT D’INTERPRÉTER</span>
+            <p>Ce que nous montrons doit rester vérifiable. Une donnée publique, un calcul sur cette donnée et une simulation ne sont <strong>pas la même chose.</strong></p>
+            <div className="ao-vertical-rule" aria-hidden="true" />
+            <p className="ao-aside-caption">Le but est d’examiner une règle, pas de prétendre connaître l’algorithme secret d’une plateforme.</p>
+          </div>
+        </div>
+        <div className="ao-chapter-foot">
+          <span>01 — PROVENANCE</span><span>02 — RÈGLES DE CALCUL</span><span>03 — LIMITES</span>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
-        <div className="mb-10 grid gap-5 lg:grid-cols-[0.65fr_1fr] lg:items-end">
-          <div>
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">Engagement de transparence</p>
-            <h2 className="text-3xl font-semibold tracking-[-0.045em] sm:text-4xl">Quatre critères de confiance.</h2>
-          </div>
-          <p className="max-w-xl text-sm leading-7 text-neutral-600">
-            Nous privilégions une expérience modeste mais vérifiable à des visualisations spectaculaires
-            qui feraient passer une démonstration pour une enquête sur une plateforme réelle.
-          </p>
+      <section className="ao-method-section" aria-labelledby="trust-heading">
+        <div className="ao-section-number"><span>01</span> / CONDITIONS DE CONFIANCE</div>
+        <div className="ao-method-section-heading">
+          <h2 id="trust-heading">Quatre critères.<br /><em>Zéro boîte noire.</em></h2>
+          <p>Un résultat n’est intéressant que si l’on peut retrouver son origine, comprendre comment il a été produit et identifier ce qu’il ne démontre pas.</p>
         </div>
-        <div className="grid gap-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 md:grid-cols-2">
+        <div className="ao-principle-list">
           {principles.map(({ number, icon: Icon, title, description }) => (
-            <article key={number} className="bg-white p-7 sm:p-9">
-              <div className="mb-9 flex items-center justify-between">
-                <Icon size={21} strokeWidth={1.5} className="text-neutral-600" aria-hidden="true" />
-                <span className="font-mono text-xs text-neutral-400">{number} / 04</span>
-              </div>
-              <h3 className="text-xl font-semibold tracking-[-0.035em]">{title}</h3>
-              <p className="mt-3 max-w-sm text-sm leading-7 text-neutral-600">{description}</p>
+            <article key={number} className="ao-principle-row">
+              <span className="ao-row-num">{number} / 04</span>
+              <Icon aria-hidden="true" size={22} strokeWidth={1.4} />
+              <h3>{title}</h3>
+              <p>{description}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="border-y border-neutral-200 bg-white">
-        <div className="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
-          <div className="mb-9">
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">Catalogue des sources</p>
-            <h2 className="text-3xl font-semibold tracking-[-0.045em]">Ce qui est connecté. Ce qui ne l’est pas.</h2>
+      <section className="ao-source-section" aria-labelledby="sources-heading">
+        <div className="ao-section-number"><span>02</span> / REGISTRE DES SOURCES</div>
+        <div className="ao-method-section-heading">
+          <h2 id="sources-heading">Ce qui existe.<br /><em>Ce qui est imaginé.</em></h2>
+          <p>Trois états clairement séparés. Un connecteur absent ne devient jamais une donnée réelle par simple changement de libellé.</p>
+        </div>
+        <div className="ao-source-register">
+          <div className="ao-source-register-head" aria-hidden="true">
+            <span>RÉF.</span><span>SOURCE / ÉTAT</span><span>CE QUE L’ON SAIT</span>
           </div>
-          <div className="divide-y divide-neutral-200 border-y border-neutral-200">
-            {sources.map((source, index) => (
-              <article key={source.name} className="grid gap-5 py-8 lg:grid-cols-[60px_240px_1fr] lg:gap-8">
-                <span className="font-mono text-xs text-neutral-400">{String(index + 1).padStart(2, '0')}</span>
-                <div>
-                  <h3 className="text-lg font-semibold">{source.name}</h3>
-                  <span className="mt-2 inline-flex rounded-full border border-neutral-200 bg-neutral-50 px-2.5 py-1 text-[10px] font-medium text-neutral-600">
-                    {source.status}
-                  </span>
+          {sources.map((source) => (
+            <article key={source.number} className="ao-source-entry">
+              <span className="ao-row-num">{source.number}</span>
+              <div className="ao-source-name">
+                <h3>{source.name}</h3>
+                <span className={'ao-source-status ' + source.className}>{source.status}</span>
+              </div>
+              <div className="ao-source-detail">
+                <p>{source.note}</p>
+                <div className="ao-source-evidence">
+                  <span>{source.evidence}</span>
+                  {source.href && <a href={source.href} rel="noopener noreferrer" target="_blank">Source externe <ArrowUpRight size={14} aria-hidden="true" /></a>}
                 </div>
-                <div>
-                  <p className="max-w-2xl text-sm leading-7 text-neutral-600">{source.note}</p>
-                  {source.url && (
-                    <a
-                      href={source.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-800 underline-offset-4 hover:underline"
-                    >
-                      Site du projet <ArrowUpRight size={14} aria-hidden="true" />
-                    </a>
-                  )}
-                </div>
-              </article>
-            ))}
-          </div>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
-        <div className="grid gap-10 rounded-[24px] border border-neutral-200 bg-white p-7 sm:p-10 lg:grid-cols-[0.7fr_1fr] lg:gap-16">
-          <div>
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-neutral-100">
-              <SlidersHorizontal size={20} strokeWidth={1.5} aria-hidden="true" />
+      <section className="ao-method-section" aria-labelledby="rules-heading">
+        <div className="ao-section-number"><span>03</span> / RÈGLES INSPECTABLES</div>
+        <div className="ao-method-section-heading">
+          <h2 id="rules-heading">Les paramètres.<br /><em>Pas la magie.</em></h2>
+          <p>Quatre modèles simplifiés ; aucun ne reconstitue un système de recommandation propriétaire.</p>
+        </div>
+        <div className="ao-strategy-ledger">
+          {strategies.map(([number, name, description]) => (
+            <div className="ao-strategy-ledger-row" key={name}>
+              <span>{number}</span><h3>{name}</h3><p>{description}</p>
             </div>
-            <h2 className="text-2xl font-semibold tracking-[-0.04em]">Stratégies implémentées.</h2>
-            <p className="mt-4 max-w-md text-sm leading-7 text-neutral-600">
-              Les stratégies du laboratoire sont des modèles simplifiés et inspectables.
-              Elles ne prétendent pas reconstruire l’algorithme d’une entreprise.
-            </p>
-          </div>
-          <div className="divide-y divide-neutral-100">
-            {[
-              { title: 'Popularité', text: 'Classement par score de popularité fourni avec le jeu de données.' },
-              { title: 'Score collectif', text: 'Classement par score collectif fourni avec le jeu de données.' },
-              { title: 'Diversité', text: 'Sélection itérative qui ajuste la priorité des catégories déjà retenues.' },
-              { title: 'Hybride', text: 'Combinaison pondérée des trois signaux ; les poids sont modifiables.' },
-            ].map(({ title, text }, index) => (
-              <div key={title} className="grid gap-3 py-4 sm:grid-cols-[36px_150px_1fr]">
-                <span className="font-mono text-xs text-neutral-400">{String(index + 1).padStart(2, '0')}</span>
-                <h3 className="text-sm font-semibold">{title}</h3>
-                <p className="text-xs leading-6 text-neutral-500">{text}</p>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-5">
-          <p className="max-w-xl text-xs leading-6 text-neutral-500">
-            Retrouvez les explications exactes de chaque contenu directement dans le laboratoire.
-          </p>
-          <button
-            type="button"
-            onClick={() => setView('lab')}
-            className="inline-flex items-center gap-2 rounded-xl bg-neutral-900 px-5 py-3 text-xs font-semibold text-white transition hover:bg-neutral-700"
-          >
-            Vérifier un classement <ArrowRight size={16} aria-hidden="true" />
-          </button>
-        </div>
+      </section>
+
+      <section className="ao-method-ending">
+        <div className="ao-section-number"><span>04</span> / REPRODUIRE L’EXPÉRIENCE</div>
+        <h2>Ne nous croyez pas.<br /><em>Vérifiez.</em></h2>
+        <p>Le laboratoire permet de modifier une règle, comparer les classements et consulter les explications de chaque contenu.</p>
+        <button type="button" onClick={() => setView('lab')}>Vérifier un classement <ArrowRight size={17} aria-hidden="true" /></button>
       </section>
     </main>
   );

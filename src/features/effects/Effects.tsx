@@ -46,7 +46,7 @@ export function Effects() {
   );
 
   return (
-    <main>
+    <main className="ao-interior ao-effects">
       <section className="border-b border-neutral-200">
         <div className="mx-auto max-w-[1440px] px-5 pb-16 pt-14 sm:px-8 lg:px-12 lg:pb-20">
           <p className="mb-6 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">
