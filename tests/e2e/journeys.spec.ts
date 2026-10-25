@@ -106,6 +106,18 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     await expect(page.getByRole('heading', { name: /Les algorithmes ne sont pas neutres/i })).toBeVisible();
   });
 
+
+  test('une nouvelle vue reprend en haut, même après une longue lecture', async ({ page }) => {
+    await page.goto('/#/methodology');
+    await page.evaluate(() => {
+      document.documentElement.scrollTop = document.documentElement.scrollHeight;
+    });
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(100);
+    await navigate(page, 'Laboratoire');
+    await expect(page.getByRole('heading', { name: /Même contenu/i })).toBeVisible();
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(5);
+  });
+
   test('aucun débordement horizontal global sur l’appareil', async ({ page }, testInfo) => {
     await page.goto('/');
     const views = ['Accueil', 'Découvrir', 'Laboratoire', 'Effets', 'Données', 'Méthodologie'];
