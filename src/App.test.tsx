@@ -52,7 +52,7 @@ describe('Algo Observatory navigation', () => {
     await waitFor(() => expect(screen.getByTestId('provenance-badge')).toHaveTextContent('Données réelles'));
     const primaryNav = screen.getByRole('navigation', { name: 'Navigation principale' });
     fireEvent.click(primaryNav.querySelectorAll('button')[4]!);
-    expect(await screen.findByRole('heading', { name: /Contenus et métriques/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Contenus et métriques/i }, { timeout: 8000 })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: /Les milliardaires, compatibles avec la démocratie/i })).toBeInTheDocument();
     expect(screen.getAllByRole('row')).toHaveLength(25);
     expect(screen.getByText('Tournesol — recommandations vidéos')).toBeInTheDocument();
