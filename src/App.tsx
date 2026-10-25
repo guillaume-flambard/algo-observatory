@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Home } from '@/features/home/Home';
 import { Lab } from '@/features/lab/Lab';
 import { Discover } from '@/features/discover/Discover';
-type View = 'home' | 'discover' | 'lab';
+import { Effects } from '@/features/effects/Effects';
+type View = 'home' | 'discover' | 'lab' | 'effects';
 
 export function App() {
   const [view, setView] = useState<View>('home');
@@ -33,12 +34,25 @@ export function App() {
               active={view === 'lab'}
               onClick={() => setView('lab')}
             />
+            <NavItem
+              label="Effets"
+              active={view === 'effects'}
+              onClick={() => setView('effects')}
+            />
           </nav>
         </div>
       </header>
 
       <div className="flex-1">
-        {view === 'home' ? <Home /> : view === 'discover' ? <Discover /> : <Lab />}
+        {view === 'home' ? (
+          <Home />
+        ) : view === 'discover' ? (
+          <Discover />
+        ) : view === 'lab' ? (
+          <Lab />
+        ) : (
+          <Effects />
+        )}
       </div>
     </div>
   );
