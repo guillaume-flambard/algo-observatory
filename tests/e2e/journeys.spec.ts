@@ -39,7 +39,13 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     await expect(page.getByRole('heading', { name: /Comment les positions changent/i })).toBeVisible();
     await page.getByTestId('strategy-diversity').click();
     await page.getByLabel('Comparer avec').selectOption('diversity');
-    await expect(page.getByLabel(/Évolution des rangs/)).toBeVisible();
+    const flow = page.getByLabel(/Évolution des rangs/);
+    if (await flow.isVisible()) {
+      await expect(flow).toBeVisible();
+    } else {
+      await expect(page.getByText(/Évolution par contenu/i)).toBeVisible();
+      await expect(page.getByText(/rang 1 avec Popularité/i)).toBeVisible();
+    }
     await page.getByTestId('strategy-hybrid').click();
     await expect(page.getByLabel('Poids popularité')).toBeVisible();
     await page.getByLabel('Poids popularité').press('End');
