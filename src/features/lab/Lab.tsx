@@ -13,6 +13,10 @@ import { DatasetProvenance } from '@/features/data/dataset-provenance';
 import { RankFlow } from './RankFlow';
 
 type DataSource = 'simulation' | 'api';
+interface LabProps {
+  dataset?: Dataset;
+  onDatasetChange?: (next: Dataset) => void;
+}
 type ComputedResults = ReturnType<typeof computeResults>;
 
 const strategyAccent: Record<string, string> = {
@@ -156,9 +160,14 @@ function ResultColumn({
   );
 }
 
-export function Lab() {
-  const [source, setSource] = useState<DataSource>('simulation');
-  const [dataset, setDataset] = useState<Dataset>(EXAMPLE_DATASET);
+export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) {
+  const [source, setSource] = useState<DataSource>(() => sharedDataset?.kind === 'real' ? 'api' : 'simulation');
+  const [localDataset, setLocalDataset] = useState<Dataset>(EXAMPLE_DATASET);
+  const dataset = sharedDataset ?? localDataset;
+  const setDataset = useCallback((next: Dataset) => {
+    setLocalDataset(next);
+    onDatasetChange?.(next);
+  }, [onDatasetChange]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeIds, setActiveIds] = useState<string[]>(['popularity', 'collective']);
@@ -193,7 +202,7 @@ export function Lab() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [setDataset]);
 
   const selectSimulation = () => {
     setError(null);
