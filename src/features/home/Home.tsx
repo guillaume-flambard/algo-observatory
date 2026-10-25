@@ -3,7 +3,7 @@ export function Home() {
     <main className="min-h-screen flex flex-col">
       <header className="border-b border-slate-200 bg-white">
         <div className="max-w-4xl mx-auto px-6 py-4">
-          <h1 data-testid="app-title" className="text-3xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
             Algo Observatory
           </h1>
           <p className="mt-2 text-slate-600">
