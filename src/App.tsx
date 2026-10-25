@@ -19,7 +19,6 @@ export function App() {
   const navigate = (next: View) => {
     setView(next);
     setMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
