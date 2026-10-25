@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { Home } from './Home';
 
 describe('The Ranking Machine — accueil interactif', () => {
@@ -19,12 +19,12 @@ describe('The Ranking Machine — accueil interactif', () => {
     fireEvent.change(slider, { target: { value: '100' } });
     expect(screen.getByText(/8 POSITIONS MODIFIÉES/i).textContent).not.toBe('0 / 8 POSITIONS MODIFIÉES');
     const comparison = screen.getByRole('region', { name: /Machine interactive de classement/i });
-    expect(within(comparison).getAllByRole('button', { name: /Suivre .* dans les deux classements/i })).toHaveLength(16);
+    expect(comparison.querySelectorAll('.ao-rank-row')).toHaveLength(16);
   });
 
   it('permet de suivre un titre par clavier et explique son déplacement', () => {
     render(<Home onNavigate={vi.fn()} />);
-    const choice = screen.getAllByRole('button', { name: /Suivre Parasite dans les deux classements/i })[0]!;
+    const choice = screen.getAllByRole('button', { name: /^\d{2} Parasite$/i })[0]!;
     fireEvent.click(choice);
     expect(choice).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByText('Parasite', { selector: '.ao-readout-label strong' })).toBeInTheDocument();
