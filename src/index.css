@@ -42,3 +42,16 @@
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
 }
+
+/*
+ * Accessible muted ink on warm white surfaces.
+ * Default Tailwind neutral-400 (#a3a3a3) and neutral-500 (#737373)
+ * miss WCAG AA at small sizes on the observatory's #f7f7f5 canvas.
+ * Keep the softer, lighter ink only inside dark panels.
+ */
+@layer utilities {
+  .text-neutral-400 { color: #686868; }
+  .text-neutral-500 { color: #636363; }
+  .bg-neutral-900 .text-neutral-400,
+  .bg-neutral-900 .text-neutral-500 { color: #b5b5b5; }
+}
