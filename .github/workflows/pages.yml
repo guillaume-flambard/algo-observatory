@@ -18,6 +18,10 @@ jobs:
     name: Verify and package static app
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    # Official Playwright image: browsers and their system libraries are preinstalled,
+    # so no run depends on the Ubuntu package mirror. Keep the tag equal to @playwright/test.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -29,15 +33,19 @@ jobs:
           node-version: '22'
           cache: pnpm
       - name: Install frozen dependencies
+        timeout-minutes: 5
         run: pnpm install --frozen-lockfile
+      - name: Playwright image matches the installed version
+        run: test "$(node -p "require('@playwright/test/package.json').version")" = "1.64.1"
       - name: Verify lint and types
         run: |
           pnpm lint:check
           pnpm types:check
       - name: Unit tests
         run: pnpm test
-      - name: Install browser engines
-        run: pnpm exec playwright install --with-deps chromium webkit
+      - name: Check browser engines (preinstalled in the image)
+        timeout-minutes: 5
+        run: pnpm exec playwright install chromium webkit
       - name: Browser journeys and accessibility (Chromium and WebKit)
         run: pnpm test:e2e
       - name: Build with GitHub Pages asset path and bundle budgets

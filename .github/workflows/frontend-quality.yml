@@ -18,6 +18,10 @@ jobs:
     name: TypeScript, lint, unit, build and browser journeys
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    # Official Playwright image: browsers and their system libraries are preinstalled,
+    # so no run depends on the Ubuntu package mirror. Keep the tag equal to @playwright/test.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -29,7 +33,10 @@ jobs:
           node-version: '22'
           cache: pnpm
       - name: Install reproducible dependencies
+        timeout-minutes: 5
         run: pnpm install --frozen-lockfile
+      - name: Playwright image matches the installed version
+        run: test "$(node -p "require('@playwright/test/package.json').version")" = "1.64.1"
       - name: Verify lint
         run: pnpm run lint:check
       - name: Verify types
@@ -43,8 +50,9 @@ jobs:
           pnpm run build:pages
           grep -q '/algo-observatory/assets/' dist/index.html
           test -f dist/favicon.svg
-      - name: Install Chromium
-        run: pnpm exec playwright install --with-deps chromium webkit
+      - name: Check browser engines (preinstalled in the image)
+        timeout-minutes: 5
+        run: pnpm exec playwright install chromium webkit
       - name: Desktop and mobile user journeys
         run: pnpm run test:e2e
         env:
