@@ -77,3 +77,13 @@ This document is a decision record, not proof of successful implementation.
 - **Laboratory.** A (reference) and B (experiment) replace the multi-select columns. The rank ledger animates B with one tween shared by rows and paths; the inspector explains a move from the strategy's own composition against the catalogue mean; real Tournesol items show comparisons, contributors and a link. Mobile became a single list in B order with compact controls (lab page 5,244 px to about 3,100 px at 390 px).
 - **Navigation.** The six routes are unchanged and grouped by intent: Comprendre, Expérimenter, Vérifier.
 
+## Revision 2026-10-26 (afternoon): Hallmark audit
+
+An audit with the Hallmark linter (`sloplint --render`, six routes, 30 screenshots) went from 170 FAIL to 30. Applied:
+- Labels are the body face in sentence case (`meta` type style). No eyebrows, no tracked capitals, no monospace for words, no coloured word inside a heading, no middle-dot meta strings, no em dash in copy.
+- Selected rows and the current mobile nav item lose their side stripe: `sunflower-wash` fill with an `ink` border.
+- `control-border` darkened to `#6f808b` so field edges reach 3:1 on `sunken`; the focus ring turns `on-ink` on ink panels.
+- Rows move with `transform`; no `top` or `width` transitions. Disabled controls use fill, ink, cursor and the attribute.
+- The data workbench is capped at 1600px; no text below 11px.
+Remaining FAILs are raw pixel spacings where a `--space-*` token exists, and word density on Discover and Effects.
+

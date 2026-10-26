@@ -44,9 +44,9 @@ export function getTournesolPublicDataset(): Dataset {
 
   return {
     id: 'tournesol-public-' + snapshot.retrievedAt.slice(0, 10),
-    title: 'Tournesol — recommandations publiques (instantané)',
+    title: 'Tournesol, recommandations publiques (instantané)',
     kind: 'real',
-    source: 'Tournesol — recommandations vidéos',
+    source: 'Tournesol, recommandations vidéos',
     sourceUrl: snapshot.endpoint,
     license: 'Open Data Commons Attribution (ODC-BY 1.0)',
     licenseUrl: 'https://opendatacommons.org/licenses/by/1-0/',

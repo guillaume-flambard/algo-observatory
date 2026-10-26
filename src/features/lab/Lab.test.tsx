@@ -5,8 +5,8 @@ import { Lab } from './Lab';
 describe('Lab', () => {
   it('affiche la provenance de la simulation sans faire passer ces résultats pour réels', () => {
     render(<Lab />);
-    expect(screen.getByTestId('provenance-badge')).toHaveTextContent(/données d'exemple — simulation/i);
-    expect(screen.getByRole('button', { name: /Tournesol · données publiques/i })).toBeInTheDocument();
+    expect(screen.getByTestId('provenance-badge')).toHaveTextContent(/données d'exemple, simulation/i);
+    expect(screen.getByRole('button', { name: /Tournesol, données publiques/i })).toBeInTheDocument();
     expect(screen.getByText(/valeurs utilisées ici sont entièrement simulées/i)).toBeInTheDocument();
   });
 
@@ -23,7 +23,7 @@ describe('Lab', () => {
 
   it('charge les 24 recommandations publiques et revient à la simulation', async () => {
     render(<Lab />);
-    fireEvent.click(screen.getByRole('button', { name: /Tournesol · données publiques/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Tournesol, données publiques/i }));
     await waitFor(() => expect(screen.getByTestId('provenance-badge')).toHaveTextContent('Données réelles'));
     expect(screen.getAllByText(/24 contenus/).length).toBeGreaterThan(0);
     expect(screen.getByText(/score collectif et diversité-inclusion/i)).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe('Lab', () => {
 
   it('montre les mesures Tournesol observées du contenu suivi', async () => {
     render(<Lab />);
-    fireEvent.click(screen.getByRole('button', { name: /Tournesol · données publiques/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Tournesol, données publiques/i }));
     await waitFor(() => expect(screen.getByTestId('provenance-badge')).toHaveTextContent('Données réelles'));
     const list = screen.getByRole('list', { name: 'Classement Hybride, comparé à Popularité' });
     fireEvent.click(within(list).getByRole('button', { name: /Les milliardaires, compatibles avec la démocratie/ }));

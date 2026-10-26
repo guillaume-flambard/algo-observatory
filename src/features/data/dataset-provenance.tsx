@@ -16,7 +16,7 @@ export function DatasetProvenance({ dataset }: DatasetProvenanceProps) {
     <div className="provenance">
       <div className="provenance-line">
         <span className={'provenance-stamp ' + (example ? 'is-simulated' : 'is-real')} data-testid="provenance-badge">
-          {example ? "Données d'exemple — simulation" : 'Données réelles'}
+          {example ? "Données d'exemple, simulation" : 'Données réelles'}
         </span>
         <span className="t-data provenance-count">{dataset.items.length} contenus</span>
       </div>

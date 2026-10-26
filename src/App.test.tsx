@@ -48,13 +48,13 @@ describe('Algo Observatory navigation', () => {
   it('partage les véritables données Tournesol entre laboratoire et explorateur', async () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Lancer une expérience/i }));
-    fireEvent.click(await screen.findByRole('button', { name: /Tournesol · données publiques/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /Tournesol, données publiques/i }));
     await waitFor(() => expect(screen.getByTestId('provenance-badge')).toHaveTextContent('Données réelles'));
     const primaryNav = screen.getByRole('navigation', { name: 'Navigation principale' });
     fireEvent.click(primaryNav.querySelectorAll('button')[4]!);
     expect(await screen.findByRole('heading', { name: /Contenus et métriques/i }, { timeout: 8000 })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: /Les milliardaires, compatibles avec la démocratie/i })).toBeInTheDocument();
     expect(screen.getAllByRole('row')).toHaveLength(25);
-    expect(screen.getByText('Tournesol — recommandations vidéos')).toBeInTheDocument();
+    expect(screen.getByText('Tournesol, recommandations vidéos')).toBeInTheDocument();
   });
 });

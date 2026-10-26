@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUpRight, Compass, Fingerprint, Layers3, Scale } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Fingerprint, Layers3, Scale } from 'lucide-react';
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
 import { ALL_STRATEGIES, computeResults } from '@/core/data/strategies';
 import { useApp } from '@/App';
@@ -53,16 +53,13 @@ export function Effects() {
     <main className="ao-interior ao-effects">
       <section className="border-b border-neutral-200">
         <div className="mx-auto max-w-[1440px] px-5 pb-16 pt-14 sm:px-8 lg:px-12 lg:pb-20">
-          <p className="mb-6 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">
-            <Compass size={15} aria-hidden="true" /> Exploration / 03 — Effets
-          </p>
           <div className="grid gap-10 lg:grid-cols-[1.2fr_0.6fr] lg:items-end">
             <h1 className="max-w-4xl text-[clamp(2.9rem,5.7vw,5.5rem)] font-semibold leading-[1.04] tracking-[-0.065em]">
-              Les algorithmes ne sont pas neutres<span className="text-neutral-400">.</span>
+              Les algorithmes ne sont pas neutres.
             </h1>
             <p className="max-w-md text-base leading-8 text-neutral-600">
               Modifier une règle de classement peut changer le parcours d’un contenu.
-              Voici ce que notre simulation permet de voir — et ce qu’elle ne permet pas d’affirmer.
+              Voici ce que notre simulation permet de voir, et ce qu’elle ne permet pas d’affirmer.
             </p>
           </div>
         </div>
@@ -71,7 +68,6 @@ export function Effects() {
       <section className="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">Une démonstration vérifiable</p>
             <h2 className="text-3xl font-semibold tracking-[-0.05em]">Un catalogue. Plusieurs ordres.</h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-neutral-600">
               Les traits correspondent à des classements réellement calculés dans cette application,
@@ -110,7 +106,6 @@ export function Effects() {
         <div className="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
           <div className="mb-10 grid gap-7 lg:grid-cols-[0.65fr_1fr] lg:items-end">
             <div>
-              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">Quatre angles de lecture</p>
               <h2 className="text-3xl font-semibold leading-tight tracking-[-0.05em] sm:text-4xl">
                 Les effets méritent des preuves.
               </h2>
@@ -127,7 +122,6 @@ export function Effects() {
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 text-neutral-700">
                     <Icon size={19} strokeWidth={1.6} aria-hidden="true" />
                   </div>
-                  <span className="font-mono text-xs text-neutral-400">{number} / 04</span>
                 </div>
                 <h3 className="text-xl font-semibold tracking-[-0.035em]">{title}</h3>
                 <p className="mt-2 text-xs font-semibold text-neutral-500">{subtitle}</p>
@@ -144,7 +138,6 @@ export function Effects() {
       <section className="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
         <div className="flex flex-col items-start justify-between gap-8 bg-neutral-900 p-8 text-white sm:p-12 lg:flex-row lg:items-end">
           <div>
-            <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-400">Passer de l’idée à l’expérience</p>
             <h2 className="max-w-xl text-3xl font-semibold tracking-[-0.05em]">Changez les règles et vérifiez vous-même.</h2>
             <p className="mt-4 max-w-xl text-sm leading-7 text-neutral-300">
               Chaque calcul est explicable ; chaque source de données est signalée.

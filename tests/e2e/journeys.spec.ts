@@ -26,10 +26,10 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     const slider = page.getByRole('slider', { name: /Influence du score collectif/i });
     await expect(slider).toHaveValue('65');
     await slider.fill('0');
-    await expect(page.getByText('0 / 8 POSITIONS MODIFIÉES')).toBeVisible();
+    await expect(page.getByText('0 / 8 positions modifiées')).toBeVisible();
     await slider.fill('100');
     await expect(slider).toHaveValue('100');
-    await expect(page.getByText('0 / 8 POSITIONS MODIFIÉES')).toHaveCount(0);
+    await expect(page.getByText('0 / 8 positions modifiées')).toHaveCount(0);
     const mobileLedger = page.locator('.ao-mobile-rank-list');
     const item = await mobileLedger.isVisible()
       ? mobileLedger.locator('button').filter({ hasText: 'Parasite' }).first()
@@ -93,7 +93,7 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     await page.route('https://api.tournesol.app/**', (route) => route.abort());
     await page.goto('/');
     await navigate(page, 'Laboratoire');
-    await page.getByRole('button', { name: /Tournesol · données publiques/i }).click();
+    await page.getByRole('button', { name: /Tournesol, données publiques/i }).click();
     await expect(page.getByTestId('provenance-badge')).toContainText('Données réelles');
     await expect(page.getByText(/24 contenus/).first()).toBeVisible();
     await page.getByText('Voir la provenance').click();
@@ -142,11 +142,11 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     const publicSource = page.getByRole('button', { name: /Tournesol 24 contenus/i });
     await publicSource.click();
     await expect(publicSource).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.getByText('SOURCE PUBLIQUE DATÉE')).toBeVisible();
+    await expect(page.getByText('Source publique datée')).toBeVisible();
     await expect(page.locator('tbody tr')).toHaveCount(24);
     await page.getByRole('button', { name: /Jeu d’exemple 8 contenus/i }).click();
     await expect(page.locator('tbody tr')).toHaveCount(8);
-    await expect(page.getByText('SIMULATION PÉDAGOGIQUE')).toBeVisible();
+    await expect(page.getByText('Simulation pédagogique')).toBeVisible();
   });
 
   test('l’inspecteur montre le détail et les rangs calculés d’un contenu', async ({ page }) => {
@@ -159,11 +159,11 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
       : page.locator('.dw-name button').filter({ hasText: 'Parasite' });
     await item.click();
     if (await page.locator('.dw-mobile-results').isVisible()) {
-      await expect(page.locator('.dw-mobile-detail')).toContainText('RANGS PAR STRATÉGIE · CALCULÉS');
+      await expect(page.locator('.dw-mobile-detail')).toContainText('Rangs calculés par stratégie');
       await expect(page.locator('.dw-mobile-item.is-selected')).toContainText('Parasite');
     } else {
       await expect(page.getByRole('complementary', { name: /Inspecter le contenu sélectionné/i })).toContainText('Parasite');
-      await expect(page.getByText('RANGS CALCULÉS · SIMULATION')).toBeVisible();
+      await expect(page.getByText('Rangs calculés par l’application')).toBeVisible();
     }
     await expect(page.getByRole('button', { name: /Comparer dans le laboratoire/i })).toBeVisible();
   });

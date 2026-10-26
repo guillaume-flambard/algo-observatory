@@ -72,7 +72,7 @@ function WeightControls({ strategy, params, onChange }: { strategy: Strategy; pa
         );
       })}
       <div className="lab-shares">
-        <span className="t-code">PARTS EFFECTIVES</span>
+        <span className="lab-shares-title">Parts effectives</span>
         <div className="lab-shares-track" aria-hidden="true">
           {weights.map(({ parameter, value }) => (
             <span key={parameter.id} data-metric={PARAM_METRIC[parameter.id]} style={{ flexGrow: total ? value : 1 }} />
@@ -108,7 +108,7 @@ function Measure({ label, a, b, note }: { label: string; a?: string; b: string; 
 function ScoreTable({ code, strategy, ranking }: { code: string; strategy: Strategy; ranking: Ranking }) {
   return (
     <section className="lab-table" aria-label={'Scores calculés par ' + strategy.name}>
-      <h3><span className="t-code">{code}</span> {strategy.name}</h3>
+      <h3><span className="lab-table-key">{code}</span> {strategy.name}</h3>
       <p className="lab-table-desc">{strategy.description}</p>
       <ol>
         {ranking.map(({ item, score, explanation }, index) => (
@@ -245,10 +245,9 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
   return (
     <main className="ao-interior lab">
       <header className="lab-head">
-        <p className="t-code lab-kicker">EXPÉRIMENTER · LABORATOIRE</p>
         <div className="lab-head-row">
           <div>
-            <h1 className="lab-title">Même contenu. <span>Autre classement.</span></h1>
+            <h1 className="lab-title">Même contenu. Autre classement.</h1>
             <p className="lab-lead">Choisissez une règle, touchez ses poids, suivez un contenu : chaque rang affiché est recalculé ici, sur les mêmes données.</p>
           </div>
           <button type="button" onClick={reset} className="lab-reset">
@@ -259,11 +258,11 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
         <div className="lab-source">
           <div className="lab-segmented" role="group" aria-label="Source des données">
             <button type="button" aria-pressed={source === 'simulation'} onClick={() => void selectSource('simulation')} disabled={loading}>
-              Données d’exemple <span className="t-code">8 · SIMULATION</span>
+              Données d’exemple <span className="lab-segmented-sub">8 contenus simulés</span>
             </button>
             <button type="button" aria-pressed={source === 'snapshot'} onClick={() => void selectSource('snapshot')} disabled={loading}>
-              Tournesol · données publiques
-              {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <span className="t-code">24 · RÉEL</span>}
+              Tournesol, données publiques
+              {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <span className="lab-segmented-sub">24 contenus réels</span>}
             </button>
           </div>
           <DatasetProvenance dataset={dataset} />
@@ -284,7 +283,7 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
       <div className="lab-bench">
         <section className="lab-rail" aria-label="Règles comparées">
           <div className="lab-rail-block">
-            <p className="t-code lab-slot"><span className="lab-slot-key is-b">B</span> EXPÉRIENCE</p>
+            <p className="t-meta lab-slot"><span className="lab-slot-key is-b">B</span> Expérience</p>
             <div className="lab-chips" role="group" aria-label="Stratégie testée">
               {ALL_STRATEGIES.map((strategy) => (
                 <button
@@ -307,7 +306,7 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
           ))}
 
           <div className="lab-rail-block">
-            <label htmlFor="lab-reference" className="t-code lab-slot"><span className="lab-slot-key">A</span> RÉFÉRENCE · COMPARER AVEC</label>
+            <label htmlFor="lab-reference" className="t-meta lab-slot"><span className="lab-slot-key">A</span> Référence : comparer avec</label>
             <div className="lab-reference">
               <select id="lab-reference" value={referenceId} onChange={(event) => chooseReference(event.target.value)}>
                 {ALL_STRATEGIES.map((strategy) => <option key={strategy.id} value={strategy.id}>{strategy.name}</option>)}
@@ -338,7 +337,7 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
             revision={revision}
           />
           <div className="lab-stage-foot">
-            <span className="t-data">{shift.changed} / {shift.total} positions changent · écart max {shift.maxShift}</span>
+            <span className="t-meta"><span className="t-data">{shift.changed} / {shift.total}</span> positions changent, écart maximal <span className="t-data">{shift.maxShift}</span></span>
             {dataset.items.length > 10 && (
               <button type="button" onClick={() => setShowAll((value) => !value)} className="lab-link">
                 {showAll ? 'Afficher les 10 premiers' : `Afficher les ${dataset.items.length} contenus`}

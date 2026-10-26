@@ -15,9 +15,9 @@ describe('The Ranking Machine — accueil interactif', () => {
     render(<Home onNavigate={vi.fn()} />);
     const slider = screen.getByRole('slider', { name: /Influence du score collectif/i });
     fireEvent.change(slider, { target: { value: '0' } });
-    expect(screen.getByText('0 / 8 POSITIONS MODIFIÉES')).toBeInTheDocument();
+    expect(screen.getByText('0 / 8 positions modifiées')).toBeInTheDocument();
     fireEvent.change(slider, { target: { value: '100' } });
-    expect(screen.getByText(/8 POSITIONS MODIFIÉES/i).textContent).not.toBe('0 / 8 POSITIONS MODIFIÉES');
+    expect(screen.getByText(/8 positions modifiées/i).textContent).not.toBe('0 / 8 positions modifiées');
     const comparison = screen.getByRole('region', { name: /Machine interactive de classement/i });
     expect(comparison.querySelectorAll('.ao-rank-row')).toHaveLength(16);
   });

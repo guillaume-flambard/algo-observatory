@@ -9,11 +9,11 @@ const principles = [
 ];
 
 const sources = [
-  { id: 'S-001', name: 'Données d’exemple', status: 'SIMULATION', statusClass: 'studio-state-demo',
+  { id: 'S-001', name: 'Données d’exemple', status: 'Simulation', statusClass: 'studio-state-demo',
     description: 'Huit œuvres et des métriques fictives pour comprendre les choix de classement.', note: 'Données construites pour la démonstration', url: null as string | null },
-  { id: 'S-002', name: 'Tournesol', status: 'CAPTURE PUBLIQUE', statusClass: 'studio-state-public',
-    description: '24 recommandations publiques collectées le 25 octobre 2026, licence ODC-BY 1.0. Les quatre métriques utilisées dans le laboratoire sont dérivées des champs publics.', note: 'Instantané daté · transformations documentées', url: 'https://tournesol.app/' },
-  { id: 'S-003', name: 'Bluesky', status: 'NON CONNECTÉ', statusClass: 'studio-state-unavailable',
+  { id: 'S-002', name: 'Tournesol', status: 'Capture publique', statusClass: 'studio-state-public',
+    description: '24 recommandations publiques collectées le 25 octobre 2026, licence ODC-BY 1.0. Les quatre métriques utilisées dans le laboratoire sont dérivées des champs publics.', note: 'Instantané daté, transformations documentées', url: 'https://tournesol.app/' },
+  { id: 'S-003', name: 'Bluesky', status: 'Non connecté', statusClass: 'studio-state-unavailable',
     description: 'Une piste de recherche. Le projet n’observe actuellement ni flux Bluesky ni recommandations issues de ce réseau.', note: 'Aucun connecteur ni classement actif', url: 'https://bsky.social/' },
 ];
 
@@ -29,24 +29,23 @@ export function Methodology() {
   return (
     <main className="ao-interior studio-method">
       <header className="studio-method-head">
-        <span className="studio-section-code">06 / MÉTHODOLOGIE — PROTOCOLE PUBLIC</span>
         <h1>Les résultats comptent.<br /><span>La méthode aussi.</span></h1>
         <p>Une expérience n’est vérifiable que si les sources, les transformations et les limites sont accessibles. Voici ce qui est observé, calculé et seulement simulé.</p>
       </header>
       <section className="studio-method-section" aria-labelledby="method-principles">
-        <div className="studio-method-section-title"><span className="studio-section-code">01 / PRINCIPES</span><h2 id="method-principles">Quatre conditions de confiance.</h2></div>
+        <div className="studio-method-section-title"><h2 id="method-principles">Quatre conditions de confiance.</h2></div>
         <div className="studio-method-principles">
           {principles.map(({ number, title, description, icon: Icon }) => (
             <article key={number}>
-              <span className="studio-section-code">{number}</span><Icon size={20} aria-hidden="true" /><h3>{title}</h3><p>{description}</p>
+              <Icon size={20} aria-hidden="true" /><h3>{title}</h3><p>{description}</p>
             </article>
           ))}
         </div>
       </section>
 
       <section className="studio-method-section" aria-labelledby="method-sources">
-        <div className="studio-method-section-title"><span className="studio-section-code">02 / SOURCES</span><h2 id="method-sources">Le registre des données.</h2></div>
-        <div className="studio-method-source-head" aria-hidden="true"><span>RÉF.</span><span>ORIGINE / ÉTAT</span><span>CE QU’ON PEUT AFFIRMER</span></div>
+        <div className="studio-method-section-title"><h2 id="method-sources">Le registre des données.</h2></div>
+        <div className="studio-method-source-head" aria-hidden="true"><span>Réf.</span><span>Origine et état</span><span>Ce qu’on peut affirmer</span></div>
         <div className="studio-method-sources">
           {sources.map((source) => (
             <article key={source.id}>
@@ -63,7 +62,7 @@ export function Methodology() {
       </section>
 
       <section className="studio-method-section" aria-labelledby="method-strategies">
-        <div className="studio-method-section-title"><span className="studio-section-code">03 / RÈGLES</span><h2 id="method-strategies">Quatre stratégies inspectables.</h2></div>
+        <div className="studio-method-section-title"><h2 id="method-strategies">Quatre stratégies inspectables.</h2></div>
         <div className="studio-method-strategies">
           {strategies.map((strategy) => (
             <div key={strategy.id}><span className="studio-section-code">{strategy.id}</span><h3>{strategy.name}</h3><p>{strategy.definition}</p></div>
@@ -71,7 +70,7 @@ export function Methodology() {
         </div>
       </section>
       <section className="studio-method-cta">
-        <div><span className="studio-section-code">04 / VÉRIFICATION</span><h2>Ne croyez pas un classement. Testez-le.</h2><p>Changez la règle dans le laboratoire, puis inspectez les données et la provenance.</p></div>
+        <div><h2>Ne croyez pas un classement. Testez-le.</h2><p>Changez la règle dans le laboratoire, puis inspectez les données et la provenance.</p></div>
         <button type="button" onClick={() => setView('lab')}>Vérifier un classement <ArrowRight size={16} aria-hidden="true" /></button>
       </section>
     </main>

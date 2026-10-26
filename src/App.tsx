@@ -81,7 +81,7 @@ function AppUI() {
   const firstView = useRef(true);
 
   useEffect(() => {
-    document.title = (navigation.find((item) => item.id === view)?.label ?? 'Accueil') + ' — Algo Observatory';
+    document.title = (navigation.find((item) => item.id === view)?.label ?? 'Accueil') + ', Algo Observatory';
     if (firstView.current) {
       firstView.current = false;
       return;
@@ -130,8 +130,8 @@ function AppUI() {
               <span data-testid="app-title" className="app-name">
                 Algo Observatory
               </span>
-              <span className="app-tagline t-code">
-                LABORATOIRE DES CLASSEMENTS
+              <span className="app-tagline">
+                Laboratoire des classements
               </span>
             </span>
           </button>
@@ -139,7 +139,7 @@ function AppUI() {
           <nav aria-label="Navigation principale" className="app-nav">
             {intents.map((intent) => (
               <div key={intent} className="app-nav-group">
-                <span className="app-nav-intent t-code" aria-hidden="true">{intent}</span>
+                <span className="app-nav-intent" aria-hidden="true">{intent}</span>
                 <div className="app-nav-links">
                   {navigation.filter((item) => item.intent === intent).map((item) => (
                     <button
@@ -183,7 +183,7 @@ function AppUI() {
           <nav id="mobile-navigation" aria-label="Navigation mobile" className="app-mobile-nav">
             {intents.map((intent) => (
               <div key={intent} className="app-mobile-group">
-                <span className="t-code app-nav-intent">{intent}</span>
+                <span className="app-nav-intent">{intent}</span>
                 {navigation.filter((item) => item.intent === intent).map((item) => (
                   <button
                     key={item.id}

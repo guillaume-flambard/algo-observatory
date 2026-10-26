@@ -12,9 +12,11 @@
   --ink-3: #5c6d79;
   --on-ink: #f3f6f7;
   --on-ink-2: #c0cbd0;
+  --ink-raised: #253743;
+  --rule-on-ink: #435563;
   --rule: #cbd4d8;
   --rule-soft: #e0e6e9;
-  --control-border: #7f909b;
+  --control-border: #6f808b;
   --trace: #b4c1c9;
   --cobalt: #2446d5;
   --cobalt-deep: #1a35a8;
@@ -66,6 +68,6 @@
 .t-body { font-family: var(--font-sans); font-size: 15px; line-height: 1.6; font-weight: 400; }
 .t-body-sm { font-family: var(--font-sans); font-size: 13px; line-height: 1.55; font-weight: 400; }
 .t-label { font-family: var(--font-sans); font-size: 13px; line-height: 1.3; font-weight: 600; }
+.t-meta { font-family: var(--font-sans); font-size: 13px; line-height: 1.4; font-weight: 600; }
 .t-figure { font-family: var(--font-mono); font-size: 32px; line-height: 1; font-weight: 500; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .t-data { font-family: var(--font-mono); font-size: 13px; line-height: 1.3; font-weight: 500; font-variant-numeric: tabular-nums; }
-.t-code { font-family: var(--font-mono); font-size: 11px; line-height: 1.3; font-weight: 600; letter-spacing: 0.06em; font-variant-numeric: tabular-nums; }
