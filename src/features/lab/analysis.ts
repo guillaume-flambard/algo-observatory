@@ -167,7 +167,7 @@ export function indicators(ranking: Ranking, k = 5): Indicators {
   const top = ranking.slice(0, k);
   const counts = new Map<string, number>();
   for (const { item } of top) counts.set(item.category, (counts.get(item.category) ?? 0) + 1);
-  const [dominantCategory, dominantCount] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] ?? ['—', 0];
+  const [dominantCategory, dominantCount] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] ?? ['aucune', 0];
   const mean = (entries: Ranking) => entries.length ? entries.reduce((sum, { item }) => sum + item.metrics.popularity, 0) / entries.length : 0;
   return {
     k: top.length,

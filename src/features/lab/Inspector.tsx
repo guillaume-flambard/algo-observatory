@@ -15,7 +15,7 @@ export function CompositionBar({ strategy, composition, code }: { strategy: Stra
   return (
     <figure className="composition">
       <figcaption className="composition-head">
-        <span><span className="t-code composition-code">{code}</span> {strategy.name}</span>
+        <span><span className="composition-code">{code}</span> {strategy.name}</span>
         <span className="t-data">score {Math.round(composition.score * 100)}</span>
       </figcaption>
       <div className="composition-track" aria-hidden="true">
@@ -62,9 +62,8 @@ export function Inspector({ item, move, reference, experiment, lastChange, simul
   const others = move.delta >= 0 ? move.overtook : move.overtakenBy;
   return (
     <aside className="inspector" aria-label="Contenu suivi">
-      <p className="t-code inspector-code">CONTENU SUIVI</p>
       <h3 className="inspector-title">{item.title}</h3>
-      <p className="inspector-meta">{item.author} · {item.category}</p>
+      <p className="inspector-meta">{item.author}, {item.category}</p>
 
       <div className="inspector-move">
         <span className={'t-figure inspector-figure' + (move.delta > 0 ? ' is-up' : '')}>
@@ -86,17 +85,17 @@ export function Inspector({ item, move, reference, experiment, lastChange, simul
         <p className="inspector-sentence">{explainMovement(item, move, reference, experiment, means)}</p>
         {others.length > 0 && (
           <p className="inspector-others">
-            <span className="t-code">{move.delta >= 0 ? 'PASSE DEVANT' : 'PASSÉ PAR'}</span>{' '}
-            {others.slice(0, 3).map((other) => other.title).join(' · ')}
-            {others.length > 3 ? ' · +' + (others.length - 3) : ''}
+            <strong>{move.delta >= 0 ? 'Passe devant :' : 'Dépassé par :'}</strong>{' '}
+            {others.slice(0, 3).map((other) => other.title).join(', ')}
+            {others.length > 3 ? ' et ' + (others.length - 3) + ' autre(s)' : ''}
           </p>
         )}
       </div>
 
       {item.evidence ? (
         <dl className="inspector-evidence">
-          <div><dt>Score Tournesol</dt><dd className="t-data">{item.evidence.tournesolScore === null ? '—' : Math.round(item.evidence.tournesolScore)}</dd></div>
-          <div><dt>Comparaisons</dt><dd className="t-data">{item.evidence.nComparisons} par {item.evidence.nContributors} contributeurs</dd></div>
+          <div><dt>Score Tournesol</dt><dd className="t-data">{item.evidence.tournesolScore === null ? 'non noté' : Math.round(item.evidence.tournesolScore)}</dd></div>
+          <div><dt>Comparaisons</dt><dd><span className="t-data">{item.evidence.nComparisons}</span> par <span className="t-data">{item.evidence.nContributors}</span> contributeurs</dd></div>
           {item.evidence.views !== null && <div><dt>Vues YouTube</dt><dd className="t-data">{item.evidence.views.toLocaleString('fr-FR')}</dd></div>}
           <a href={item.evidence.url} target="_blank" rel="noopener noreferrer" className="inspector-source">
             Voir sur Tournesol <ExternalLink size={13} aria-hidden="true" />

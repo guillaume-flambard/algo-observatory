@@ -30,13 +30,13 @@ function createMetrics(
 
 export const EXAMPLE_DATASET: Dataset = {
   id: 'example-cinema',
-  title: 'Cinéma — jeu d\'exemple (simulation)',
+  title: 'Cinéma, jeu d\'exemple (simulation)',
   kind: 'example',
-  source: 'Algo Observatory — données d\'exemple',
+  source: 'Algo Observatory, données d\'exemple',
   sourceUrl: undefined,
-  license: 'Exemple — libre de droits à des fins de démonstration uniquement',
+  license: 'Exemple, libre de droits à des fins de démonstration uniquement',
   licenseUrl: undefined,
-  freshness: 'Généré à la construction — pas de fraîcheur réelle',
+  freshness: 'Généré à la construction, pas de fraîcheur réelle',
   itemCount: 8,
   items: [
     buildItem('i-1', 'Le Voyage de Chihiro', 'Studio Ghibli', 'Animation', createMetrics(0.9, 0.85, 0.4, 0.7)),

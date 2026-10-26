@@ -83,8 +83,8 @@ export function RankLedger({
   return (
     <div className="ledger" data-count={shown}>
       <div className="ledger-heads" aria-hidden="true">
-        <span><span className="t-code">A</span> {referenceName}</span>
-        <span><span className="t-code">B</span> {experimentName}</span>
+        <span><span className="ledger-key">A</span> {referenceName}</span>
+        <span><span className="ledger-key">B</span> {experimentName}</span>
       </div>
 
       {/* Desktop and tablet: two columns joined by paths. */}
@@ -159,8 +159,8 @@ export function RankLedger({
           })}
         </ol>
         {shown < total && (
-          <div className="ledger-outside t-code" style={{ top: height + 6 }} aria-hidden="true">
-            <span>rangs {shown + 1}–{total}</span><span>rangs {shown + 1}–{total}</span>
+          <div className="ledger-outside" style={{ top: height + 6 }} aria-hidden="true">
+            <span>rangs {shown + 1} à {total}</span><span>rangs {shown + 1} à {total}</span>
           </div>
         )}
       </div>

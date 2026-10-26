@@ -39,9 +39,8 @@ export function Discover({ onNavigate }: DiscoverProps) {
           </button>
           <div className="grid gap-8 lg:grid-cols-[1fr_0.5fr] lg:items-end">
             <div>
-              <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">Guide / 01 — Comprendre</p>
               <h1 className="max-w-4xl text-[clamp(2.8rem,6vw,5.7rem)] font-semibold leading-[1.04] tracking-[-0.065em]">
-                Derrière chaque fil, <span className="text-neutral-400">un choix.</span>
+                Derrière chaque fil, un choix.
               </h1>
             </div>
             <p className="max-w-md text-base leading-8 text-neutral-600">
@@ -56,7 +55,6 @@ export function Discover({ onNavigate }: DiscoverProps) {
       <section className="mx-auto grid max-w-[1440px] gap-8 px-5 py-16 sm:px-8 lg:grid-cols-[0.42fr_1fr] lg:gap-24 lg:px-12 lg:py-24">
         <div>
           <div className="lg:sticky lg:top-28">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">Le mécanisme</p>
             <h2 className="mt-4 max-w-xs text-3xl font-semibold tracking-[-0.045em]">Comment un classement se construit.</h2>
             <p className="mt-5 max-w-xs text-sm leading-7 text-neutral-600">
               Trois étapes simplifiées pour comprendre ce que le laboratoire rend visible.
@@ -71,7 +69,6 @@ export function Discover({ onNavigate }: DiscoverProps) {
                 <Icon size={20} strokeWidth={1.5} aria-hidden="true" />
               </div>
               <div>
-                <p className="mb-2 font-mono text-[11px] text-neutral-400">{index} / 03</p>
                 <h3 className="text-xl font-semibold tracking-[-0.025em]">{title}</h3>
                 <p className="mt-3 max-w-xl text-sm leading-7 text-neutral-600">{text}</p>
               </div>
@@ -83,7 +80,6 @@ export function Discover({ onNavigate }: DiscoverProps) {
       <section className="border-y border-neutral-200 bg-white">
         <div className="mx-auto grid max-w-[1440px] gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1fr_0.85fr] lg:items-center lg:gap-24 lg:px-12 lg:py-20">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">Une conséquence très concrète</p>
             <h2 className="mt-4 max-w-xl text-3xl font-semibold leading-tight tracking-[-0.045em] sm:text-4xl">
               Changer le critère, c’est changer ce qui devient visible.
             </h2>
@@ -93,7 +89,7 @@ export function Discover({ onNavigate }: DiscoverProps) {
               Un classement n’est jamais indépendant de ses objectifs.
             </p>
           </div>
-          <div className="rounded-2xl border border-neutral-200 bg-[#f7f7f5] p-7 sm:p-9">
+          <div className="rounded-2xl border border-neutral-200 bg-[var(--canvas)] p-7 sm:p-9">
             <div className="mb-8 flex items-center gap-2 text-xs font-semibold">
               <EyeOff size={17} aria-hidden="true" /> Ce qu’on ne peut pas déduire
             </div>
@@ -113,7 +109,6 @@ export function Discover({ onNavigate }: DiscoverProps) {
       <section className="mx-auto max-w-[1440px] px-5 py-20 sm:px-8 lg:px-12">
         <div className="flex flex-col items-start justify-between gap-8 bg-neutral-900 p-8 text-white sm:p-12 lg:flex-row lg:items-end">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-400">À vous de jouer</p>
             <h2 className="mt-5 max-w-xl text-3xl font-semibold leading-tight tracking-[-0.045em] sm:text-4xl">
               Ne nous croyez pas sur parole. Comparez.
             </h2>
