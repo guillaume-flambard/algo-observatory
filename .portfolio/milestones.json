@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "milestones": [
+    {
+      "kind": "prototype",
+      "date": "2026-10-25",
+      "title": {
+        "fr": "Laboratoire de classement interactif documenté",
+        "en": "Documented interactive ranking laboratory"
+      },
+      "detail": {
+        "fr": "Six parcours, comparaison de classements calculés et tests desktop/mobile documentés dans la PR fusionnée.",
+        "en": "Six user journeys, computed ranking comparisons and desktop/mobile tests documented in the merged PR."
+      },
+      "evidenceUrl": "https://github.com/guillaume-flambard/algo-observatory/pull/6"
+    },
+    {
+      "kind": "demo",
+      "date": "2026-10-25",
+      "title": {
+        "fr": "Démonstration publique GitHub Pages",
+        "en": "Public GitHub Pages demonstration"
+      },
+      "detail": {
+        "fr": "Déploiement du site de démonstration décrit par une PR fusionnée. L'accès public ne prouve pas l'adoption ni le fonctionnement de chaque parcours.",
+        "en": "Demo site publishing documented by a merged PR. Public access does not establish adoption or validate every user journey."
+      },
+      "evidenceUrl": "https://github.com/guillaume-flambard/algo-observatory/pull/7",
+      "demoUrl": "https://guillaume-flambard.github.io/algo-observatory/"
+    }
+  ]
+}
