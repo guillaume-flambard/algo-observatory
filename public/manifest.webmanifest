@@ -1,0 +1,15 @@
+{
+  "name": "Algo Observatory",
+  "short_name": "Algo Observatory",
+  "description": "Laboratoire interactif pour comprendre et comparer des règles de recommandation.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f6f7",
+  "theme_color": "#f3f6f7",
+  "icons": [
+    { "src": "favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "apple-touch-icon.png", "type": "image/png", "sizes": "180x180" }
+  ]
+}

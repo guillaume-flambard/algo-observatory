@@ -1,0 +1,24 @@
+# Algo Observatory
+
+> Laboratoire interactif et open source (MIT) pour comprendre les algorithmes de recommandation : on change une règle de classement et on voit, contenu par contenu, ce qui monte, ce qui descend et pourquoi. Interface en français. Projet bénévole et indépendant : aucune affiliation avec Tournesol, YouTube ou Data for Good.
+
+Les données réelles sont un instantané daté de 24 recommandations publiques de Tournesol (https://tournesol.app), récupéré le 25 octobre 2026 sous licence ODC-BY 1.0. Le catalogue d'exemple de l'accueil est une simulation pédagogique, signalée comme telle à l'écran. Rien ici ne mesure le classement réel de YouTube ou d'une autre plateforme.
+
+## Pages
+
+- [Accueil](https://guillaume-flambard.github.io/algo-observatory/#/home): un curseur dose « nombre de vues » contre « avis de la communauté » et réordonne une liste, avec la raison de chaque déplacement.
+- [Découvrir](https://guillaume-flambard.github.io/algo-observatory/#/discover): les mécanismes expliqués simplement (popularité, score collectif, diversité, bulles).
+- [Laboratoire](https://guillaume-flambard.github.io/algo-observatory/#/lab): quatre règles (popularité, score collectif, diversité, hybride) comparées sur les mêmes données, avec réglage des poids.
+- [Effets](https://guillaume-flambard.github.io/algo-observatory/#/effects): concentration, diversité et déplacements mesurés entre deux règles.
+- [Données](https://guillaume-flambard.github.io/algo-observatory/#/explore): le jeu de données, ses colonnes expliquées, filtres et export CSV.
+- [Méthodologie](https://guillaume-flambard.github.io/algo-observatory/#/methodology): provenance, licences, transformations et limites.
+
+## Code et données
+
+- [Dépôt GitHub](https://github.com/guillaume-flambard/algo-observatory): React 19, TypeScript, Vite, tests Vitest et Playwright.
+- [Instantané Tournesol](https://github.com/guillaume-flambard/algo-observatory/blob/main/src/core/data/tournesol-public-snapshot.json): les 24 contenus, leurs scores et la date de récupération.
+- [Règles de classement](https://github.com/guillaume-flambard/algo-observatory/blob/main/src/core/data/strategies.ts): le code exact des quatre règles.
+
+## Optional
+
+- [Version longue](https://guillaume-flambard.github.io/algo-observatory/llms-full.txt): règles, métriques et limites en détail.
