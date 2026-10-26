@@ -10,30 +10,26 @@ const observations = [
   {
     icon: ArrowUpRight,
     title: 'Biais de popularité',
-    subtitle: 'Ce qui est déjà vu devient encore plus visible',
-    body: 'Une règle qui ne regarde que la popularité met en haut ce que beaucoup de gens ont déjà vu. Elle ne tient compte ni de la qualité ni de la variété.',
-    limit: 'Ce mécanisme seul ne démontre pas une amplification réelle sur une plateforme.',
+    body: 'Si la règle ne compte que les vues, le déjà-vu reste en haut.',
+    limit: 'Cela ne prouve pas que les plateformes réelles amplifient.',
   },
   {
     icon: Fingerprint,
     title: 'Bulle de filtre',
-    subtitle: 'Une hypothèse à tester, pas un résultat établi ici',
-    body: 'Quand une plateforme personnalise ses suggestions, elle peut vous montrer de moins en moins de choses différentes de vos habitudes. Notre jeu d’exemple ne contient ni profil ni historique.',
+    body: 'Une plateforme qui personnalise peut vous resservir toujours le même genre.',
     limit: 'Ce laboratoire ne mesure donc pas l’existence d’une bulle de filtre.',
   },
   {
     icon: Layers3,
     title: 'Homogénéité',
-    subtitle: 'Le haut du classement parle parfois d’un seul sujet',
-    body: 'En comparant deux classements, on voit si les premières places sont occupées par la même catégorie. La règle Diversité alterne volontairement les catégories.',
-    limit: 'Le résultat dépend entièrement du catalogue et des règles choisies.',
+    body: 'Le haut du classement peut ne parler que d’un sujet.',
+    limit: 'Le résultat dépend du catalogue et de la règle.',
   },
   {
     icon: Scale,
     title: 'Équilibre hybride',
-    subtitle: 'On peut doser plusieurs objectifs',
-    body: 'La règle Hybride mélange popularité, avis de la communauté et diversité. Changer un dosage peut déplacer un contenu, même si le contenu lui-même ne change pas.',
-    limit: 'Le meilleur équilibre est un choix, pas une vérité mathématique.',
+    body: 'Changer le dosage déplace les contenus, sans qu’ils changent.',
+    limit: 'Le bon dosage est un choix, pas une vérité.',
   },
 ];
 
@@ -50,7 +46,7 @@ export function Effects() {
     <main className="page ao-interior ao-effects">
       <PageHead
         title="Les algorithmes ne sont pas neutres."
-        lead="La même liste de contenus, rangée par deux règles différentes, ne donne pas le même ordre. Voici ce que cela permet de voir, et ce que cela ne prouve pas."
+        lead="Même liste, deux règles, deux ordres différents. Voici ce que cela montre, et ce que cela ne prouve pas."
         actions={<button type="button" onClick={() => setView('lab')} className="btn btn-primary">Modifier les règles <ArrowRight size={16} aria-hidden="true" /></button>}
       />
 
@@ -59,8 +55,7 @@ export function Effects() {
           <div className="section-head">
             <h2 id="effects-demo" className="section-title">Un catalogue. Plusieurs ordres.</h2>
             <p className="section-lead">
-              Chaque trait relie un même film dans deux classements calculés par l’application, sur un catalogue
-              <strong> entièrement simulé</strong>. Touchez un film pour suivre son trajet.
+              Chaque trait relie un même film. Catalogue <strong>entièrement simulé</strong>.
             </p>
           </div>
           <div className="effects-ledger">
@@ -88,16 +83,11 @@ export function Effects() {
         <div className="page-container">
           <div className="section-head">
             <h2 id="effects-list" className="section-title">Les effets méritent des preuves.</h2>
-            <p className="section-lead">
-              Ces mots servent à poser des questions. Le laboratoire montre ce que font ses propres règles ; il n’observe
-              ni les choix ni les intentions d’une plateforme réelle.
-            </p>
           </div>
           <div className="effects-grid">
-            {observations.map(({ icon: Icon, title, subtitle, body, limit }) => (
+            {observations.map(({ icon: Icon, title, body, limit }) => (
               <article key={title} className="effects-card">
                 <h3 className="item-title effects-card-title"><Icon size={18} strokeWidth={1.75} aria-hidden="true" /> {title}</h3>
-                <p className="effects-card-subtitle">{subtitle}</p>
                 <p className="page-small">{body}</p>
                 <p className="effects-card-limit"><strong>Limite :</strong> {limit}</p>
               </article>
@@ -110,7 +100,7 @@ export function Effects() {
         <div className="page-container page-cta">
           <div>
             <h2 id="effects-cta" className="section-title">Changez les règles et vérifiez vous-même.</h2>
-            <p className="section-lead">Chaque calcul s’explique et chaque source de données est indiquée.</p>
+            <p className="section-lead">Chaque calcul s’explique, chaque source est citée.</p>
           </div>
           <button type="button" onClick={() => setView('lab')} className="btn btn-primary">
             Ouvrir le laboratoire <ArrowRight size={16} aria-hidden="true" />

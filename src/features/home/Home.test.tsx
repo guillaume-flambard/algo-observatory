@@ -13,11 +13,11 @@ describe('The Ranking Machine — accueil interactif', () => {
 
   it('recalcule le classement et met à jour les positions sans changer le catalogue', () => {
     render(<Home onNavigate={vi.fn()} />);
-    const slider = screen.getByRole('slider', { name: /Influence du score collectif/i });
+    const slider = screen.getByRole('slider', { name: /Ce que la règle regarde/i });
     fireEvent.change(slider, { target: { value: '0' } });
-    expect(screen.getByText('0 / 8 positions modifiées')).toBeInTheDocument();
+    expect(screen.getByTestId('home-changes')).toHaveTextContent('00 sur 8 films ont changé de place');
     fireEvent.change(slider, { target: { value: '100' } });
-    expect(screen.getByText(/8 positions modifiées/i).textContent).not.toBe('0 / 8 positions modifiées');
+    expect(screen.getByTestId('home-changes')).not.toHaveTextContent(/^00 /);
     const comparison = screen.getByRole('region', { name: /Machine interactive de classement/i });
     // Same ledger as the laboratory: 8 reference rows and 8 rows after the change.
     expect(comparison.querySelectorAll('.ledger-row')).toHaveLength(16);
@@ -25,7 +25,7 @@ describe('The Ranking Machine — accueil interactif', () => {
 
   it('permet de suivre un titre par clavier et explique son déplacement', () => {
     render(<Home onNavigate={vi.fn()} />);
-    const ledger = screen.getByRole('list', { name: 'Classement après votre réglage, comparé à la popularité seule' });
+    const ledger = screen.getByRole('list', { name: 'Classement après votre réglage, comparé aux plus vus' });
     const choice = within(ledger).getByRole('button', { name: /Parasite/ });
     fireEvent.click(choice);
     expect(choice).toHaveAttribute('aria-pressed', 'true');

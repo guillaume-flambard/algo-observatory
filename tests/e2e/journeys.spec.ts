@@ -23,13 +23,13 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
 
   test('la machine de classement réagit réellement au réglage, sur clavier et tactile', async ({ page }) => {
     await page.goto('/');
-    const slider = page.getByRole('slider', { name: /Influence du score collectif/i });
+    const slider = page.getByRole('slider', { name: /Ce que la règle regarde/i });
     await expect(slider).toHaveValue('65');
     await slider.fill('0');
-    await expect(page.getByText('0 / 8 positions modifiées')).toBeVisible();
+    await expect(page.getByTestId('home-changes')).toHaveText(/^00 sur 8 films/);
     await slider.fill('100');
     await expect(slider).toHaveValue('100');
-    await expect(page.getByText('0 / 8 positions modifiées')).toHaveCount(0);
+    await expect(page.getByTestId('home-changes')).not.toHaveText(/^00 /);
     const ledger = page.getByRole('list', { name: /Classement après votre réglage/ }).filter({ visible: true });
     const item = ledger.getByRole('button', { name: /Parasite/i });
     await item.click();
