@@ -40,4 +40,18 @@ describe('RankLedger on a large catalogue', () => {
     fireEvent.click(rows[0]!);
     expect(selected).toBe('sample-99');
   });
+
+  it('keeps the highlighter on the tracked item while another row is hovered', () => {
+    const reference = computeResults(EXAMPLE_DATASET.items, POPULARITY_STRATEGY, {});
+    const experiment = computeResults(EXAMPLE_DATASET.items, COLLECTIVE_STRATEGY, {});
+    const { container } = render(
+      <RankLedger referenceName="Popularité" experimentName="Score collectif" reference={reference} experiment={experiment} selectedId="i-6" onSelect={() => {}} limit={8} />,
+    );
+    const list = screen.getByRole('list', { name: 'Classement Score collectif, comparé à Popularité' });
+    fireEvent.mouseEnter(within(list).getAllByRole('button')[0]!);
+    expect(container.querySelectorAll('.ledger-path.is-active')).toHaveLength(1);
+    expect(container.querySelectorAll('.ledger-path.is-hover')).toHaveLength(1);
+    expect(container.querySelector('.ledger-path.is-active')).not.toBe(container.querySelector('.ledger-path.is-hover'));
+  });
 });
+

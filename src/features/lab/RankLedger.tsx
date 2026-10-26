@@ -76,7 +76,6 @@ export function RankLedger({
       .filter((entry) => entry.from <= shown || entry.to <= shown),
     [reference, after, shown],
   );
-  const accent = hoverId ?? selectedId;
   const leftRows = reference.slice(0, shown);
   // Rows leaving the visible block travel to the outside lane before disappearing.
   const rightRows = experiment.filter(({ item }, index) => index < shown || rankOf(item.id) <= shown + 0.5);
@@ -110,7 +109,8 @@ export function RankLedger({
           {paths.map((path) => {
             const y1 = y(path.from, PITCH) + 22;
             const y2 = y(rankOf(path.id), PITCH) + 22;
-            const active = path.id === accent;
+            // The sunflower highlighter belongs to the tracked item only; hover stays cobalt.
+            const active = path.id === selectedId;
             return (
               <path
                 key={path.id}
