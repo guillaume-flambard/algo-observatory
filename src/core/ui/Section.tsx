@@ -4,6 +4,7 @@ interface SectionProps {
   children?: ReactNode;
   title?: string;
   description?: string;
+  eyebrow?: string;
   className?: string;
 }
 
@@ -11,20 +12,22 @@ export function Section({
   children,
   title,
   description,
+  eyebrow,
   className = '',
 }: SectionProps) {
   return (
     <section className={className}>
-      {title || description ? (
-        <div className="mb-5">
-          {title && (
-            <h2 className="text-lg font-bold text-slate-900 tracking-tight">{title}</h2>
-          )}
-          {description && (
-            <p className="mt-1 text-sm text-slate-600">{description}</p>
-          )}
-        </div>
-      ) : null}
+      <div className="mb-8">
+        {eyebrow && (
+          <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-4 block">
+            {eyebrow}
+          </span>
+        )}
+        {title && <h2 className="text-2xl font-bold text-slate-900 tracking-tight text-balance mb-2">{title}</h2>}
+        {description && (
+          <p className="text-slate-600 text-lg leading-relaxed mb-8 max-w-2xl">{description}</p>
+        )}
+      </div>
       <div>{children}</div>
     </section>
   );

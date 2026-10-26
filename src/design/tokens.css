@@ -1,0 +1,197 @@
+@layer base {
+  :root {
+    /* --- Palette principale --- */
+    --color-ink: 240 247 255;        /* slate-50 inversé */
+    --color-surface: 250 250 250;    /* fond principal */
+    --color-surface-secondary: 245 248 255;
+    --color-border: 226 232 240;     /* slate-200 */
+    --color-border-soft: 241 245 249;
+    --color-text: 15 23 42;          /* slate-900 */
+    --color-text-secondary: 71 85 105; /* slate-600 */
+    --color-text-muted: 148 163 184;  /* slate-400 */
+
+    /* --- Accents sémantiques --- */
+    --color-accent: 79 70 229;       /* indigo-600 */
+    --color-accent-hover: 67 56 202; /* indigo-700 */
+    --color-accent-glow: 79 70 229 / 0.15;
+
+    --color-real: 16 185 129;        /* emerald-500 */
+    --color-real-glow: 16 185 129 / 0.12;
+    --color-example: 245 158 11;     /* amber-500 */
+    --color-example-glow: 245 158 11 / 0.12;
+
+    --color-danger: 239 68 68;       /* red-500 */
+
+    /* --- Typographie --- */
+    --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-heading: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+    --text-5xl: 3rem;
+
+    --leading-tight: 1.25;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.75;
+
+    /* --- Espacements --- */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+    --space-24: 6rem;
+
+    /* --- Rayons --- */
+    --radius-sm: 0.5rem;
+    --radius: 0.75rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    --radius-full: 9999px;
+
+    /* --- Ombres --- */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.03);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.06), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+
+    /* --- Transitions --- */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fluid: 500ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-surface: 15 23 42;
+      --color-surface-secondary: 30 41 59;
+      --color-border: 51 65 85;
+      --color-border-soft: 30 41 59;
+      --color-text: 241 245 249;
+      --color-text-secondary: 148 163 184;
+      --color-text-muted: 94 114 139;
+    }
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+    background-color: rgb(var(--color-surface));
+    color: rgb(var(--color-text));
+    font-family: var(--font-sans);
+  }
+
+  /* Utilities personnalisées */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+  }
+
+  .gradient-accent {
+    background: linear-gradient(135deg, rgb(var(--color-accent)) 0%, rgb(var(--color-accent-hover)) 100%);
+  }
+
+  .text-gradient-accent {
+    background: linear-gradient(135deg, rgb(var(--color-accent)) 0%, rgb(var(--color-accent-hover)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@layer components {
+  .btn-base {
+    @apply inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-primary {
+    @apply btn-base bg-slate-900 text-white px-6 py-3 focus:ring-slate-900;
+    box-shadow: var(--shadow);
+  }
+  .btn-primary:hover {
+    @apply bg-slate-800;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+  }
+  .btn-primary:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow);
+  }
+
+  .btn-secondary {
+    @apply btn-base bg-white border border-slate-200 text-slate-700 px-6 py-3 focus:ring-slate-300;
+  }
+  .btn-secondary:hover {
+    @apply bg-slate-50 border-slate-300;
+  }
+
+  .btn-ghost {
+    @apply btn-base text-slate-600 hover:bg-slate-100 focus:ring-slate-200;
+  }
+
+  .btn-outline-accent {
+    @apply btn-base border-2 border-slate-900 text-slate-900 bg-white px-6 py-3 focus:ring-slate-900;
+  }
+  .btn-outline-accent:hover {
+    @apply bg-slate-900 text-white;
+    border-color: transparent;
+  }
+
+  .card-base {
+    @apply rounded-2xl border border-slate-200 bg-white shadow-sm p-6 transition-all duration-200;
+  }
+  .card-base:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: rgb(var(--color-border-soft));
+  }
+
+  .badge-base {
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors;
+  }
+
+  .section-title {
+    @apply text-2xl font-bold text-slate-900 tracking-tight text-balance mb-2;
+  }
+  .section-description {
+    @apply text-slate-600 text-lg leading-relaxed mb-8 max-w-2xl;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-4;
+  }
+
+  .container-main {
+    @apply max-w-6xl mx-auto px-6;
+  }
+
+  .input-base {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 transition-all;
+  }
+
+  .label-base {
+    @apply block text-sm font-semibold text-slate-700 mb-2;
+  }
+}

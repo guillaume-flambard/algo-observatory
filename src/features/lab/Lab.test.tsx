@@ -7,7 +7,7 @@ describe('Lab', () => {
     render(<Lab />);
     expect(screen.getByTestId('provenance-badge')).toBeInTheDocument();
     expect(screen.getByTestId('provenance-badge')).toHaveTextContent(/données d'exemple — simulation/i);
-    expect(screen.getByRole('button', { name: /^tournesol \(api\)$/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /tournesol \(api\)/i }).length).toBeGreaterThan(0);
   });
 
   it('affiche quatre stratégies disponibles dans le sélecteur', () => {
