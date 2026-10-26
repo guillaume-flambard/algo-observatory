@@ -85,3 +85,7 @@ Le projet se découpe en `src/features/` (interfaces), `src/core/data/` (jeu de 
 Les contributions portant sur l’accessibilité, l’explicabilité, les référentiels publics et les tests de reproductibilité sont les bienvenues. Voir [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 Projet indépendant : aucune affiliation ou partenariat officiel avec Tournesol, YouTube ou Data for Good n’est revendiqué.
+
+## Licence
+
+Code sous licence [MIT](LICENSE). Données Tournesol de l’instantané sous [ODC-BY 1.0](https://opendatacommons.org/licenses/by/1-0/), avec attribution à Tournesol. Polices sous SIL Open Font License 1.1.

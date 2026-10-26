@@ -56,4 +56,4 @@ src/
 
 ## Licence
 
-À définir. Le projet reste indépendant, sans partenariat non confirmé.
+Le code est sous licence MIT (voir `LICENSE`). Les données Tournesol de l'instantané restent sous leur propre licence, Open Data Commons Attribution (ODC-BY 1.0), avec attribution à Tournesol. Les polices embarquées sont sous SIL Open Font License 1.1 (voir `src/design/fonts/`). Le projet reste indépendant, sans partenariat non confirmé.
