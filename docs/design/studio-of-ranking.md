@@ -93,3 +93,28 @@ Remaining FAILs are raw pixel spacings where a `--space-*` token exists, and wor
 - One data source picker (`SourceSwitch`) in the laboratory and the data workbench. One inspector style (light). The home machine now uses the laboratory's `RankLedger`.
 - Copy is written for non-specialists: a three-step how-to in the laboratory, a hint under each slider, measures named in plain words, simpler strategy descriptions.
 
+
+
+## Operational handoff to Open Design — 2026-10-26
+
+This is the **project-specific design contract** to attach to Open Design experiments. It is not a request to redesign the six shipped routes or to fork a second design system.
+
+### Source of truth and version drift
+
+1. The canonical palette, type scale, spacing and motion come from `src/design/tokens.json` (compiled by `scripts/build-tokens.mjs` into `src/design/tokens.css`). Never edit compiled CSS or substitute Open Design's default UI styling. Take values from the current JSON at the time of the experiment, not from earlier paragraphs of this decision record; the initial lime and system-font recommendations above have been superseded.
+2. The canonical page hierarchy and components are in `src/design/page.css`, `src/design/studio.css`, `src/core/ui/` and the six live route implementations. Generated mock-ups are reference material only; integrating them requires reusing existing React 19/TypeScript components, not copying a new stand-alone HTML framework into the application.
+3. The experiments are demonstrators, **not measured YouTube ranking algorithms**. Real public Tournesol snapshots have explicit provenance and licence; simulated rankings must be visibly labeled and derived from the active catalog. No invented counts, percentages, ranking changes, sources or product features.
+4. The current visual language is a data laboratory, not corporate analytics: Instrument Sans plus IBM Plex Mono; `--canvas` / `--paper` / `--ink` surfaces; cobalt `--cobalt` for interaction and Tournesol sunflower `--sunflower` for a tracked move or experiment. Emphasize measurements, provenance and direct manipulation. Use the UI's actual labels in French.
+
+### Open Design brief to reuse
+
+> Conçois une amélioration ciblée d'**Algo Observatory**, laboratoire public de comparaison de règles de classement. Pars des composants et des tokens vérifiés `src/design/tokens.json`, `src/design/page.css`, `src/design/studio.css`. La page est un instrument : l'utilisateur voit les mêmes 24 éléments publics Tournesol, modifie une règle et comprend pourquoi un élément change de rang. N'ajoute aucune métrique, source, recommandation ou capture prétendument observée qui n'existe pas. Sépare visuellement données sourcées et classements simulés. Préserve les six routes, la sélection et l'inspecteur contextuel, la navigation clavier, les titres longs et le modèle mobile sans tableau écrasé. Évite les badges décoratifs, les gradients, les cartes répétitives, les polices « IA par défaut » et les capitales suivies. Livrable : maquette d'un parcours précis avec états chargement/vide/erreur, pas un nouveau site autonome.
+
+When Open Design is not linked to this repository, pass the relevant CSS tokens and component states in the actual brief. Selecting a generic Open Design system such as `application` is **not** a substitute for these local rules.
+
+### QA and acceptance
+
+- At minimum: 1440×900, 1000×700 and 390×844, Chromium and WebKit for functionality, keyboard and reduced-motion checks. Do not demand a dark variant unless this product explicitly adopts a dark theme; this version's source tokens describe a light canvas.
+- The local `/Users/memo/bin/opencode-v2 od-status <runId>` verifies file production and runs a Chromium smoke, including screenshots. `od-check <runId>` provides six screenshots and warns when clear/dark renders do not differ. Static screenshots or a `verified:true` response are **not** evidence of semantic correctness.
+- Before code integration run `pnpm test`, the existing Playwright browser journeys, token compiler checks, bundle budgets (100 KB initial JS / 12 KB CSS gzip) and explicit visual review. Do not modify `computeResults`, the Tournesol public snapshots or provenance logic as a side effect of style work.
+- Compare the proposed screen with live `docs/screenshots/` references, but use the most recent source code as authority if a screenshot is outdated.
