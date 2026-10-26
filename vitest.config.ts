@@ -12,5 +12,7 @@ export default defineConfig({
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    // Lets tokens.test.ts read the generated tokens.css as text; other styles stay stubbed.
+    css: { include: [/src\/design\/tokens\.css/] },
   },
 });

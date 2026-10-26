@@ -61,18 +61,32 @@ test.describe('Algo Observatory — expériences réelles des visiteurs', () => 
     }
     await expect(page.getByRole('heading', { name: /Comment les positions changent/i })).toBeVisible();
     await page.getByTestId('strategy-diversity').click();
-    await page.getByLabel('Comparer avec').selectOption('diversity');
-    const flow = page.getByLabel(/Évolution des rangs/);
-    if (await flow.isVisible()) {
-      await expect(flow).toBeVisible();
-    } else {
-      await expect(page.getByText(/Évolution par contenu/i)).toBeVisible();
-      await expect(page.getByText(/rang 1 avec Popularité/i)).toBeVisible();
-    }
+    await expect(page.getByTestId('strategy-diversity')).toHaveAttribute('aria-pressed', 'true');
+    const ledger = page.getByRole('list', { name: /Classement Diversité/ }).filter({ visible: true });
+    await expect(ledger).toBeVisible();
+    await ledger.getByRole('button').first().click();
+    await expect(page.getByRole('complementary', { name: 'Contenu suivi' })).toContainText(/rang \d+ avec Popularité, rang 1 avec Diversité/);
+    await page.getByLabel(/comparer avec/i).selectOption('collective');
+    await expect(page.getByRole('list', { name: /comparé à Score collectif/ }).filter({ visible: true })).toBeVisible();
     await page.getByTestId('strategy-hybrid').click();
     await expect(page.getByLabel('Poids popularité')).toBeVisible();
     await page.getByLabel('Poids popularité').press('End');
     await expect(page.locator('output[for="hybrid-w_popularity"]')).toHaveText('100%');
+    await expect(page.getByRole('heading', { name: /Ce que la règle change/ })).toBeVisible();
+  });
+
+  test('avec mouvement réduit, le classement se met à jour sans animation', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/#/lab');
+    await page.getByLabel('Poids popularité').fill('0');
+    await page.getByLabel('Poids score collectif').fill('0');
+    await page.getByLabel('Poids diversité').fill('1');
+    // No tween: the first visible row is already the final rank-1 item.
+    const ledger = page.getByRole('list', { name: /Classement Hybride/ }).filter({ visible: true });
+    const first = ledger.locator('li').filter({ has: page.getByRole('button') }).first();
+    const positions = await ledger.locator('li').evaluateAll((rows) => rows.map((row) => (row as HTMLElement).style.transform));
+    expect(positions.every((value) => /translateY\((0|\d+)px\)/.test(value) && Number(value.match(/-?\d+(\.\d+)?/)![0]) % 4 === 0)).toBeTruthy();
+    await expect(first).toContainText('Portrait de la jeune fille en feu');
   });
 
   test('le catalogue public Tournesol est utilisable sans accès API direct', async ({ page }) => {

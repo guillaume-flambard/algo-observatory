@@ -23,14 +23,25 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const navigation: { id: View; label: string; number: string }[] = [
-  { id: 'home', label: 'Accueil', number: '01' },
-  { id: 'discover', label: 'Découvrir', number: '02' },
-  { id: 'lab', label: 'Laboratoire', number: '03' },
-  { id: 'effects', label: 'Effets', number: '04' },
-  { id: 'explore', label: 'Données', number: '05' },
-  { id: 'methodology', label: 'Méthodologie', number: '06' },
+type Intent = 'Comprendre' | 'Expérimenter' | 'Vérifier';
+
+const navigation: { id: View; label: string; number: string; intent: Intent }[] = [
+  { id: 'home', label: 'Accueil', number: '01', intent: 'Comprendre' },
+  { id: 'discover', label: 'Découvrir', number: '02', intent: 'Comprendre' },
+  { id: 'lab', label: 'Laboratoire', number: '03', intent: 'Expérimenter' },
+  { id: 'effects', label: 'Effets', number: '04', intent: 'Expérimenter' },
+  { id: 'explore', label: 'Données', number: '05', intent: 'Vérifier' },
+  { id: 'methodology', label: 'Méthodologie', number: '06', intent: 'Vérifier' },
 ];
+const intents: Intent[] = ['Comprendre', 'Expérimenter', 'Vérifier'];
+const testIds: Record<View, string> = {
+  home: 'nav-accueil',
+  discover: 'nav-decouvrir',
+  lab: 'nav-laboratoire',
+  effects: 'nav-effets',
+  explore: 'nav-donnees',
+  methodology: 'nav-methodologie',
+};
 
 function currentHashView(): View {
   if (typeof window === 'undefined') return 'home';
@@ -76,7 +87,7 @@ function AppUI() {
       return;
     }
     // Focus the new content instead of leaving screen-reader users in the navigation.
-    document.getElementById('main-content')?.focus();
+    document.getElementById('main-content')?.focus({ preventScroll: true });
   }, [view]);
 
   const navigate = (next: View) => {
@@ -88,68 +99,70 @@ function AppUI() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f3f6f7] text-[#172129]">
+    <div className="app-shell">
       <a
         href="#main-content"
         onClick={(event) => {
           // Hash-based routing also uses location.hash. Keep the current view on skip-link activation.
           event.preventDefault();
-          document.getElementById('main-content')?.focus();
+          document.getElementById('main-content')?.focus({ preventScroll: true });
         }}
-        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-3"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-[var(--paper)] focus:p-3"
       >
         Aller au contenu
       </a>
-      <header className="ao-app-header sticky top-0 z-30 border-b border-[#cbd4d8] bg-white/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-[66px] max-w-[1600px] items-center justify-between gap-5 px-5 sm:px-8 lg:px-12">
+      <header className="app-header">
+        <div className="app-header-row">
           <button
             type="button"
             onClick={() => navigate('home')}
-            className="group flex min-w-0 items-center gap-3 text-left"
+            className="app-brand"
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center bg-[#172129] text-white">
+            <span className="app-mark">
               <svg aria-hidden="true" width="28" height="28" viewBox="0 0 28 28" fill="none">
                 <path d="M5 5v18h18" stroke="currentColor" strokeWidth="1.3"/>
-                <path d="M8 12h13M8 17h13" stroke="#b2c4d7" strokeWidth="1" strokeDasharray="2 2"/>
-                <path d="M8 9c6 0 5 9 13 9M8 19c6 0 5-9 13-9" stroke="#d9f36b" strokeWidth="1.6"/>
+                <path d="M8 12h13M8 17h13" stroke="#7f909b" strokeWidth="1" strokeDasharray="2 2"/>
+                <path d="M8 19c6 0 5-9 13-9" stroke="#7f909b" strokeWidth="1.2"/>
+                <path d="M8 9c6 0 5 9 13 9" stroke="#ffc800" strokeWidth="2.2"/>
               </svg>
             </span>
             <span className="min-w-0">
-              <span data-testid="app-title" className="block whitespace-nowrap text-[14px] font-bold uppercase tracking-[-0.045em]">
+              <span data-testid="app-title" className="app-name">
                 Algo Observatory
               </span>
-              <span className="block text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-500">
-                STUDIO D’EXPÉRIMENTATION
+              <span className="app-tagline t-code">
+                LABORATOIRE DES CLASSEMENTS
               </span>
             </span>
           </button>
 
-          <nav aria-label="Navigation principale" className="hidden items-center gap-0 lg:flex">
-            {navigation.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => navigate(item.id)}
-                data-testid={'nav-' + (item.id === 'home' ? 'accueil' : item.id === 'discover' ? 'decouvrir' : item.id === 'lab' ? 'laboratoire' : item.id === 'effects' ? 'effets' : item.id === 'explore' ? 'donnees' : 'methodologie')}
-                aria-current={view === item.id ? 'page' : undefined}
-                className={[
-                  'ao-header-link border-b-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.035em] transition-colors',
-                  view === item.id
-                    ? 'border-[#2446d5] text-[#172129]'
-                    : 'border-transparent text-[#52636d] hover:border-[#b5c3cb] hover:text-[#172129]',
-                ].join(' ')}
-              >
-                {item.label}
-              </button>
+          <nav aria-label="Navigation principale" className="app-nav">
+            {intents.map((intent) => (
+              <div key={intent} className="app-nav-group">
+                <span className="app-nav-intent t-code" aria-hidden="true">{intent}</span>
+                <div className="app-nav-links">
+                  {navigation.filter((item) => item.intent === intent).map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => navigate(item.id)}
+                      data-testid={testIds[item.id]}
+                      aria-current={view === item.id ? 'page' : undefined}
+                      className="app-nav-link"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             ))}
           </nav>
 
-          <div className="hidden items-center gap-3 xl:flex">
+          <div className="app-source">
             <a
               href="https://github.com/guillaume-flambard/algo-observatory"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 border-b border-[#172129] px-1 py-2 text-[11px] font-bold uppercase tracking-wider text-[#172129] transition hover:text-[#2446d5]"
             >
               Code source <ArrowUpRight size={14} aria-hidden="true" />
             </a>
@@ -157,7 +170,7 @@ function AppUI() {
 
           <button
             type="button"
-            className="border border-[#b9c6cc] bg-white p-2 lg:hidden"
+            className="app-menu-button"
             aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
             aria-expanded={menuOpen}
             aria-controls="mobile-navigation"
@@ -167,21 +180,22 @@ function AppUI() {
           </button>
         </div>
         {menuOpen && (
-          <nav id="mobile-navigation" aria-label="Navigation mobile" className="grid gap-1 border-t border-[#cbd4d8] bg-white p-4 sm:grid-cols-2 lg:hidden">
-            {navigation.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => navigate(item.id)}
-                aria-current={view === item.id ? 'page' : undefined}
-                className={[
-                  'flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-sm',
-                  view === item.id ? 'bg-[#2446d5] font-semibold text-white' : 'text-[#334954]',
-                ].join(' ')}
-              >
-                <span className="font-mono text-xs text-neutral-400">{item.number}</span>
-                {item.label}
-              </button>
+          <nav id="mobile-navigation" aria-label="Navigation mobile" className="app-mobile-nav">
+            {intents.map((intent) => (
+              <div key={intent} className="app-mobile-group">
+                <span className="t-code app-nav-intent">{intent}</span>
+                {navigation.filter((item) => item.intent === intent).map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => navigate(item.id)}
+                    aria-current={view === item.id ? 'page' : undefined}
+                    className="app-mobile-link"
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
             ))}
           </nav>
         )}
@@ -189,9 +203,9 @@ function AppUI() {
 
       <div id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
         <Suspense fallback={
-          <div role="status" aria-live="polite" className="mx-auto max-w-[1440px] px-5 py-20 sm:px-8 lg:px-12">
-            <div className="h-1 w-24 animate-pulse rounded-full bg-neutral-300" aria-hidden="true" />
-            <p className="mt-5 text-sm text-neutral-600">Ouverture de l’espace…</p>
+          <div role="status" aria-live="polite" className="app-loading">
+            <span className="app-loading-bar" aria-hidden="true" />
+            <p>Ouverture de l’espace…</p>
           </div>
         }>
           {view === 'home' ? (
@@ -210,8 +224,8 @@ function AppUI() {
         </Suspense>
       </div>
 
-      <footer className="border-t border-[#cbd4d8] bg-white">
-        <div className="mx-auto flex max-w-[1440px] flex-col justify-between gap-3 px-5 py-7 text-xs text-neutral-500 sm:flex-row sm:px-8 lg:px-12">
+      <footer className="app-footer">
+        <div className="app-footer-row">
           <span>Algo Observatory · Comprendre les classements, sans boîte noire.</span>
           <span>Données observées et simulations toujours distinguées.</span>
         </div>

@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
 import { HYBRID_STRATEGY, POPULARITY_STRATEGY, computeResults } from '@/core/data/strategies';
+import { MoveBadge } from '@/features/lab/MoveBadge';
 
 interface HomeProps {
   onNavigate: (view: 'home' | 'discover' | 'lab') => void;
@@ -56,7 +57,7 @@ export function Home({ onNavigate }: HomeProps) {
       <section className="ao-machine" role="region" aria-label="Machine interactive de classement">
         <header className="studio-machine-header">
           <div><span className="studio-section-code">01 / MODIFIER LA RÈGLE</span><h2>La machine à classer</h2></div>
-          <div className="studio-simulation-chip"><span aria-hidden="true" /> SIMULATION PÉDAGOGIQUE</div>
+          <span className="provenance-stamp is-simulated">Simulation pédagogique</span>
         </header>
 
         <div className="studio-machine-grid">
@@ -89,21 +90,19 @@ export function Home({ onNavigate }: HomeProps) {
             <div className="ao-rank-headings"><span>01 / POPULARITÉ</span><span>02 / APRÈS RÉGLAGE</span></div>
             <div className="ao-rank-canvas">
               <svg className="ao-rank-paths" viewBox="0 0 1000 384" preserveAspectRatio="none" aria-hidden="true">
-                {initial.map(({ item }, index) => {
+                {[...initial.entries()].sort(([, a], [, b]) => Number(a.item.id === selectedId) - Number(b.item.id === selectedId)).map(([index, { item }]) => {
                   const y1 = index * rowHeight + rowHeight / 2;
                   const y2 = ((currentRanks.get(item.id) ?? index + 1) - 1) * rowHeight + rowHeight / 2;
                   const active = item.id === selectedId;
-                  return (
-                    <path
-                      key={item.id}
-                      d={'M 431 ' + y1 + ' C 492 ' + y1 + ', 508 ' + y2 + ', 569 ' + y2}
-                      fill="none"
-                      stroke={active ? '#2446d5' : '#9baebb'}
-                      strokeWidth={active ? 3 : 1.2}
-                      strokeOpacity={active ? 1 : .54}
-                      strokeLinecap="round"
-                      className="ao-flow-path"
-                    />
+                  const d = 'M 431 ' + y1 + ' C 492 ' + y1 + ', 508 ' + y2 + ', 569 ' + y2;
+                  // The tracked item is drawn last-on-top as a sunflower highlighter under an ink line.
+                  return active ? (
+                    <g key={item.id}>
+                      <path d={d} className="ao-flow-path ao-flow-highlight" vectorEffect="non-scaling-stroke" />
+                      <path d={d} className="ao-flow-path ao-flow-ink" vectorEffect="non-scaling-stroke" />
+                    </g>
+                  ) : (
+                    <path key={item.id} d={d} className="ao-flow-path ao-flow-trace" vectorEffect="non-scaling-stroke" />
                   );
                 })}
               </svg>
@@ -147,7 +146,7 @@ export function Home({ onNavigate }: HomeProps) {
                   <button key={item.id} type="button" onClick={() => setSelectedId(item.id)} aria-pressed={selectedId === item.id} className={'ao-mobile-rank-item' + (selectedId === item.id ? ' is-selected' : '')}>
                     <span className="ao-mobile-rank-place">{String(to).padStart(2, '0')}</span>
                     <span className="ao-mobile-rank-title">{item.title}</span>
-                    <span className="ao-mobile-rank-movement"><span>{from} → {to}</span><strong>{movement > 0 ? '↑ ' + movement : movement < 0 ? '↓ ' + Math.abs(movement) : '—'}</strong></span>
+                    <span className="ao-mobile-rank-movement"><span>{from} → {to}</span><MoveBadge delta={movement} /></span>
                   </button>
                 );
               })}

@@ -1,40 +1,33 @@
+@import './design/tokens.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--font-sans);
     color-scheme: light;
-    --radius: 0.75rem;
   }
 
-  html {
-    scroll-behavior: smooth;
-  }
+  html { scroll-behavior: smooth; }
 
   body {
-    @apply m-0 bg-[#f3f6f7] text-neutral-900 antialiased;
-    font-feature-settings: "cv11", "ss01";
+    margin: 0;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
   }
 
-  ::selection {
-    background: #d4d4d4;
-    color: #171717;
-  }
+  ::selection { background: var(--sunflower); color: var(--ink); }
 
-  button,
-  input,
-  summary {
-    -webkit-tap-highlight-color: transparent;
-  }
+  button, input, summary, select { -webkit-tap-highlight-color: transparent; }
 
-  button:focus-visible,
-  a:focus-visible,
-  summary:focus-visible,
-  input:focus-visible {
-    outline: 2px solid #404040;
-    outline-offset: 3px;
+  /* Focus: a sunflower halo inside a solid ink ring (ink gives the 3:1 contrast). */
+  button:focus-visible, a:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--sunflower);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -43,17 +36,100 @@
   }
 }
 
-/*
- * Accessible muted ink on warm white surfaces.
- * Default Tailwind neutral-400 (#a3a3a3) and neutral-500 (#737373)
- * miss WCAG AA at small sizes on the observatory's #f7f7f5 canvas.
- * Keep the softer, lighter ink only inside dark panels.
- */
-@layer utilities {
-  .text-neutral-400 { color: #686868; }
-  .text-neutral-500 { color: #636363; }
-  .bg-neutral-900 .text-neutral-400,
-  .bg-neutral-900 .text-neutral-500 { color: #b5b5b5; }
+@layer components {
+  /* Application shell: brand, navigation grouped by intent, footer. */
+  .app-shell { display: flex; min-height: 100vh; flex-direction: column; background: var(--canvas); color: var(--ink); }
+  .app-header { position: sticky; top: 0; z-index: 30; background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .app-header-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-5); max-width: 1600px; height: 64px; margin: 0 auto; padding: 0 clamp(16px, 3.2vw, 48px); }
+  .app-brand { display: flex; align-items: center; gap: var(--space-3); min-width: 0; padding: 0; background: none; border: 0; text-align: left; color: var(--ink); cursor: pointer; }
+  .app-mark { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 auto; background: var(--ink); color: var(--paper); }
+  .app-name { display: block; white-space: nowrap; font: 700 15px/1.2 var(--font-sans); letter-spacing: -0.01em; }
+  .app-tagline { display: block; color: var(--ink-3); }
+  .app-nav { display: none; align-items: stretch; gap: var(--space-5); }
+  .app-nav-group { display: flex; flex-direction: column; gap: 2px; }
+  .app-nav-intent { color: var(--ink-3); padding-left: var(--space-2); }
+  .app-nav-links { display: flex; }
+  .app-nav-link {
+    padding: 4px var(--space-2) 6px; background: none; border: 0; border-bottom: 2px solid transparent; cursor: pointer;
+    font: 600 14px/1.2 var(--font-sans); color: var(--ink-2);
+  }
+  .app-nav-link:hover { color: var(--ink); border-bottom-color: var(--control-border); }
+  .app-nav-link[aria-current='page'] { color: var(--ink); border-bottom: 2px solid var(--ink); box-shadow: inset 0 -5px 0 var(--sunflower); }
+  .app-source { display: none; }
+  .app-source a { display: inline-flex; align-items: center; gap: 4px; font: 600 13px var(--font-sans); color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+  .app-source a:hover { color: var(--cobalt); }
+  .app-menu-button { display: grid; place-items: center; width: 44px; height: 44px; background: var(--paper); border: 1px solid var(--control-border); color: var(--ink); cursor: pointer; }
+  .app-mobile-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); padding: var(--space-4) clamp(16px, 3.2vw, 48px); border-top: 1px solid var(--rule); background: var(--paper); }
+  .app-mobile-group { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .app-mobile-group .app-nav-intent { padding: 0 0 4px; }
+  .app-mobile-link { min-height: 44px; padding: 0 var(--space-2); text-align: left; background: none; border: 0; border-left: 2px solid var(--rule); font: 600 15px var(--font-sans); color: var(--ink-2); cursor: pointer; }
+  .app-mobile-link[aria-current='page'] { color: var(--ink); border-left: 4px solid var(--sunflower); background: var(--sunflower-wash); }
+  @media (min-width: 1100px) {
+    .app-nav { display: flex; }
+    .app-menu-button, .app-mobile-nav { display: none; }
+  }
+  @media (min-width: 1320px) { .app-source { display: block; } }
+  @media (max-width: 520px) {
+    .app-mobile-nav { grid-template-columns: 1fr; gap: var(--space-2); }
+    .app-mobile-group { display: grid; grid-template-columns: 110px 1fr 1fr; align-items: center; gap: 4px; }
+    .app-mobile-group .app-nav-intent { padding: 0; }
+  }
+  .app-loading { max-width: 1600px; margin: 0 auto; padding: var(--space-8) clamp(16px, 3.2vw, 48px); color: var(--ink-2); }
+  .app-loading-bar { display: block; width: 96px; height: 4px; background: linear-gradient(90deg, var(--sunflower) 40%, var(--sunken) 40%); }
+  .app-footer { border-top: 1px solid var(--rule); background: var(--paper); }
+  .app-footer-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2); max-width: 1600px; margin: 0 auto; padding: var(--space-5) clamp(16px, 3.2vw, 48px); font-size: 13px; color: var(--ink-2); }
+
+  /* Rank movement badge, shared by the home machine, the laboratory and Effects. */
+  .ledger-move {
+    flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-width: 38px;
+    padding: 2px 6px; font: 600 12px/1.2 var(--font-mono); font-variant-numeric: tabular-nums;
+  }
+  .ledger-move.is-up { background: var(--sunflower); color: var(--ink); }
+  .ledger-move.is-down { color: var(--ink-2); border: 1px solid var(--control-border); }
+  .ledger-move.is-still { color: var(--ink-3); }
+
+  /* Provenance stamp, shared by the laboratory and the data workbench. */
+  .provenance { min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4); }
+  .provenance-line { display: flex; align-items: center; gap: var(--space-3); }
+  .provenance-stamp {
+    display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px;
+    font: 600 11px/1.2 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink);
+    border: 1px solid var(--ink);
+  }
+  .provenance-stamp.is-simulated { background: repeating-linear-gradient(135deg, var(--sunken) 0 5px, var(--paper) 5px 10px); }
+  .provenance-stamp.is-real { background: var(--ink); color: var(--paper); }
+  .provenance-stamp.is-real::before { content: ''; width: 8px; height: 8px; border-radius: var(--radius-round); background: var(--sunflower); }
+  .provenance-count { color: var(--ink-2); }
+  .provenance-details { min-width: 0; }
+  .provenance-details summary {
+    display: inline-flex; align-items: center; gap: 4px; cursor: pointer; list-style: none;
+    font: 600 13px var(--font-sans); color: var(--cobalt); text-decoration: underline; text-underline-offset: 3px;
+  }
+  .provenance-details summary::-webkit-details-marker { display: none; }
+  .provenance-details[open] .provenance-chevron { transform: rotate(180deg); }
+  .provenance-body {
+    margin-top: var(--space-3); padding: var(--space-4); max-width: 760px; background: var(--paper); border: 1px solid var(--rule);
+    font-size: 13px; line-height: 1.55; color: var(--ink-2);
+  }
+  .provenance-body dl { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 6px var(--space-3); margin: 0; }
+  .provenance-body dl > div { display: contents; }
+  .provenance-body dt { font-weight: 600; color: var(--ink); }
+  .provenance-body dd { margin: 0; overflow-wrap: anywhere; }
+  .provenance-body a { display: inline-flex; align-items: center; gap: 4px; margin-top: var(--space-3); color: var(--cobalt); font-weight: 600; }
+  .provenance-method { margin: var(--space-3) 0 0; padding: var(--space-3); background: var(--canvas); }
+  .provenance-method strong { display: block; color: var(--ink); }
+  .provenance-caveat { margin: var(--space-3) 0 0; }
+
 }
 
-
+/*
+ * Legacy Tailwind greys used by Discover and Effects, remapped onto the tokens
+ * so every route shares one palette with accessible contrast.
+ */
+@layer utilities {
+  .text-neutral-400 { color: var(--ink-3); }
+  .text-neutral-500 { color: var(--ink-3); }
+  .text-neutral-600 { color: var(--ink-2); }
+  .bg-neutral-900 .text-neutral-400,
+  .bg-neutral-900 .text-neutral-500 { color: var(--on-ink-2); }
+}

@@ -32,6 +32,13 @@ export function getTournesolPublicDataset(): Dataset {
         diversityScore: item.diversityInclusion === null ? 0 : normalizeScore(item.diversityInclusion),
         freshness: clamp01(Math.exp(-ageDays / 730)),
       },
+      evidence: {
+        tournesolScore: item.tournesolScore,
+        nComparisons: item.nComparisons,
+        nContributors: item.nContributors,
+        views: item.views ?? null,
+        url: 'https://tournesol.app/entities/' + item.uid,
+      },
     };
   });
 

@@ -68,3 +68,12 @@ Algo Observatory is not a landing page with charts and not a general-purpose BI 
 **P2**: Discover, Effects and Methodology as simple editorial explanations within the same workbench system; retire the retro field-guide chrome.
 
 This document is a decision record, not proof of successful implementation.
+
+## Revision 2026-10-26: Tournesol signal and the living laboratory
+
+- **Single token source.** `src/design/tokens.json` is the design system (also published as the Claude Design system "Algo Observatory"). `scripts/build-tokens.mjs` compiles it to `src/design/tokens.css`; a unit test fails when the CSS is stale.
+- **Signal colour.** Lime is retired. Tournesol's yellow `#ffc800` (`sunflower`) is the only signal: tracked item, rising rank, focus halo, used as a highlighter under ink. Cobalt stays the interaction accent. Tournesol criterion colours (`crit-*`) come from `tournesol-app/tournesol` `frontend/src/utils/criteria.ts` and appear only in composition bars.
+- **Type.** Instrument Sans (text) and IBM Plex Mono (measures), OFL, self-hosted and bundled by Vite (base-path safe). This replaces the Inter/system stack above.
+- **Laboratory.** A (reference) and B (experiment) replace the multi-select columns. The rank ledger animates B with one tween shared by rows and paths; the inspector explains a move from the strategy's own composition against the catalogue mean; real Tournesol items show comparisons, contributors and a link. Mobile became a single list in B order with compact controls (lab page 5,244 px to about 3,100 px at 390 px).
+- **Navigation.** The six routes are unchanged and grouped by intent: Comprendre, Expérimenter, Vérifier.
+

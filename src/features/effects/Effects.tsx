@@ -2,7 +2,8 @@ import { ArrowRight, ArrowUpRight, Compass, Fingerprint, Layers3, Scale } from '
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
 import { ALL_STRATEGIES, computeResults } from '@/core/data/strategies';
 import { useApp } from '@/App';
-import { RankFlow } from '@/features/lab/RankFlow';
+import { useState } from 'react';
+import { RankLedger } from '@/features/lab/RankLedger';
 
 const observations = [
   {
@@ -41,6 +42,9 @@ const observations = [
 
 export function Effects() {
   const { setView } = useApp();
+  const [targetId, setTargetId] = useState('collective');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const target = ALL_STRATEGIES.find((strategy) => strategy.id === targetId) ?? ALL_STRATEGIES[1]!;
   const resultsByStrategy = Object.fromEntries(
     ALL_STRATEGIES.map((strategy) => [strategy.id, computeResults(EXAMPLE_DATASET.items, strategy, {})]),
   );
@@ -82,7 +86,24 @@ export function Effects() {
             Modifier les paramètres <ArrowRight size={16} aria-hidden="true" />
           </button>
         </div>
-        <RankFlow strategies={ALL_STRATEGIES} resultsByStrategy={resultsByStrategy} />
+        <div className="effects-ledger">
+          <div className="effects-ledger-head">
+            <label htmlFor="effects-target" className="t-label">Comparer Popularité avec</label>
+            <select id="effects-target" value={targetId} onChange={(event) => { setTargetId(event.target.value); setSelectedId(null); }}>
+              {ALL_STRATEGIES.slice(1).map((strategy) => <option key={strategy.id} value={strategy.id}>{strategy.name}</option>)}
+            </select>
+          </div>
+          <RankLedger
+            referenceName={ALL_STRATEGIES[0]!.name}
+            experimentName={target.name}
+            reference={resultsByStrategy[ALL_STRATEGIES[0]!.id]!}
+            experiment={resultsByStrategy[target.id]!}
+            selectedId={selectedId ?? 'i-6'}
+            onSelect={setSelectedId}
+            limit={EXAMPLE_DATASET.items.length}
+            revision={target.id}
+          />
+        </div>
       </section>
 
       <section className="border-y border-neutral-200 bg-white">
@@ -121,7 +142,7 @@ export function Effects() {
       </section>
 
       <section className="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
-        <div className="flex flex-col items-start justify-between gap-8 rounded-[24px] bg-neutral-900 p-8 text-white sm:p-12 lg:flex-row lg:items-end">
+        <div className="flex flex-col items-start justify-between gap-8 bg-neutral-900 p-8 text-white sm:p-12 lg:flex-row lg:items-end">
           <div>
             <p className="mb-4 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-400">Passer de l’idée à l’expérience</p>
             <h2 className="max-w-xl text-3xl font-semibold tracking-[-0.05em]">Changez les règles et vérifiez vous-même.</h2>
