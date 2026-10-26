@@ -1,4 +1,5 @@
-import { ArrowLeft, ArrowRight, ArrowUpRight, EyeOff, Layers3, ListOrdered, MousePointer2 } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, EyeOff, Layers3, ListOrdered, SlidersHorizontal } from 'lucide-react';
+import { PageHead } from '@/core/ui/PageHead';
 
 interface DiscoverProps {
   onNavigate: (view: 'home' | 'discover' | 'lab') => void;
@@ -6,132 +7,81 @@ interface DiscoverProps {
 
 const steps = [
   {
-    index: '01',
     icon: Layers3,
-    title: 'Un catalogue de contenus',
-    text: 'Une plateforme possède plus de contenus qu’elle ne peut en afficher à la fois : vidéos, articles, morceaux de musique…',
+    title: 'Il y a trop de contenus',
+    text: 'Une plateforme a beaucoup plus de vidéos, d’articles ou de morceaux qu’elle ne peut en montrer à la fois. Il faut choisir.',
   },
   {
-    index: '02',
-    icon: MousePointer2,
-    title: 'Des signaux transformés en scores',
-    text: 'Popularité, évaluations, préférences ou diversité peuvent être combinées selon des règles différentes.',
+    icon: SlidersHorizontal,
+    title: 'Chaque contenu reçoit une note',
+    text: 'La note mélange plusieurs critères : combien de personnes l’ont vu, ce qu’elles en pensent, la variété des sujets. Le mélange s’appelle une règle.',
   },
   {
-    index: '03',
     icon: ListOrdered,
-    title: 'Un ordre de présentation',
-    text: 'Les contenus sont classés. Ce qui apparaît en tête reçoit généralement plus de visibilité.',
+    title: 'Les mieux notés passent devant',
+    text: 'Les contenus sont rangés du mieux noté au moins bien noté. Ce qui est en haut est vu ; le reste l’est beaucoup moins.',
   },
 ];
 
 export function Discover({ onNavigate }: DiscoverProps) {
   return (
-    <main className="ao-interior ao-discover">
-      <section className="border-b border-neutral-200">
-        <div className="mx-auto max-w-[1440px] px-5 pb-16 pt-12 sm:px-8 lg:px-12 lg:pb-20">
-          <button
-            type="button"
-            onClick={() => onNavigate('home')}
-            className="mb-12 inline-flex items-center gap-2 text-xs font-medium text-neutral-500 transition hover:text-neutral-900"
-          >
-            <ArrowLeft size={15} aria-hidden="true" /> Retour à l’accueil
-          </button>
-          <div className="grid gap-8 lg:grid-cols-[1fr_0.5fr] lg:items-end">
-            <div>
-              <h1 className="max-w-4xl text-[clamp(2.8rem,6vw,5.7rem)] font-semibold leading-[1.04] tracking-[-0.065em]">
-                Derrière chaque fil, un choix.
-              </h1>
-            </div>
-            <p className="max-w-md text-base leading-8 text-neutral-600">
-              Un algorithme de recommandation ne crée pas forcément les contenus que vous voyez.
-              Il choisit lesquels montrer et dans quel ordre. Le résultat dépend des critères qui
-              lui sont donnés.
-            </p>
+    <main className="page ao-interior ao-discover">
+      <PageHead
+        title="Derrière chaque fil, un choix."
+        lead="Ce que vous voyez en premier sur une plateforme n’est pas le hasard. Un algorithme a rangé les contenus selon une règle. Voici comment, en trois étapes."
+        actions={<button type="button" onClick={() => onNavigate('lab')} className="btn btn-primary">Essayer dans le laboratoire <ArrowRight size={16} aria-hidden="true" /></button>}
+      />
+
+      <section className="page-section page-band" aria-labelledby="discover-steps">
+        <div className="page-container">
+          <div className="section-head">
+            <h2 id="discover-steps" className="section-title">Comment un classement se construit.</h2>
+            <p className="section-lead">Une version simplifiée. Les vraies plateformes utilisent des règles bien plus complexes, mais le principe est le même.</p>
           </div>
+          <ol className="steps">
+            {steps.map(({ icon: Icon, title, text }, index) => (
+              <li key={title}>
+                <span className="step-number" aria-hidden="true">{index + 1}</span>
+                <h3 className="item-title discover-step-title"><Icon size={18} strokeWidth={1.75} aria-hidden="true" /> {title}</h3>
+                <p className="page-small">{text}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-[1440px] gap-8 px-5 py-16 sm:px-8 lg:grid-cols-[0.42fr_1fr] lg:gap-24 lg:px-12 lg:py-24">
-        <div>
-          <div className="lg:sticky lg:top-28">
-            <h2 className="mt-4 max-w-xs text-3xl font-semibold tracking-[-0.045em]">Comment un classement se construit.</h2>
-            <p className="mt-5 max-w-xs text-sm leading-7 text-neutral-600">
-              Trois étapes simplifiées pour comprendre ce que le laboratoire rend visible.
-              Les plateformes réelles peuvent employer des systèmes beaucoup plus complexes.
-            </p>
-          </div>
-        </div>
-        <div className="divide-y divide-neutral-200 border-y border-neutral-200">
-          {steps.map(({ index, icon: Icon, title, text }) => (
-            <article key={index} className="grid gap-5 py-9 sm:grid-cols-[48px_1fr] sm:gap-8">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-neutral-200 bg-white">
-                <Icon size={20} strokeWidth={1.5} aria-hidden="true" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold tracking-[-0.025em]">{title}</h3>
-                <p className="mt-3 max-w-xl text-sm leading-7 text-neutral-600">{text}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="border-y border-neutral-200 bg-white">
-        <div className="mx-auto grid max-w-[1440px] gap-10 px-5 py-16 sm:px-8 lg:grid-cols-[1fr_0.85fr] lg:items-center lg:gap-24 lg:px-12 lg:py-20">
+      <section className="page-section" aria-labelledby="discover-consequence">
+        <div className="page-container discover-split">
           <div>
-            <h2 className="mt-4 max-w-xl text-3xl font-semibold leading-tight tracking-[-0.045em] sm:text-4xl">
-              Changer le critère, c’est changer ce qui devient visible.
-            </h2>
-            <p className="mt-6 max-w-xl text-sm leading-8 text-neutral-600">
-              Un même contenu peut apparaître en premier avec une stratégie de popularité,
-              mais plus bas avec une stratégie qui privilégie les évaluations collectives.
-              Un classement n’est jamais indépendant de ses objectifs.
+            <h2 id="discover-consequence" className="section-title">Changer la règle, c’est changer ce qui devient visible.</h2>
+            <p className="section-lead">
+              Une vidéo très regardée peut être première avec une règle qui compte les vues, et huitième avec une règle
+              qui écoute l’avis de la communauté. Le contenu n’a pas changé : seule la règle a changé.
             </p>
           </div>
-          <div className="rounded-2xl border border-neutral-200 bg-[var(--canvas)] p-7 sm:p-9">
-            <div className="mb-8 flex items-center gap-2 text-xs font-semibold">
-              <EyeOff size={17} aria-hidden="true" /> Ce qu’on ne peut pas déduire
-            </div>
-            <p className="text-sm leading-7 text-neutral-700">
-              Notre laboratoire compare des règles explicites sur un jeu de données identifié.
-              Il <strong>ne révèle pas</strong> les poids, les mécanismes internes ou les
-              intentions d’une plateforme dont nous n’avons pas observé le système.
+          <aside className="page-note" aria-label="Ce qu’on ne peut pas déduire">
+            <p className="page-note-title"><EyeOff size={17} aria-hidden="true" /> Ce qu’on ne peut pas déduire</p>
+            <p className="page-small">
+              Le laboratoire compare des règles écrites en clair, sur des données dont l’origine est affichée.
+              Il <strong>ne révèle pas</strong> les règles secrètes d’une plateforme réelle, qu’il n’a pas observées.
             </p>
-            <p className="mt-5 border-t border-neutral-200 pt-5 text-xs leading-6 text-neutral-500">
-              Simulation et observations sont signalées séparément. Aucune conclusion sur
-              une plateforme réelle n’est tirée de données fabriquées.
-            </p>
-          </div>
+          </aside>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-5 py-20 sm:px-8 lg:px-12">
-        <div className="flex flex-col items-start justify-between gap-8 bg-neutral-900 p-8 text-white sm:p-12 lg:flex-row lg:items-end">
+      <section className="page-section page-band" aria-labelledby="discover-cta">
+        <div className="page-container page-cta">
           <div>
-            <h2 className="mt-5 max-w-xl text-3xl font-semibold leading-tight tracking-[-0.045em] sm:text-4xl">
-              Ne nous croyez pas sur parole. Comparez.
-            </h2>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-neutral-300">
-              Sélectionnez des stratégies, ajustez leurs paramètres et inspectez chaque résultat.
-            </p>
+            <h2 id="discover-cta" className="section-title">Ne nous croyez pas sur parole. Comparez.</h2>
+            <p className="section-lead">Choisissez une règle, bougez ses curseurs et regardez quels contenus montent ou descendent.</p>
+            <a href="https://github.com/guillaume-flambard/algo-observatory" target="_blank" rel="noopener noreferrer" className="btn btn-link discover-code">
+              Lire le code du projet <ArrowUpRight size={14} aria-hidden="true" />
+            </a>
           </div>
-          <button
-            type="button"
-            onClick={() => onNavigate('lab')}
-            className="inline-flex shrink-0 items-center gap-3 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-100"
-          >
-            Ouvrir le laboratoire <ArrowRight size={17} aria-hidden="true" />
+          <button type="button" onClick={() => onNavigate('lab')} className="btn btn-primary">
+            Ouvrir le laboratoire <ArrowRight size={16} aria-hidden="true" />
           </button>
         </div>
-        <a
-          href="https://github.com/guillaume-flambard/algo-observatory"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-8 inline-flex items-center gap-2 text-xs text-neutral-500 underline-offset-4 hover:underline"
-        >
-          Explorer le code et les méthodes du projet <ArrowUpRight size={14} aria-hidden="true" />
-        </a>
       </section>
     </main>
   );

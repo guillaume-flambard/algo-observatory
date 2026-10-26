@@ -8,7 +8,7 @@ export const DIVERSITY_PENALTY = 0.2;
 export const POPULARITY_STRATEGY: Strategy = {
   id: 'popularity',
   name: 'Popularité',
-  description: 'Fait remonter les contenus les plus populaires, indépendamment de leur qualité ou de leur diversité.',
+  description: 'Met en haut les contenus les plus vus, sans regarder leur qualité ni leur variété.',
   parameters: [],
   score: (item) => item.metrics.popularity,
   explain: (item) =>
@@ -20,7 +20,7 @@ export const POPULARITY_STRATEGY: Strategy = {
 export const COLLECTIVE_STRATEGY: Strategy = {
   id: 'collective',
   name: 'Score collectif',
-  description: 'Fait remonter les contenus les mieux notés par la communauté (scores collectifs).',
+  description: 'Met en haut les contenus que la communauté juge les plus utiles.',
   parameters: [],
   score: (item) => item.metrics.collectiveScore,
   explain: (item) =>
@@ -32,7 +32,7 @@ export const COLLECTIVE_STRATEGY: Strategy = {
 export const DIVERSITY_STRATEGY: Strategy = {
   id: 'diversity',
   name: 'Diversité',
-  description: 'Fait remonter les contenus peu représentés afin de diversifier les catégories proposées. La sélection itérative évite de enchaîner plusieurs contenus de la même catégorie.',
+  description: 'Alterne les catégories pour que le haut du classement ne parle pas d’un seul sujet.',
   parameters: [],
   score: (item) => item.metrics.diversityScore,
   explain: (item) =>
@@ -45,7 +45,7 @@ export const DIVERSITY_STRATEGY: Strategy = {
 export const HYBRID_STRATEGY: Strategy = {
   id: 'hybrid',
   name: 'Hybride',
-  description: "Combinaison pondérée de popularité, de score collectif et de diversité, selon les poids choisis.",
+  description: 'Mélange les trois critères selon le dosage que vous choisissez avec les curseurs.',
   parameters: [
     { id: 'w_popularity', name: 'Poids popularité', type: 'number', min: 0, max: 1, step: 0.1, default: 0.4 },
     { id: 'w_collective', name: 'Poids score collectif', type: 'number', min: 0, max: 1, step: 0.1, default: 0.4 },

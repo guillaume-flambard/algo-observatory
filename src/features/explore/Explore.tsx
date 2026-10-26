@@ -6,6 +6,8 @@ import { getTournesolPublicDataset } from '@/core/data/tournesol-public';
 import { ALL_STRATEGIES, computeResults } from '@/core/data/strategies';
 import { escapeCsvCell } from '@/core/data/csv';
 import { useApp } from '@/App';
+import { PageHead } from '@/core/ui/PageHead';
+import { SourceSwitch } from '@/features/data/SourceSwitch';
 import './Explore.css';
 
 interface ExploreProps { dataset: Dataset }
@@ -114,37 +116,22 @@ export function Explore({ dataset }: ExploreProps) {
   };
 
   return (
-    <main className="dw-workbench" aria-labelledby="dw-title">
-      <header className="dw-heading">
-        <div className="dw-heading-row">
-          <div>
-            <h1 id="dw-title">Explorez les données.</h1>
-            <p>Deux sources identifiées. Quatre métriques comparables. Aucun classement de plateforme observé.</p>
-          </div>
+    <main className="page dw-workbench" aria-labelledby="dw-title">
+      <PageHead
+        titleId="dw-title"
+        title="Explorez les données."
+        lead="Toutes les données utilisées par le laboratoire, avec leur origine. Cherchez un contenu, triez par critère, puis touchez une ligne pour voir sa place dans chaque classement."
+        aside={(
           <div className="dw-count" aria-live="polite">
             <strong>{dataset.items.length.toString().padStart(2, '0')}</strong>
             <span>contenus<br />dans la source</span>
           </div>
-        </div>
-      </header>
+        )}
+      >
+        <SourceSwitch dataset={dataset} onSelect={(next) => switchSource(next === 'simulation' ? 'example' : 'tournesol')} />
+      </PageHead>
 
-      <section className="dw-sources" aria-label="Choisir le jeu de données">
-        <div className="dw-source-tabs">
-          <button type="button" aria-pressed={dataset.kind === 'example'} onClick={() => switchSource('example')} className={dataset.kind === 'example' ? 'is-active' : ''}>
-            <span className="dw-source-index">01</span>
-            <span><strong>Jeu d’exemple</strong><small>8 contenus, simulation</small></span>
-          </button>
-          <button type="button" aria-pressed={dataset.kind === 'real'} onClick={() => switchSource('tournesol')} className={dataset.kind === 'real' ? 'is-active' : ''}>
-            <span className="dw-source-index">02</span>
-            <span><strong>Tournesol</strong><small>24 contenus, instantané public</small></span>
-          </button>
-        </div>
-        <div className="dw-source-status">
-          <span className={'dw-source-dot ' + (dataset.kind === 'real' ? 'is-real' : '')} aria-hidden="true" />
-          <strong>{dataset.kind === 'real' ? 'Source publique datée' : 'Simulation pédagogique'}</strong>
-          <span>{dataset.freshness}</span>
-        </div>
-      </section>
+
 
       <div className="dw-layout">
         <aside className="dw-sidebar" aria-label="Filtres et provenance">
@@ -181,16 +168,16 @@ export function Explore({ dataset }: ExploreProps) {
             <dl>
               <div><dt>Origine</dt><dd>{dataset.source}</dd></div>
               <div><dt>Licence</dt><dd>{dataset.license}</dd></div>
-              <div><dt>ÉTAT</dt><dd>{dataset.kind === 'example' ? 'Exemple fictif' : 'Capture publique, pas un flux en direct'}</dd></div>
+              <div><dt>État</dt><dd>{dataset.kind === 'example' ? 'Exemple fictif' : 'Capture publique, pas un flux en direct'}</dd></div>
             </dl>
-            {dataset.sourceUrl && <a href={dataset.sourceUrl} target="_blank" rel="noopener noreferrer">Consulter la source <ArrowUpRight size={14} aria-hidden="true" /></a>}
+            {dataset.sourceUrl && <a href={dataset.sourceUrl} target="_blank" rel="noopener noreferrer" className="btn btn-link">Consulter la source <ArrowUpRight size={14} aria-hidden="true" /></a>}
           </div>
         </aside>
 
         <section className="dw-results" aria-labelledby="explore-table-title">
           <div className="dw-results-head">
             <div><h2 id="explore-table-title">Contenus et métriques</h2></div>
-            <button type="button" className="dw-export" onClick={exportCsv} disabled={filtered.length === 0}>
+            <button type="button" className="btn btn-secondary dw-export" onClick={exportCsv} disabled={filtered.length === 0}>
               <Download size={16} aria-hidden="true" /> Exporter CSV
             </button>
           </div>
@@ -227,7 +214,7 @@ export function Explore({ dataset }: ExploreProps) {
                   <div className="dw-mobile-rank-grid">
                     {selectedRanks.map((rank) => <div key={rank.id}><span>{rank.name}</span><strong>#{String(rank.rank).padStart(2, '0')}</strong></div>)}
                   </div>
-                  <button type="button" onClick={() => setView('lab')}>Comparer dans le laboratoire <ArrowRight size={15} aria-hidden="true" /></button>
+                  <button type="button" className="btn btn-primary" onClick={() => setView('lab')}>Comparer dans le labo <ArrowRight size={15} aria-hidden="true" /></button>
                 </div>
               )}
             </article>)}
@@ -247,7 +234,7 @@ export function Explore({ dataset }: ExploreProps) {
               <span>Rangs calculés par l’application</span>
               {selectedRanks.map((rank) => <div key={rank.id}><span>{rank.name}</span><strong>#{String(rank.rank).padStart(2, '0')}</strong></div>)}
             </div>
-            <button type="button" className="dw-inspect-cta" onClick={() => setView('lab')}>Comparer dans le laboratoire <ArrowRight size={15} aria-hidden="true" /></button>
+            <button type="button" className="btn btn-primary dw-inspect-cta" onClick={() => setView('lab')}>Comparer dans le labo <ArrowRight size={15} aria-hidden="true" /></button>
           </> : <p className="dw-no-selection">Aucun contenu ne correspond aux filtres actuels.</p>}
         </aside>
       </div>

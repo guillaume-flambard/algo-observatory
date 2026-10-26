@@ -55,6 +55,7 @@ describe('Algo Observatory navigation', () => {
     expect(await screen.findByRole('heading', { name: /Contenus et métriques/i }, { timeout: 8000 })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: /Les milliardaires, compatibles avec la démocratie/i })).toBeInTheDocument();
     expect(screen.getAllByRole('row')).toHaveLength(25);
-    expect(screen.getByText('Tournesol, recommandations vidéos')).toBeInTheDocument();
+    // Shown in the visible provenance column and in the stamp's details.
+    expect(screen.getAllByText('Tournesol, recommandations vidéos').length).toBeGreaterThan(0);
   });
 });

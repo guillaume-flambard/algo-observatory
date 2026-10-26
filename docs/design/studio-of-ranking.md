@@ -87,3 +87,9 @@ An audit with the Hallmark linter (`sloplint --render`, six routes, 30 screensho
 - The data workbench is capped at 1600px; no text below 11px.
 Remaining FAILs are raw pixel spacings where a `--space-*` token exists, and word density on Discover and Effects.
 
+## Revision 2026-10-26 (later): one page system, plain language
+
+- Every route opens with `PageHead` (src/core/ui/PageHead.tsx): one 56px title at the same height, one plain-language lead, at most two actions. Sections share `page.css`: 32px section titles, 22px instrument titles, 18px item titles, one button system (`btn-primary`, `btn-secondary`, `btn-link`, 44px, square).
+- One data source picker (`SourceSwitch`) in the laboratory and the data workbench. One inspector style (light). The home machine now uses the laboratory's `RankLedger`.
+- Copy is written for non-specialists: a three-step how-to in the laboratory, a hint under each slider, measures named in plain words, simpler strategy descriptions.
+
