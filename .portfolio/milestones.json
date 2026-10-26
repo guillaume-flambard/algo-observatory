@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "milestones": [
+    {
+      "kind": "demo",
+      "date": "2026-10-25",
+      "title": {
+        "fr": "Démonstration publique sur GitHub Pages",
+        "en": "Public GitHub Pages demonstration"
+      },
+      "detail": {
+        "fr": "La PR #7 a ajouté une publication conditionnée aux tests. La page publique a répondu HTTP 200 lors du contrôle du 26 octobre 2026 ; le fonctionnement complet n'est pas certifié.",
+        "en": "PR #7 introduced test-gated GitHub Pages publication. The public page returned HTTP 200 on October 26, 2026; full end-to-end operation is not certified."
+      },
+      "evidenceUrl": "https://github.com/guillaume-flambard/algo-observatory/pull/7"
+    }
+  ]
+}
