@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { AlertCircle, ArrowLeftRight, Loader2, RotateCcw } from 'lucide-react';
+import { AlertCircle, ArrowLeftRight, RotateCcw } from 'lucide-react';
 import type { Dataset, Strategy } from '@/core/data/types';
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
 import { getTournesolPublicDataset } from '@/core/data/tournesol-public';
 import { ALL_STRATEGIES, computeResults, findStrategy } from '@/core/data/strategies';
-import { DatasetProvenance } from '@/features/data/dataset-provenance';
+import { SourceSwitch } from '@/features/data/SourceSwitch';
 import type { MetricKey, Params, Ranking } from './analysis';
 import { METRIC_LABELS, composition, displacement, indicators, metricMeans, movement, rankMap } from './analysis';
 import { RankLedger } from './RankLedger';
 import { Inspector } from './Inspector';
+import { PageHead } from '@/core/ui/PageHead';
 import './lab.css';
 
 type DataSource = 'simulation' | 'snapshot';
@@ -24,6 +25,12 @@ const PARAM_METRIC: Record<string, MetricKey> = {
   w_popularity: 'popularity',
   w_collective: 'collectiveScore',
   w_diversity: 'diversityScore',
+};
+
+const PARAM_HINT: Record<string, string> = {
+  w_popularity: 'Combien de fois le contenu a été vu.',
+  w_collective: 'Ce que la communauté juge utile.',
+  w_diversity: 'Favorise les sujets moins représentés.',
 };
 
 const defaultParams = () => Object.fromEntries(
@@ -51,12 +58,13 @@ function WeightControls({ strategy, params, onChange }: { strategy: Strategy; pa
   const total = weights.reduce((sum, { value }) => sum + value, 0);
   return (
     <fieldset className="lab-weights">
-      <legend className="t-label">Pondérations de {strategy.name}</legend>
+      <legend className="t-meta">Dosage de la règle {strategy.name}</legend>
       {weights.map(({ parameter, value }) => {
         const id = strategy.id + '-' + parameter.id;
         return (
           <div key={parameter.id} className="lab-weight">
             <label htmlFor={id}>{parameter.name}</label>
+            <p id={id + '-hint'} className="lab-weight-hint">{PARAM_HINT[parameter.id]}</p>
             <output htmlFor={id} className="t-data">{pct(value)}%</output>
             <input
               id={id}
@@ -65,6 +73,7 @@ function WeightControls({ strategy, params, onChange }: { strategy: Strategy; pa
               max={parameter.max ?? 1}
               step={parameter.step ?? 0.1}
               value={value}
+              aria-describedby={id + '-hint'}
               onChange={(event) => onChange(parameter.id, Number(event.target.value))}
               style={{ '--fill': pct(value) + '%' } as CSSProperties}
             />
@@ -72,7 +81,7 @@ function WeightControls({ strategy, params, onChange }: { strategy: Strategy; pa
         );
       })}
       <div className="lab-shares">
-        <span className="lab-shares-title">Parts effectives</span>
+        <span className="lab-shares-title">Poids réel de chaque critère</span>
         <div className="lab-shares-track" aria-hidden="true">
           {weights.map(({ parameter, value }) => (
             <span key={parameter.id} data-metric={PARAM_METRIC[parameter.id]} style={{ flexGrow: total ? value : 1 }} />
@@ -129,7 +138,6 @@ function ScoreTable({ code, strategy, ranking }: { code: string; strategy: Strat
 }
 
 export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) {
-  const [source, setSource] = useState<DataSource>(() => sharedDataset?.kind === 'real' ? 'snapshot' : 'simulation');
   const [localDataset, setLocalDataset] = useState<Dataset>(EXAMPLE_DATASET);
   const dataset = sharedDataset ?? localDataset;
   const setDataset = useCallback((next: Dataset) => {
@@ -200,7 +208,6 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
     setSelectedId(null);
     setLastChange(null);
     if (requested === 'simulation') {
-      setSource('simulation');
       setDataset(EXAMPLE_DATASET);
       return;
     }
@@ -208,7 +215,6 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
     try {
       // No live API call: a versioned, attributed public snapshot, offline-ready.
       setDataset(getTournesolPublicDataset());
-      setSource('snapshot');
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'La source ne peut pas être chargée.');
     } finally {
@@ -243,37 +249,29 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
   const weighted = [experiment, reference].filter((strategy) => strategy.parameters.length > 0);
 
   return (
-    <main className="ao-interior lab">
-      <header className="lab-head">
-        <div className="lab-head-row">
-          <div>
-            <h1 className="lab-title">Même contenu. Autre classement.</h1>
-            <p className="lab-lead">Choisissez une règle, touchez ses poids, suivez un contenu : chaque rang affiché est recalculé ici, sur les mêmes données.</p>
-          </div>
-          <button type="button" onClick={reset} className="lab-reset">
-            <RotateCcw size={15} aria-hidden="true" /> <span className="lab-reset-label">Réinitialiser</span>
+    <main className="page ao-interior lab">
+      <PageHead
+        title="Même contenu. Autre classement."
+        lead="Un algorithme range des contenus selon une règle. Ici, c’est vous qui réglez la règle, et vous voyez le classement changer sous vos yeux."
+        actions={(
+          <button type="button" onClick={reset} className="btn btn-secondary">
+            <RotateCcw size={15} aria-hidden="true" /> Réinitialiser
           </button>
-        </div>
-
-        <div className="lab-source">
-          <div className="lab-segmented" role="group" aria-label="Source des données">
-            <button type="button" aria-pressed={source === 'simulation'} onClick={() => void selectSource('simulation')} disabled={loading}>
-              Données d’exemple <span className="lab-segmented-sub">8 contenus simulés</span>
-            </button>
-            <button type="button" aria-pressed={source === 'snapshot'} onClick={() => void selectSource('snapshot')} disabled={loading}>
-              Tournesol, données publiques
-              {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <span className="lab-segmented-sub">24 contenus réels</span>}
-            </button>
-          </div>
-          <DatasetProvenance dataset={dataset} />
-        </div>
-      </header>
+        )}
+      >
+        <ol className="steps lab-howto" aria-label="Mode d’emploi">
+          <li><span className="step-number" aria-hidden="true">1</span><p className="item-title">Choisissez une règle</p><p className="page-small">Popularité, avis de la communauté, diversité, ou un mélange des trois.</p></li>
+          <li><span className="step-number" aria-hidden="true">2</span><p className="item-title">Bougez les curseurs</p><p className="page-small">La colonne de droite se réordonne aussitôt : ce qui monte est surligné en jaune.</p></li>
+          <li><span className="step-number" aria-hidden="true">3</span><p className="item-title">Touchez un contenu</p><p className="page-small">Le panneau explique pourquoi il a monté ou descendu, chiffres à l’appui.</p></li>
+        </ol>
+        <SourceSwitch dataset={dataset} onSelect={(next) => void selectSource(next)} loading={loading} />
+      </PageHead>
 
       {error && (
         <div role="alert" className="lab-error">
           <AlertCircle size={18} aria-hidden="true" />
           <div>
-            <p className="t-label">Source indisponible</p>
+            <p className="t-meta">Source indisponible</p>
             <p>{error}</p>
             <button type="button" onClick={() => void selectSource('simulation')}>Utiliser les données d’exemple</button>
           </div>
@@ -283,7 +281,7 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
       <div className="lab-bench">
         <section className="lab-rail" aria-label="Règles comparées">
           <div className="lab-rail-block">
-            <p className="t-meta lab-slot"><span className="lab-slot-key is-b">B</span> Expérience</p>
+            <p className="t-meta lab-slot"><span className="lab-slot-key is-b">B</span> Règle testée</p>
             <div className="lab-chips" role="group" aria-label="Stratégie testée">
               {ALL_STRATEGIES.map((strategy) => (
                 <button
@@ -306,7 +304,7 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
           ))}
 
           <div className="lab-rail-block">
-            <label htmlFor="lab-reference" className="t-meta lab-slot"><span className="lab-slot-key">A</span> Référence : comparer avec</label>
+            <label htmlFor="lab-reference" className="t-meta lab-slot"><span className="lab-slot-key">A</span> Comparer avec la règle</label>
             <div className="lab-reference">
               <select id="lab-reference" value={referenceId} onChange={(event) => chooseReference(event.target.value)}>
                 {ALL_STRATEGIES.map((strategy) => <option key={strategy.id} value={strategy.id}>{strategy.name}</option>)}
@@ -320,10 +318,10 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
 
         <section className="lab-stage" aria-labelledby="rank-flow-heading">
           <div className="lab-stage-head">
-            <h2 id="rank-flow-heading" className="t-title-2">Comment les positions changent</h2>
+            <h2 id="rank-flow-heading" className="instrument-title">Comment les positions changent</h2>
             <p className="lab-stage-caption">
-              <span className="lab-caption-wide">À gauche la référence A, à droite l’expérience B. Touchez un contenu pour le suivre et comprendre son déplacement.</span>
-              <span className="lab-caption-narrow">Classement B ; « A 4 → B 1 » indique d’où vient chaque contenu. Touchez-en un pour le suivre.</span>
+              <span className="lab-caption-wide">À gauche, le classement avec la règle A. À droite, avec la règle B. Chaque trait relie un même contenu. Touchez-en un pour comprendre son déplacement.</span>
+              <span className="lab-caption-narrow">Le classement avec la règle B. « A 4 → B 1 » : ce contenu était 4e avec la règle A, il est 1er avec la règle B.</span>
             </p>
           </div>
           <RankLedger
@@ -361,34 +359,35 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
       </div>
 
       <section className="lab-measures" aria-labelledby="lab-measures-heading">
-        <h2 id="lab-measures-heading" className="t-title-2">Ce que la règle change en tête de classement</h2>
+        <h2 id="lab-measures-heading" className="section-title">Ce que la règle change en haut du classement</h2>
+        <p className="section-lead">Les cinq premières places sont celles que l’on voit vraiment. Voici comment elles changent entre la règle A et la règle B.</p>
         <dl>
-          <Measure label="Positions modifiées (A → B)" b={`${shift.changed} / ${shift.total}`} note={`Déplacement moyen ${shift.meanShift.toFixed(1)} rang(s)`} />
+          <Measure label="Contenus qui changent de place" b={`${shift.changed} / ${shift.total}`} note={`En moyenne, un contenu bouge de ${shift.meanShift.toFixed(1).replace('.', ',')} place(s).`} />
           <Measure
-            label={`Catégories dans le top ${concentrationB.k}`}
+            label={`Sujets différents dans les ${concentrationB.k} premiers`}
             a={String(concentrationA.distinctCategories)}
             b={String(concentrationB.distinctCategories)}
-            note="Plus le nombre est bas, plus la tête du classement est concentrée."
+            note="Moins il y en a, plus le haut du classement parle d’un seul sujet."
           />
           <Measure
-            label="Catégorie dominante"
+            label="Place du sujet le plus présent"
             a={`${pct(concentrationA.dominantShare)} %`}
             b={`${pct(concentrationB.dominantShare)} %`}
-            note={`B : ${concentrationB.dominantCategory}`}
+            note={`Avec la règle B : ${concentrationB.dominantCategory}.`}
           />
           <Measure
-            label={`Popularité moyenne du top ${concentrationB.k}`}
+            label={`Popularité moyenne des ${concentrationB.k} premiers`}
             a={String(pct(concentrationA.topPopularity))}
             b={String(pct(concentrationB.topPopularity))}
-            note={`Moyenne du catalogue : ${pct(concentrationB.catalogPopularity)}. Au-dessus, la règle favorise ce qui est déjà vu.`}
+            note={`Moyenne de tout le catalogue : ${pct(concentrationB.catalogPopularity)}. Au-dessus, la règle favorise ce qui est déjà très vu.`}
           />
         </dl>
       </section>
 
       <section className="lab-compare" aria-labelledby="lab-compare-heading">
-        <h2 id="lab-compare-heading" className="t-title-1">Les classements, face à face.</h2>
+        <h2 id="lab-compare-heading" className="section-title">Les classements, face à face.</h2>
         <p className="lab-compare-lead">
-          Les scores calculés ne sont pas comparables d’une stratégie à l’autre et ne mesurent aucune visibilité réelle. Ouvrez une ligne pour lire l’explication du calcul.
+          Le détail des notes calculées par chaque règle. Une note n’a de sens qu’à l’intérieur de sa règle : on ne compare pas une note de Popularité à une note d’Hybride. Ouvrez une ligne pour lire le calcul.
         </p>
         <details className="lab-tables-toggle" open={!narrow}>
           <summary>{narrow ? 'Afficher les scores détaillés' : 'Scores détaillés'}</summary>
@@ -400,7 +399,7 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
       </section>
 
       <section className="lab-limits">
-        <h2 className="t-title-3">Ce que montre cette expérience, et ce qu’elle ne montre pas</h2>
+        <h2 className="item-title">Ce que montre cette expérience, et ce qu’elle ne montre pas</h2>
         <p>
           Chaque stratégie trie les mêmes contenus d’après ses règles. Les mouvements affichés sont ceux du calcul, pas d’une plateforme.
           {simulated

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { Home } from './Home';
 
 describe('The Ranking Machine — accueil interactif', () => {
@@ -19,12 +19,14 @@ describe('The Ranking Machine — accueil interactif', () => {
     fireEvent.change(slider, { target: { value: '100' } });
     expect(screen.getByText(/8 positions modifiées/i).textContent).not.toBe('0 / 8 positions modifiées');
     const comparison = screen.getByRole('region', { name: /Machine interactive de classement/i });
-    expect(comparison.querySelectorAll('.ao-rank-row')).toHaveLength(16);
+    // Same ledger as the laboratory: 8 reference rows and 8 rows after the change.
+    expect(comparison.querySelectorAll('.ledger-row')).toHaveLength(16);
   });
 
   it('permet de suivre un titre par clavier et explique son déplacement', () => {
     render(<Home onNavigate={vi.fn()} />);
-    const choice = screen.getAllByRole('button', { name: /^\d{2} Parasite$/i })[0]!;
+    const ledger = screen.getByRole('list', { name: 'Classement après votre réglage, comparé à la popularité seule' });
+    const choice = within(ledger).getByRole('button', { name: /Parasite/ });
     fireEvent.click(choice);
     expect(choice).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByText('Parasite', { selector: '.ao-readout-label strong' })).toBeInTheDocument();
