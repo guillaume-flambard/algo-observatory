@@ -43,28 +43,6 @@ export class SimulationTournesolAdapter implements TournesolAdapter {
 }
 
 /**
- * Adaptateur API Tournesol officielle (avec gestion d'erreur et fallback gracieux).
- */
-export class ApiTournesolAdapter implements TournesolAdapter {
-  constructor(private baseUrl: string = 'https://api.tournesol.app') {}
-
-  async isAvailable(): Promise<boolean> {
-    try {
-      const res = await fetch(`${this.baseUrl}/`, { method: 'HEAD' });
-      return res.ok || res.status === 401; // 401 prouve que l'API répond
-    } catch {
-      return false;
-    }
-  }
-
-  async getDataset(): Promise<TournesolDataset> {
-    // Pour l'instant, l'API nécessite OAuth2. Si non authentifié, lève une erreur explicite
-    // que l'application gérera en basculant sur l'export statique ou la simulation.
-    throw new Error("L'API Tournesol nécessite une authentification OAuth2. Utilisez l'export statique ou la simulation.");
-  }
-}
-
-/**
  * Adaptateur de conversion TournesolDataset -> Dataset interne pour le Lab
  */
 export function adaptTournesolToInternal(tournesolDataset: TournesolDataset): Dataset {
