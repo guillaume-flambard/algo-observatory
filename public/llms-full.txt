@@ -1,0 +1,40 @@
+# Algo Observatory, version longue
+
+> Laboratoire interactif et open source (MIT) pour comprendre les algorithmes de recommandation. Site : https://guillaume-flambard.github.io/algo-observatory/ . Code : https://github.com/guillaume-flambard/algo-observatory . Interface en français. Projet bénévole et indépendant : aucune affiliation avec Tournesol, YouTube ou Data for Good.
+
+## Ce que fait le site
+
+Une plateforme de vidéos, d'actualités ou de musique range les contenus avant de les montrer. Algo Observatory rend ce rangement visible : on choisit une règle, on la règle, et chaque contenu affiche son ancien rang, son nouveau rang et la raison du déplacement. Le parcours suit trois intentions : Comprendre (Accueil, Découvrir), Expérimenter (Laboratoire, Effets), Vérifier (Données, Méthodologie).
+
+## Données
+
+Deux jeux, jamais confondus à l'écran :
+
+- Instantané Tournesol (réel) : 24 recommandations publiques lues le 25 octobre 2026 sur https://api.tournesol.app/polls/videos/recommendations/?limit=24 , parmi 4 131 disponibles à cette date. Licence ODC-BY 1.0, attribution à Tournesol. Le site ne contacte pas l'API depuis le navigateur : l'instantané est versionné dans le dépôt et se rafraîchit à la main avec `node scripts/refresh-tournesol.mjs`.
+- Catalogue d'exemple (simulation) : utilisé sur l'accueil pour expliquer le principe, signalé « Simulation pédagogique ».
+
+Métriques dérivées, toutes entre 0 et 1 :
+
+- Popularité : vues YouTube en logarithme, rapportées au maximum de l'échantillon.
+- Score collectif : score Tournesol ramené de [-100, 100] à [0, 1].
+- Diversité : critère Tournesol « diversité et inclusion » ramené de [-100, 100] à [0, 1].
+- Fraîcheur : décroissance exponentielle depuis la date de publication (constante de 730 jours).
+
+## Règles de classement
+
+- Popularité : trie par la métrique de popularité.
+- Score collectif : trie par le score collectif.
+- Diversité : sélection rang par rang sur le score de diversité ; le score d'un contenu est multiplié par (1 - 0,2 x n), où n est le nombre de contenus de sa catégorie déjà placés au-dessus.
+- Hybride : moyenne pondérée des trois métriques ; poids par défaut 0,4 popularité, 0,4 score collectif, 0,2 diversité, réglables de 0 à 1.
+
+Mesures affichées entre deux classements : nombre de contenus déplacés, plus grand déplacement, catégorie dominante dans les cinq premiers et popularité moyenne du haut du classement.
+
+## Limites
+
+- Les classements sont des simulations sur un petit échantillon, pas une mesure de YouTube ni d'une autre plateforme.
+- 24 contenus ne représentent pas le catalogue Tournesol entier.
+- La catégorie d'un contenu est son premier tag Tournesol, ou sa langue à défaut ; elle n'est pas devinée.
+
+## Technique
+
+React 19, TypeScript strict, Vite, sans back-end. Tests Vitest et Playwright (Chromium et WebKit, desktop et mobile, contrôle WCAG 2.2 AA avec axe). Déployé sur GitHub Pages après une CI verte. Mouvement réduit respecté (`prefers-reduced-motion`).

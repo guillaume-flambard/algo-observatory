@@ -78,7 +78,7 @@ pnpm test:e2e
 pnpm build:pages
 ```
 
-Le projet se découpe en `src/features/` (interfaces), `src/core/data/` (jeu de données et stratégies), `src/core/adapters/` (adaptateurs) et `tests/e2e/` (parcours navigateur). Le graphe interactif se trouve dans [RankFlow.tsx](src/features/lab/RankFlow.tsx).
+Le projet se découpe en `src/features/` (interfaces), `src/core/data/` (jeu de données et stratégies), `src/core/adapters/` (adaptateurs) et `tests/e2e/` (parcours navigateur). Le graphe interactif se trouve dans [RankLedger.tsx](src/features/lab/RankLedger.tsx). Un résumé pour les modèles de langage est publié en [llms.txt](public/llms.txt).
 
 ## Contribuer
 
