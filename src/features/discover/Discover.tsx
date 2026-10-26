@@ -111,7 +111,7 @@ export function Discover({ onNavigate }: DiscoverProps) {
       </section>
 
       <section className="mx-auto max-w-[1440px] px-5 py-20 sm:px-8 lg:px-12">
-        <div className="flex flex-col items-start justify-between gap-8 rounded-[24px] bg-neutral-900 p-8 text-white sm:p-12 lg:flex-row lg:items-end">
+        <div className="flex flex-col items-start justify-between gap-8 bg-neutral-900 p-8 text-white sm:p-12 lg:flex-row lg:items-end">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-400">À vous de jouer</p>
             <h2 className="mt-5 max-w-xl text-3xl font-semibold leading-tight tracking-[-0.045em] sm:text-4xl">

@@ -2,6 +2,9 @@ import type { Item, Strategy } from './types';
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 
+/** Score reduction applied, per item of the same category already selected, by diverse selection. */
+export const DIVERSITY_PENALTY = 0.2;
+
 export const POPULARITY_STRATEGY: Strategy = {
   id: 'popularity',
   name: 'Popularité',
@@ -121,7 +124,7 @@ function computeDiverseResults(
       const baseScore = strategy.score(item, params);
       const alreadySelected = categoryCount.get(item.category) ?? 0;
       // Pénalité de 0.2 par item déjà sélectionné de la même catégorie.
-      const penalty = 0.2 * alreadySelected;
+      const penalty = DIVERSITY_PENALTY * alreadySelected;
       const adjustedScore = baseScore * Math.max(0, 1 - penalty);
 
       if (adjustedScore > bestAdjustedScore) {

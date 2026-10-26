@@ -7,12 +7,22 @@ export interface ItemMetric {
   freshness: number; // 0..1
 }
 
+/** Raw, observed source values kept beside the derived 0..1 metrics, for traceability. */
+export interface ItemEvidence {
+  tournesolScore: number | null; // Tournesol score, scale -100..100
+  nComparisons: number;
+  nContributors: number;
+  views: number | null; // YouTube views at collection time
+  url: string; // public page of the item on its source
+}
+
 export interface Item {
   id: string;
   title: string;
   author: string;
   category: string;
   metrics: ItemMetric;
+  evidence?: ItemEvidence; // only present for real, sourced items
 }
 
 export interface Dataset {

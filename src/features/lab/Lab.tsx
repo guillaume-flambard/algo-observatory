@@ -1,161 +1,129 @@
-import { useCallback, useMemo, useState } from 'react';
-import { AlertCircle, ArrowDown, ArrowUp, Check, ChevronDown, Database, Equal, FlaskConical, GitCompareArrows, Info, Loader2, RotateCcw, SlidersHorizontal } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
+import { AlertCircle, ArrowLeftRight, Loader2, RotateCcw } from 'lucide-react';
 import type { Dataset, Strategy } from '@/core/data/types';
 import { EXAMPLE_DATASET } from '@/core/data/example-dataset';
 import { getTournesolPublicDataset } from '@/core/data/tournesol-public';
-import { ALL_STRATEGIES, computeResults } from '@/core/data/strategies';
-import type { TournesolDataset } from '@/core/domain/tournesol-types';
-import {
-  SimulationTournesolAdapter,
-  adaptTournesolToInternal,
-} from '@/core/adapters/tournesol-adapter';
+import { ALL_STRATEGIES, computeResults, findStrategy } from '@/core/data/strategies';
 import { DatasetProvenance } from '@/features/data/dataset-provenance';
-import { RankFlow } from './RankFlow';
+import type { MetricKey, Params, Ranking } from './analysis';
+import { METRIC_LABELS, composition, displacement, indicators, metricMeans, movement, rankMap } from './analysis';
+import { RankLedger } from './RankLedger';
+import { Inspector } from './Inspector';
+import './lab.css';
 
 type DataSource = 'simulation' | 'snapshot';
 interface LabProps {
   dataset?: Dataset;
   onDatasetChange?: (next: Dataset) => void;
 }
-type ComputedResults = ReturnType<typeof computeResults>;
 
-const strategyAccent: Record<string, string> = {
-  popularity: 'bg-neutral-900',
-  collective: 'bg-slate-600',
-  diversity: 'bg-emerald-700',
-  hybrid: 'bg-amber-700',
+const DEFAULT_REFERENCE = 'popularity';
+const DEFAULT_EXPERIMENT = 'hybrid';
+const PARAM_METRIC: Record<string, MetricKey> = {
+  w_popularity: 'popularity',
+  w_collective: 'collectiveScore',
+  w_diversity: 'diversityScore',
 };
 
-function ResultColumn({
-  strategy,
-  results,
-  params,
-  onParamChange,
-  referenceRanks,
-  comparisonEnabled,
-  reference,
-}: {
-  strategy: Strategy;
-  results: ComputedResults;
-  params: Record<string, number | boolean | string>;
-  onParamChange: (id: string, value: number) => void;
-  referenceRanks: Map<string, number>;
-  comparisonEnabled: boolean;
-  reference: boolean;
-}) {
-  const accent = strategyAccent[strategy.id] ?? 'bg-neutral-900';
-  const shown = results.slice(0, 8);
+const defaultParams = () => Object.fromEntries(
+  ALL_STRATEGIES.map((strategy) => [strategy.id, Object.fromEntries(strategy.parameters.map((parameter) => [parameter.id, parameter.default]))]),
+) as Record<string, Params>;
 
+const pct = (value: number) => Math.round(value * 100);
+
+/** True on phone widths, where secondary detail starts collapsed. */
+function useNarrow(query = '(max-width: 720px)') {
+  const get = () => typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(query).matches;
+  const [narrow, setNarrow] = useState(get);
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const list = window.matchMedia(query);
+    const update = () => setNarrow(list.matches);
+    list.addEventListener('change', update);
+    return () => list.removeEventListener('change', update);
+  }, [query]);
+  return narrow;
+}
+
+function WeightControls({ strategy, params, onChange }: { strategy: Strategy; params: Params; onChange: (id: string, value: number) => void }) {
+  const weights = strategy.parameters.map((parameter) => ({ parameter, value: Number(params[parameter.id] ?? parameter.default) }));
+  const total = weights.reduce((sum, { value }) => sum + value, 0);
   return (
-    <section className="min-w-0 overflow-hidden rounded-2xl border border-neutral-200 bg-white" aria-label={'Résultats de la stratégie ' + strategy.name}>
-      <div className="border-b border-neutral-100 px-5 pb-5 pt-6 sm:px-6">
-        <div className="mb-4 flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className={'h-2.5 w-2.5 rounded-full ' + accent} aria-hidden="true" />
-            <h3 className="text-lg font-semibold tracking-[-0.03em]">{strategy.name}</h3>
+    <fieldset className="lab-weights">
+      <legend className="t-label">Pondérations de {strategy.name}</legend>
+      {weights.map(({ parameter, value }) => {
+        const id = strategy.id + '-' + parameter.id;
+        return (
+          <div key={parameter.id} className="lab-weight">
+            <label htmlFor={id}>{parameter.name}</label>
+            <output htmlFor={id} className="t-data">{pct(value)}%</output>
+            <input
+              id={id}
+              type="range"
+              min={parameter.min ?? 0}
+              max={parameter.max ?? 1}
+              step={parameter.step ?? 0.1}
+              value={value}
+              onChange={(event) => onChange(parameter.id, Number(event.target.value))}
+              style={{ '--fill': pct(value) + '%' } as CSSProperties}
+            />
           </div>
-          {comparisonEnabled && reference && (
-            <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-neutral-600">
-              Référence
-            </span>
-          )}
+        );
+      })}
+      <div className="lab-shares">
+        <span className="t-code">PARTS EFFECTIVES</span>
+        <div className="lab-shares-track" aria-hidden="true">
+          {weights.map(({ parameter, value }) => (
+            <span key={parameter.id} data-metric={PARAM_METRIC[parameter.id]} style={{ flexGrow: total ? value : 1 }} />
+          ))}
         </div>
-        <p className="min-h-[3rem] text-xs leading-6 text-neutral-500">{strategy.description}</p>
-
-        {strategy.parameters.length > 0 && (
-          <div className="mt-4 space-y-4 border-t border-neutral-100 pt-5">
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.09em] text-neutral-500">
-              <SlidersHorizontal size={14} aria-hidden="true" />
-              Pondérations
-            </div>
-            {strategy.parameters.map((param) => {
-              const value = Number(params[param.id] ?? param.default);
-              const id = strategy.id + '-' + param.id;
-              return (
-                <div key={param.id}>
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <label htmlFor={id} className="text-xs font-medium text-neutral-700">{param.name}</label>
-                    <output htmlFor={id} className="font-mono text-[11px] text-neutral-500">{Math.round(value * 100)}%</output>
-                  </div>
-                  <input
-                    id={id}
-                    type="range"
-                    min={param.min ?? 0}
-                    max={param.max ?? 1}
-                    step={param.step ?? 0.1}
-                    value={value}
-                    className="h-1.5 w-full cursor-pointer accent-neutral-900"
-                    onChange={(event) => onParamChange(param.id, Number(event.target.value))}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <ul className="lab-shares-legend">
+          {weights.map(({ parameter, value }) => (
+            <li key={parameter.id}>
+              <span className="composition-swatch" data-metric={PARAM_METRIC[parameter.id]} aria-hidden="true" />
+              {METRIC_LABELS[PARAM_METRIC[parameter.id]!]} <span className="t-data">{total ? pct(value / total) : 0} %</span>
+            </li>
+          ))}
+        </ul>
+        {total === 0 && <p className="lab-shares-warning">Tous les poids sont à zéro : chaque contenu obtient le même score.</p>}
       </div>
+    </fieldset>
+  );
+}
 
-      <div className="flex items-center justify-between border-b border-neutral-100 bg-neutral-50 px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.11em] text-neutral-500 sm:px-6">
-        <span>Classement</span>
-        <span>Score calculé</span>
-      </div>
-      {shown.length > 0 ? (
-        <ol className="divide-y divide-neutral-100">
-          {shown.map(({ item, score, explanation }, index) => {
-            const rank = index + 1;
-            const rankDelta = (referenceRanks.get(item.id) ?? rank) - rank;
-            return (
-              <li key={item.id} className="group px-5 py-4 sm:px-6">
-                <div className="flex items-start gap-3">
-                  <span className="w-5 shrink-0 pt-0.5 font-mono text-xs text-neutral-400">
-                    {String(rank).padStart(2, '0')}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-3">
-                      <p className="text-[13px] font-semibold leading-5 text-neutral-900">{item.title}</p>
-                      <span className="shrink-0 font-mono text-[11px] font-medium text-neutral-700">
-                        {Math.round(score * 100)}
-                      </span>
-                    </div>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-neutral-500">
-                      <span>{item.category}</span>
-                      <span aria-hidden="true">·</span>
-                      <span className="truncate">{item.author}</span>
-                      {comparisonEnabled && !reference && (
-                        <span
-                          className={[
-                            'ml-auto inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 font-mono',
-                            rankDelta > 0 ? 'bg-emerald-50 text-emerald-700' : rankDelta < 0 ? 'bg-rose-50 text-rose-700' : 'bg-neutral-100 text-neutral-500',
-                          ].join(' ')}
-                          title="Différence de rang par rapport à la stratégie de référence"
-                        >
-                          {rankDelta > 0 ? <ArrowUp size={11} aria-hidden="true" /> : rankDelta < 0 ? <ArrowDown size={11} aria-hidden="true" /> : <Equal size={11} aria-hidden="true" />}
-                          {rankDelta === 0 ? '0' : Math.abs(rankDelta)}
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-neutral-100" aria-hidden="true">
-                      <div className={'h-full rounded-full transition-[width] duration-300 ' + accent} style={{ width: Math.round(score * 100) + '%' }} />
-                    </div>
-                    <details className="mt-3 text-xs">
-                      <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-neutral-500 hover:text-neutral-900">
-                        Pourquoi ce rang ? <ChevronDown size={12} aria-hidden="true" />
-                      </summary>
-                      <p className="mt-2 rounded-lg bg-neutral-50 p-3 leading-6 text-neutral-600">{explanation}</p>
-                    </details>
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-      ) : (
-        <p className="px-6 py-12 text-center text-sm text-neutral-500">Aucun contenu à classer dans ce jeu de données.</p>
-      )}
-      {results.length > shown.length && (
-        <p className="border-t border-neutral-100 px-6 py-4 text-xs text-neutral-500">
-          {shown.length} premiers résultats sur {results.length} contenus.
-        </p>
-      )}
+function Measure({ label, a, b, note }: { label: string; a?: string; b: string; note?: string }) {
+  return (
+    <div className="lab-measure">
+      <dt>{label}</dt>
+      <dd>
+        {a !== undefined && <span className="t-data lab-measure-a">A {a}</span>}
+        <span className="t-data lab-measure-b">{a !== undefined ? 'B ' : ''}{b}</span>
+      </dd>
+      {note && <dd className="lab-measure-note">{note}</dd>}
+    </div>
+  );
+}
+
+function ScoreTable({ code, strategy, ranking }: { code: string; strategy: Strategy; ranking: Ranking }) {
+  return (
+    <section className="lab-table" aria-label={'Scores calculés par ' + strategy.name}>
+      <h3><span className="t-code">{code}</span> {strategy.name}</h3>
+      <p className="lab-table-desc">{strategy.description}</p>
+      <ol>
+        {ranking.map(({ item, score, explanation }, index) => (
+          <li key={item.id}>
+            <details>
+              <summary>
+                <span className="t-data">{String(index + 1).padStart(2, '0')}</span>
+                <span className="lab-table-title">{item.title}</span>
+                <span className="t-data">{pct(score)}</span>
+              </summary>
+              <p>{explanation}</p>
+            </details>
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }
@@ -170,275 +138,277 @@ export function Lab({ dataset: sharedDataset, onDatasetChange }: LabProps = {}) 
   }, [onDatasetChange]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeIds, setActiveIds] = useState<string[]>(['popularity', 'collective']);
-  const [params, setParams] = useState<Record<string, Record<string, number | boolean | string>>>(
-    () => ALL_STRATEGIES.reduce(
-      (acc, strategy) => {
-        acc[strategy.id] = Object.fromEntries(strategy.parameters.map((parameter) => [parameter.id, parameter.default]));
-        return acc;
-      },
-      {} as Record<string, Record<string, number | boolean | string>>,
-    ),
-  );
+  const [referenceId, setReferenceId] = useState(DEFAULT_REFERENCE);
+  const [experimentId, setExperimentId] = useState(DEFAULT_EXPERIMENT);
+  const [params, setParams] = useState<Record<string, Params>>(defaultParams);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
-  const loadFromSource = useCallback(async (requested: DataSource) => {
-    setLoading(true);
+  const reference = findStrategy(referenceId)!;
+  const experiment = findStrategy(experimentId)!;
+  const referenceRanking = useMemo(() => computeResults(dataset.items, reference, params[reference.id] ?? {}), [dataset, reference, params]);
+  const experimentRanking = useMemo(() => computeResults(dataset.items, experiment, params[experiment.id] ?? {}), [dataset, experiment, params]);
+
+  // Track by default the item the rule moves the most: the experiment shows something at once.
+  const fallbackId = useMemo(() => {
+    const after = rankMap(experimentRanking);
+    let best: string | null = referenceRanking[0]?.item.id ?? null;
+    let bestShift = -1;
+    referenceRanking.forEach(({ item }, index) => {
+      const shift = Math.abs(index + 1 - (after.get(item.id) ?? index + 1));
+      if (shift > bestShift) { bestShift = shift; best = item.id; }
+    });
+    return best;
+  }, [referenceRanking, experimentRanking]);
+  const trackedId = selectedId && dataset.items.some((item) => item.id === selectedId) ? selectedId : fallbackId;
+  const tracked = dataset.items.find((item) => item.id === trackedId) ?? null;
+  const move = tracked ? movement(tracked.id, referenceRanking, experimentRanking) : null;
+
+  // Rank of the tracked item before the latest rule change.
+  const revision = experimentId + JSON.stringify(params[experimentId]) + referenceId + dataset.id;
+  const previous = useRef<{ revision: string; ranks: Map<string, number> }>({ revision, ranks: rankMap(experimentRanking) });
+  const [lastChange, setLastChange] = useState<{ from: number; to: number } | null>(null);
+  useEffect(() => {
+    if (previous.current.revision === revision) return;
+    const ranks = rankMap(experimentRanking);
+    if (trackedId) {
+      const from = previous.current.ranks.get(trackedId);
+      const to = ranks.get(trackedId);
+      setLastChange(from !== undefined && to !== undefined ? { from, to } : null);
+    }
+    previous.current = { revision, ranks };
+  }, [revision, experimentRanking, trackedId]);
+
+  const shift = useMemo(() => displacement(referenceRanking, experimentRanking), [referenceRanking, experimentRanking]);
+  const concentrationA = useMemo(() => indicators(referenceRanking, 5), [referenceRanking]);
+  const concentrationB = useMemo(() => indicators(experimentRanking, 5), [experimentRanking]);
+
+  // One calm announcement after the user stops moving a control.
+  const [announcement, setAnnouncement] = useState('');
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnnouncement(
+        `${experiment.name} comparé à ${reference.name} : ${shift.changed} positions sur ${shift.total} changent.` +
+        (tracked && move ? ` ${tracked.title} passe du rang ${move.before} au rang ${move.after}.` : ''),
+      );
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [experiment.name, reference.name, shift.changed, shift.total, tracked, move]);
+
+  const selectSource = async (requested: DataSource) => {
     setError(null);
+    setSelectedId(null);
+    setLastChange(null);
+    if (requested === 'simulation') {
+      setSource('simulation');
+      setDataset(EXAMPLE_DATASET);
+      return;
+    }
+    setLoading(true);
     try {
-      if (requested === 'simulation') {
-        const tournesolDataset: TournesolDataset = await new SimulationTournesolAdapter().getDataset();
-        setDataset(adaptTournesolToInternal(tournesolDataset));
-      } else {
-        // No live API call: this versioned, attributed public snapshot is offline-ready.
-        setDataset(getTournesolPublicDataset());
-      }
-      setSource(requested);
+      // No live API call: a versioned, attributed public snapshot, offline-ready.
+      setDataset(getTournesolPublicDataset());
+      setSource('snapshot');
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'La source ne peut pas être chargée.');
     } finally {
       setLoading(false);
     }
-  }, [setDataset]);
-
-  const selectSimulation = () => {
-    setError(null);
-    setSource('simulation');
-    setDataset(EXAMPLE_DATASET);
   };
 
-  const selectedStrategies = useMemo(
-    () => ALL_STRATEGIES.filter((strategy) => activeIds.includes(strategy.id)),
-    [activeIds],
-  );
-
-  const resultsByStrategy = useMemo(
-    () => Object.fromEntries(
-      selectedStrategies.map((strategy) => [
-        strategy.id,
-        computeResults(dataset.items, strategy, params[strategy.id] ?? {}),
-      ]),
-    ) as Record<string, ComputedResults>,
-    [dataset, selectedStrategies, params],
-  );
-
-  const referenceStrategy = selectedStrategies[0];
-  const referenceRanks = useMemo<Map<string, number>>(
-    () => new Map<string, number>((referenceStrategy ? (resultsByStrategy[referenceStrategy.id] ?? []) : []).map(({ item }, index): [string, number] => [item.id, index + 1])),
-    [referenceStrategy, resultsByStrategy],
-  );
-
-  const toggleStrategy = (id: string) => {
-    setActiveIds((current) => current.includes(id) ? current.filter((value) => value !== id) : [...current, id]);
+  const chooseExperiment = (id: string) => {
+    // Picking the reference as experiment swaps them, so A and B never coincide.
+    if (id === referenceId) setReferenceId(experimentId);
+    setExperimentId(id);
   };
-
+  const chooseReference = (id: string) => {
+    if (id === experimentId) setExperimentId(referenceId);
+    setReferenceId(id);
+  };
   const updateParam = (strategyId: string, paramId: string, value: number) => {
-    setParams((current) => ({
-      ...current,
-      [strategyId]: { ...current[strategyId], [paramId]: value },
-    }));
+    setParams((current) => ({ ...current, [strategyId]: { ...current[strategyId], [paramId]: value } }));
   };
+  const reset = () => {
+    void selectSource('simulation');
+    setReferenceId(DEFAULT_REFERENCE);
+    setExperimentId(DEFAULT_EXPERIMENT);
+    setParams(defaultParams());
+    setShowAll(false);
+  };
+
+  const simulated = dataset.kind === 'example';
+  const means = useMemo(() => metricMeans(dataset.items), [dataset]);
+  const narrow = useNarrow();
+  const limit = showAll ? dataset.items.length : Math.min(dataset.items.length, 10);
+  const weighted = [experiment, reference].filter((strategy) => strategy.parameters.length > 0);
 
   return (
-    <main className="ao-interior ao-lab">
-      <div className="border-b border-neutral-200">
-        <div className="mx-auto max-w-[1440px] px-5 pb-10 pt-12 sm:px-8 lg:px-12 lg:pb-12">
-          <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.17em] text-neutral-500">
-            <FlaskConical size={14} aria-hidden="true" /> Laboratoire / 02
+    <main className="ao-interior lab">
+      <header className="lab-head">
+        <p className="t-code lab-kicker">EXPÉRIMENTER · LABORATOIRE</p>
+        <div className="lab-head-row">
+          <div>
+            <h1 className="lab-title">Même contenu. <span>Autre classement.</span></h1>
+            <p className="lab-lead">Choisissez une règle, touchez ses poids, suivez un contenu : chaque rang affiché est recalculé ici, sur les mêmes données.</p>
           </div>
-          <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-            <div>
-              <h1 className="text-[clamp(2.8rem,5.2vw,5rem)] font-semibold leading-[1.05] tracking-[-0.065em]">
-                Même contenu. <span className="text-neutral-400">Autre classement.</span>
-              </h1>
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-neutral-600 sm:text-base">
-                Choisissez des données, activez des stratégies, puis comparez ce qui monte ou descend.
-                Tout est calculé ici selon des règles transparentes.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                selectSimulation();
-                setActiveIds(['popularity', 'collective']);
-                setParams(Object.fromEntries(ALL_STRATEGIES.map((strategy) => [strategy.id, Object.fromEntries(strategy.parameters.map((parameter) => [parameter.id, parameter.default]))])));
-              }}
-              className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-neutral-300 bg-white px-4 py-2.5 text-xs font-medium transition hover:border-neutral-500"
-            >
-              <RotateCcw size={14} aria-hidden="true" /> Réinitialiser
+          <button type="button" onClick={reset} className="lab-reset">
+            <RotateCcw size={15} aria-hidden="true" /> <span className="lab-reset-label">Réinitialiser</span>
+          </button>
+        </div>
+
+        <div className="lab-source">
+          <div className="lab-segmented" role="group" aria-label="Source des données">
+            <button type="button" aria-pressed={source === 'simulation'} onClick={() => void selectSource('simulation')} disabled={loading}>
+              Données d’exemple <span className="t-code">8 · SIMULATION</span>
+            </button>
+            <button type="button" aria-pressed={source === 'snapshot'} onClick={() => void selectSource('snapshot')} disabled={loading}>
+              Tournesol · données publiques
+              {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <span className="t-code">24 · RÉEL</span>}
             </button>
           </div>
+          <DatasetProvenance dataset={dataset} />
         </div>
-      </div>
+      </header>
 
-      <div className="mx-auto grid max-w-[1440px] gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-10 lg:px-12">
-        <aside className="space-y-6 lg:sticky lg:top-28 lg:self-start" aria-label="Paramètres du laboratoire">
-          <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-sm font-semibold">01 / Données</h2>
-              <Database size={16} className="text-neutral-400" aria-hidden="true" />
-            </div>
-            <p className="mb-4 text-xs leading-6 text-neutral-500">
-              Commencez avec une simulation ou explorez 24 recommandations publiques Tournesol, enregistrées le 25 octobre 2026.
-            </p>
-            <div className="space-y-2">
-              <button
-                type="button"
-                onClick={selectSimulation}
-                disabled={loading}
-                aria-pressed={source === 'simulation'}
-                className={[
-                  'flex w-full items-center justify-between gap-2 rounded-lg border px-3.5 py-3 text-left text-xs font-semibold transition disabled:opacity-50',
-                  source === 'simulation' ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400',
-                ].join(' ')}
-              >
-                Données d’exemple <span className="text-[10px] font-normal">Simulation</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => loadFromSource('snapshot')}
-                disabled={loading}
-                aria-pressed={source === 'snapshot'}
-                className={[
-                  'flex w-full items-center justify-between gap-2 rounded-lg border px-3.5 py-3 text-left text-xs font-semibold transition disabled:opacity-50',
-                  source === 'snapshot' ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-400',
-                ].join(' ')}
-              >
-                Tournesol · données publiques
-                {loading ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <span aria-hidden="true" className="text-[10px] font-normal">Instantané</span>}
-              </button>
-            </div>
-            <DatasetProvenance dataset={dataset} />
-          </section>
+      {error && (
+        <div role="alert" className="lab-error">
+          <AlertCircle size={18} aria-hidden="true" />
+          <div>
+            <p className="t-label">Source indisponible</p>
+            <p>{error}</p>
+            <button type="button" onClick={() => void selectSource('simulation')}>Utiliser les données d’exemple</button>
+          </div>
+        </div>
+      )}
 
-          <section className="rounded-2xl border border-neutral-200 bg-white p-5">
-            <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-sm font-semibold">02 / Stratégies</h2>
-              <SlidersHorizontal size={16} className="text-neutral-400" aria-hidden="true" />
-            </div>
-            <p className="mb-4 text-xs leading-6 text-neutral-500">Sélectionnez les classements à afficher côte à côte.</p>
-            <div className="space-y-2">
-              {ALL_STRATEGIES.map((strategy) => {
-                const active = activeIds.includes(strategy.id);
-                return (
-                  <button
-                    key={strategy.id}
-                    type="button"
-                    data-testid={'strategy-' + strategy.id}
-                    aria-pressed={active}
-                    onClick={() => toggleStrategy(strategy.id)}
-                    disabled={loading}
-                    className={[
-                      'flex w-full items-center gap-3 rounded-lg border px-3.5 py-3 text-left text-xs font-semibold transition disabled:opacity-50',
-                      active ? 'border-neutral-300 bg-neutral-100 text-neutral-900' : 'border-transparent text-neutral-500 hover:border-neutral-200 hover:bg-neutral-50',
-                    ].join(' ')}
-                  >
-                    <span className={[
-                      'flex h-4 w-4 shrink-0 items-center justify-center rounded border',
-                      active ? 'border-neutral-900 bg-neutral-900 text-white' : 'border-neutral-300 bg-white',
-                    ].join(' ')}>
-                      {active && <Check size={11} strokeWidth={2.8} aria-hidden="true" />}
-                    </span>
-                    {strategy.name}
-                  </button>
-                );
-              })}
-            </div>
-            <p className="mt-4 border-t border-neutral-100 pt-4 text-[11px] text-neutral-500">
-              {selectedStrategies.length} / {ALL_STRATEGIES.length} stratégies actives
-            </p>
-          </section>
-        </aside>
-
-        <div className="min-w-0 space-y-6">
-          {error && (
-            <div role="alert" className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
-              <AlertCircle size={19} className="mt-0.5 shrink-0" aria-hidden="true" />
-              <div className="flex-1">
-                <p className="font-semibold">Source indisponible</p>
-                <p className="mt-1 leading-6">{error}</p>
-                <button type="button" onClick={selectSimulation} className="mt-2 text-xs font-semibold underline underline-offset-4">
-                  Utiliser les données d’exemple
+      <div className="lab-bench">
+        <section className="lab-rail" aria-label="Règles comparées">
+          <div className="lab-rail-block">
+            <p className="t-code lab-slot"><span className="lab-slot-key is-b">B</span> EXPÉRIENCE</p>
+            <div className="lab-chips" role="group" aria-label="Stratégie testée">
+              {ALL_STRATEGIES.map((strategy) => (
+                <button
+                  key={strategy.id}
+                  type="button"
+                  data-testid={'strategy-' + strategy.id}
+                  aria-pressed={experimentId === strategy.id}
+                  onClick={() => chooseExperiment(strategy.id)}
+                  className="lab-chip"
+                >
+                  {strategy.name}
                 </button>
-              </div>
+              ))}
             </div>
-          )}
-
-          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-200 sm:grid-cols-3">
-            <div className="bg-white p-5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-500">Contenus analysés</p>
-              <p className="mt-2 text-3xl font-semibold tracking-[-0.05em]">{dataset.items.length}</p>
-            </div>
-            <div className="bg-white p-5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-500">Stratégies actives</p>
-              <p className="mt-2 text-3xl font-semibold tracking-[-0.05em]">{selectedStrategies.length}</p>
-            </div>
-            <div className="col-span-2 bg-white p-5 sm:col-span-1">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-neutral-500">Nature des données</p>
-              <p className="mt-3 text-sm font-semibold">{dataset.kind === 'example' ? 'Simulation' : 'Source réelle'}</p>
-            </div>
+            <p className="lab-rail-desc">{experiment.description}</p>
           </div>
 
-          {selectedStrategies.length > 1 && (
-            <RankFlow strategies={selectedStrategies} resultsByStrategy={resultsByStrategy} />
-          )}
+          {weighted.map((strategy) => (
+            <WeightControls key={strategy.id} strategy={strategy} params={params[strategy.id] ?? {}} onChange={(id, value) => updateParam(strategy.id, id, value)} />
+          ))}
 
-          <section aria-label="Comparaison des classements">
-            <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <div className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.13em] text-neutral-500">
-                  <GitCompareArrows size={15} aria-hidden="true" /> 03 / Comparaison
-                </div>
-                <h2 className="text-2xl font-semibold tracking-[-0.04em]">Les classements, face à face.</h2>
-                <p className="mt-2 max-w-xl text-xs leading-6 text-neutral-500">
-                  Les chiffres indiquent les scores calculés, qui ne sont pas directement comparables entre stratégies et ne mesurent aucune visibilité réelle.
-                  {selectedStrategies.length > 1 && ' Les flèches indiquent les changements de rang par rapport à la première stratégie.'}
-                </p>
-              </div>
+          <div className="lab-rail-block">
+            <label htmlFor="lab-reference" className="t-code lab-slot"><span className="lab-slot-key">A</span> RÉFÉRENCE · COMPARER AVEC</label>
+            <div className="lab-reference">
+              <select id="lab-reference" value={referenceId} onChange={(event) => chooseReference(event.target.value)}>
+                {ALL_STRATEGIES.map((strategy) => <option key={strategy.id} value={strategy.id}>{strategy.name}</option>)}
+              </select>
+              <button type="button" className="lab-swap" onClick={() => { setReferenceId(experimentId); setExperimentId(referenceId); }} aria-label="Inverser A et B">
+                <ArrowLeftRight size={16} aria-hidden="true" />
+              </button>
             </div>
-            {loading && (
-              <p role="status" className="mb-4 flex items-center gap-2 text-xs text-neutral-500">
-                <Loader2 size={15} className="animate-spin" aria-hidden="true" /> Chargement des données…
-              </p>
-            )}
-            {selectedStrategies.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-neutral-300 bg-white px-8 py-20 text-center">
-                <Info size={25} className="mx-auto text-neutral-400" aria-hidden="true" />
-                <h3 className="mt-4 text-base font-semibold">Aucune stratégie sélectionnée</h3>
-                <p className="mt-2 text-sm text-neutral-500">Activez au moins une stratégie dans le panneau de gauche.</p>
-              </div>
-            ) : (
-              <div className="grid gap-5 xl:grid-cols-2" aria-live="polite">
-                {selectedStrategies.map((strategy, index) => (
-                  <ResultColumn
-                    key={strategy.id}
-                    strategy={strategy}
-                    results={resultsByStrategy[strategy.id] ?? []}
-                    params={params[strategy.id] ?? {}}
-                    onParamChange={(id, value) => updateParam(strategy.id, id, value)}
-                    referenceRanks={referenceRanks}
-                    comparisonEnabled={selectedStrategies.length > 1}
-                    reference={index === 0}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
+          </div>
+        </section>
 
-          <section className="flex items-start gap-3 rounded-xl border border-neutral-200 bg-white p-5 text-xs leading-6 text-neutral-600">
-            <Info size={18} className="mt-0.5 shrink-0 text-neutral-400" aria-hidden="true" />
-            <div>
-              <h3 className="mb-1 text-sm font-semibold text-neutral-900">Ce que montre cette expérience</h3>
-              <p>
-                Chaque stratégie trie les mêmes contenus d’après ses règles et les scores calculés.
-                En ouvrant « Pourquoi ce rang ? », vous pouvez inspecter l’explication de ce calcul.
-                {dataset.kind === 'example'
-                  ? ' Les valeurs utilisées ici sont entièrement simulées et ne correspondent à aucune plateforme observée.'
-                  : ' Ces résultats sont recalculés sur un jeu de données public ; ils ne constituent pas le classement observé d’une plateforme.'}
-              </p>
-            </div>
-          </section>
-        </div>
+        <section className="lab-stage" aria-labelledby="rank-flow-heading">
+          <div className="lab-stage-head">
+            <h2 id="rank-flow-heading" className="t-title-2">Comment les positions changent</h2>
+            <p className="lab-stage-caption">
+              <span className="lab-caption-wide">À gauche la référence A, à droite l’expérience B. Touchez un contenu pour le suivre et comprendre son déplacement.</span>
+              <span className="lab-caption-narrow">Classement B ; « A 4 → B 1 » indique d’où vient chaque contenu. Touchez-en un pour le suivre.</span>
+            </p>
+          </div>
+          <RankLedger
+            referenceName={reference.name}
+            experimentName={experiment.name}
+            reference={referenceRanking}
+            experiment={experimentRanking}
+            selectedId={trackedId}
+            onSelect={setSelectedId}
+            limit={limit}
+            revision={revision}
+          />
+          <div className="lab-stage-foot">
+            <span className="t-data">{shift.changed} / {shift.total} positions changent · écart max {shift.maxShift}</span>
+            {dataset.items.length > 10 && (
+              <button type="button" onClick={() => setShowAll((value) => !value)} className="lab-link">
+                {showAll ? 'Afficher les 10 premiers' : `Afficher les ${dataset.items.length} contenus`}
+              </button>
+            )}
+          </div>
+          <p className="sr-only" aria-live="polite">{announcement}</p>
+        </section>
+
+        {tracked && move && (
+          <Inspector
+            item={tracked}
+            move={move}
+            reference={{ strategy: reference, composition: composition(tracked, reference, params[reference.id] ?? {}, referenceRanking) }}
+            experiment={{ strategy: experiment, composition: composition(tracked, experiment, params[experiment.id] ?? {}, experimentRanking) }}
+            lastChange={lastChange}
+            simulated={simulated}
+            means={means}
+          />
+        )}
       </div>
+
+      <section className="lab-measures" aria-labelledby="lab-measures-heading">
+        <h2 id="lab-measures-heading" className="t-title-2">Ce que la règle change en tête de classement</h2>
+        <dl>
+          <Measure label="Positions modifiées (A → B)" b={`${shift.changed} / ${shift.total}`} note={`Déplacement moyen ${shift.meanShift.toFixed(1)} rang(s)`} />
+          <Measure
+            label={`Catégories dans le top ${concentrationB.k}`}
+            a={String(concentrationA.distinctCategories)}
+            b={String(concentrationB.distinctCategories)}
+            note="Plus le nombre est bas, plus la tête du classement est concentrée."
+          />
+          <Measure
+            label="Catégorie dominante"
+            a={`${pct(concentrationA.dominantShare)} %`}
+            b={`${pct(concentrationB.dominantShare)} %`}
+            note={`B : ${concentrationB.dominantCategory}`}
+          />
+          <Measure
+            label={`Popularité moyenne du top ${concentrationB.k}`}
+            a={String(pct(concentrationA.topPopularity))}
+            b={String(pct(concentrationB.topPopularity))}
+            note={`Moyenne du catalogue : ${pct(concentrationB.catalogPopularity)}. Au-dessus, la règle favorise ce qui est déjà vu.`}
+          />
+        </dl>
+      </section>
+
+      <section className="lab-compare" aria-labelledby="lab-compare-heading">
+        <h2 id="lab-compare-heading" className="t-title-1">Les classements, face à face.</h2>
+        <p className="lab-compare-lead">
+          Les scores calculés ne sont pas comparables d’une stratégie à l’autre et ne mesurent aucune visibilité réelle. Ouvrez une ligne pour lire l’explication du calcul.
+        </p>
+        <details className="lab-tables-toggle" open={!narrow}>
+          <summary>{narrow ? 'Afficher les scores détaillés' : 'Scores détaillés'}</summary>
+          <div className="lab-tables">
+            <ScoreTable code="A" strategy={reference} ranking={referenceRanking} />
+            <ScoreTable code="B" strategy={experiment} ranking={experimentRanking} />
+          </div>
+        </details>
+      </section>
+
+      <section className="lab-limits">
+        <h2 className="t-title-3">Ce que montre cette expérience, et ce qu’elle ne montre pas</h2>
+        <p>
+          Chaque stratégie trie les mêmes contenus d’après ses règles. Les mouvements affichés sont ceux du calcul, pas d’une plateforme.
+          {simulated
+            ? ' Les valeurs utilisées ici sont entièrement simulées et ne correspondent à aucune plateforme observée.'
+            : ' Ces résultats sont recalculés sur un instantané public de Tournesol ; ils ne constituent pas le classement observé de YouTube ni celui de Tournesol.'}
+        </p>
+      </section>
     </main>
   );
 }
