@@ -22,6 +22,22 @@ const metricLabels: Record<MetricKey, string> = {
   freshness: 'Fraîcheur',
 };
 const metricKeys = Object.keys(metricLabels) as MetricKey[];
+
+/** What each column means, in plain words, for the dataset on screen. */
+const metricMeaning: Record<'real' | 'example', Record<MetricKey, string>> = {
+  real: {
+    popularity: 'Nombre de vues sur YouTube, comparé à la vidéo la plus vue de cette liste.',
+    collectiveScore: 'La note que la communauté Tournesol donne à la vidéo après l’avoir comparée à d’autres.',
+    diversityScore: 'Le critère « diversité et inclusion » noté par la communauté Tournesol.',
+    freshness: 'Plus la vidéo est récente, plus la valeur est haute. Aucune règle ne l’utilise pour l’instant.',
+  },
+  example: {
+    popularity: 'Combien le film est vu. Valeur inventée pour l’exemple.',
+    collectiveScore: 'Ce que la communauté pense du film. Valeur inventée pour l’exemple.',
+    diversityScore: 'Si son genre est rare dans la liste. Valeur inventée pour l’exemple.',
+    freshness: 'Si le film est récent. Valeur inventée ; aucune règle ne l’utilise pour l’instant.',
+  },
+};
 const sorts: { value: SortKey; label: string }[] = [
   { value: 'popularity', label: 'Popularité' },
   { value: 'collectiveScore', label: 'Score collectif' },
@@ -181,6 +197,11 @@ export function Explore({ dataset }: ExploreProps) {
               <Download size={16} aria-hidden="true" /> Exporter CSV
             </button>
           </div>
+          <dl className="glossary dw-glossary" aria-label="Que veulent dire les colonnes ?">
+            {metricKeys.map((key) => (
+              <div key={key}><dt>{metricLabels[key]}</dt><dd>{metricMeaning[dataset.kind][key]}</dd></div>
+            ))}
+          </dl>
           <div className="dw-table-frame">
             <table className="dw-data-table">
               <thead><tr>
@@ -220,7 +241,7 @@ export function Explore({ dataset }: ExploreProps) {
             </article>)}
             {filtered.length === 0 && <div className="dw-empty"><h3>Aucun contenu trouvé</h3><p>Modifiez la recherche ou la catégorie.</p></div>}
           </div>
-          <p className="dw-results-foot">Métriques normalisées de 0 à 1. Les rangs présentés ci-dessous sont calculés par l’application, et non observés sur une plateforme.</p>
+          <p className="dw-results-foot">Toutes les valeurs sont ramenées sur 100 pour pouvoir être comparées. Les places affichées dans le panneau « Inspecter » sont calculées par l’application, pas observées sur une plateforme.</p>
         </section>
 
         <aside className="dw-inspector" aria-label="Inspecter le contenu sélectionné">

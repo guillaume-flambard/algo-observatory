@@ -57,36 +57,38 @@ export function Home({ onNavigate }: HomeProps) {
           </div>
 
           <div className="home-machine">
-            <div className="home-controls">
-              <div className="home-control">
-                <div className="home-control-row">
-                  <label htmlFor="hero-algorithm-weight" className="t-meta">Influence du score collectif</label>
-                  <output htmlFor="hero-algorithm-weight" className="t-data home-control-value">{collectiveWeight}%</output>
-                </div>
-                <input
-                  id="hero-algorithm-weight"
-                  data-testid="hero-algorithm-weight"
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="5"
-                  value={collectiveWeight}
-                  onChange={(event) => setCollectiveWeight(Number(event.target.value))}
-                  style={{ '--fill': collectiveWeight + '%' } as CSSProperties}
-                />
-                <div className="home-control-ends" aria-hidden="true"><span>Popularité</span><span>Score collectif</span></div>
+            <div className="home-control">
+              <div className="home-control-row">
+                <label htmlFor="hero-algorithm-weight" className="t-meta">Ce que la règle regarde</label>
+                <output htmlFor="hero-algorithm-weight" className="t-data home-control-value">{collectiveWeight} %</output>
               </div>
+              <input
+                id="hero-algorithm-weight"
+                data-testid="hero-algorithm-weight"
+                type="range"
+                min="0"
+                max="100"
+                step="5"
+                value={collectiveWeight}
+                aria-valuetext={`${collectiveWeight} % avis de la communauté, ${100 - collectiveWeight} % nombre de vues`}
+                onChange={(event) => setCollectiveWeight(Number(event.target.value))}
+                style={{ '--fill': collectiveWeight + '%' } as CSSProperties}
+              />
+              <div className="home-control-ends" aria-hidden="true"><span>Nombre de vues</span><span>Avis de la communauté</span></div>
+            </div>
+
+            <div className="home-notes">
               <p className="page-small">
-                À gauche, la règle ne regarde que le nombre de vues. À droite, seulement l’avis de la communauté.
-                Entre les deux, elle mélange.
+                La règle écoute à <strong>{collectiveWeight} %</strong> l’avis de la communauté et à <strong>{100 - collectiveWeight} %</strong> le
+                nombre de vues. Glissez vers la gauche : seuls les films les plus vus restent en haut.
               </p>
-              <p className="home-stat"><span className="t-figure">{String(changes).padStart(2, '0')}</span><span className="page-small"> sur {catalog.length} contenus ont changé de place</span></p>
-              <button type="button" className="btn btn-link" onClick={() => onNavigate('lab')}>Passer aux quatre stratégies <ArrowRight size={16} aria-hidden="true" /></button>
+              <p className="home-stat" data-testid="home-changes"><span className="t-figure">{String(changes).padStart(2, '0')}</span><span className="page-small"> sur {catalog.length} films ont changé de place</span></p>
+              <button type="button" className="btn btn-link" onClick={() => onNavigate('lab')}>Essayer les quatre règles <ArrowRight size={16} aria-hidden="true" /></button>
             </div>
 
             <div className="home-stage">
               <RankLedger
-                referenceName="Popularité seule"
+                referenceName="Les plus vus"
                 experimentName="Après votre réglage"
                 reference={initial}
                 experiment={result}
@@ -94,18 +96,17 @@ export function Home({ onNavigate }: HomeProps) {
                 onSelect={setSelectedId}
                 limit={catalog.length}
                 revision={String(collectiveWeight)}
-                label="Classement après votre réglage, comparé à la popularité seule"
+                label="Classement après votre réglage, comparé aux plus vus"
               />
             </div>
           </div>
 
           <div className="ao-machine-readout home-readout" aria-live="polite" aria-atomic="true">
-            <div className="ao-readout-label"><span>Contenu suivi</span><strong>{selected.title}</strong></div>
+            <div className="ao-readout-label"><span>Film suivi</span><strong>{selected.title}</strong></div>
             <div className="ao-readout-delta">
-              <span>{delta === 0 ? 'Rang inchangé' : (delta > 0 ? '+' : '−') + Math.abs(delta) + ' place' + (Math.abs(delta) > 1 ? 's' : '')}</span>
+              <span>{delta === 0 ? 'Même place' : (delta > 0 ? 'Monte de ' : 'Descend de ') + Math.abs(delta) + ' place' + (Math.abs(delta) > 1 ? 's' : '')}</span>
               <small>{before} → {after}</small>
             </div>
-            <div className="studio-changes-output">{changes} / {catalog.length} positions modifiées</div>
           </div>
         </div>
       </section>

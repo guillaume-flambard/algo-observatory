@@ -30,7 +30,7 @@ const PARAM_METRIC: Record<string, MetricKey> = {
 const PARAM_HINT: Record<string, string> = {
   w_popularity: 'Combien de fois le contenu a été vu.',
   w_collective: 'Ce que la communauté juge utile.',
-  w_diversity: 'Favorise les sujets moins représentés.',
+  w_diversity: 'Variété des sujets ou des points de vue.',
 };
 
 const defaultParams = () => Object.fromEntries(
