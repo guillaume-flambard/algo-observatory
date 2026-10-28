@@ -89,3 +89,10 @@ Projet indépendant : aucune affiliation ou partenariat officiel avec Tournesol,
 ## Licence
 
 Code sous licence [MIT](LICENSE). Données Tournesol de l’instantané sous [ODC-BY 1.0](https://opendatacommons.org/licenses/by/1-0/), avec attribution à Tournesol. Polices sous SIL Open Font License 1.1.
+
+## Local pre-commit checks
+
+After cloning, run `pnpm install` or `pnpm hooks:install`.
+The versioned Git hook rejects staged whitespace and credential-like files,
+then runs ESLint and TypeScript checks on source changes. Playwright and build
+checks stay in CI. Existing custom Git hook paths are preserved.
