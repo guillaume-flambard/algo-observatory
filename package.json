@@ -21,7 +21,10 @@
     "lint:check": "eslint .",
     "format": "prettier --write src/",
     "format:check": "prettier --check src/",
-    "types:check": "tsc --noEmit"
+    "types:check": "tsc --noEmit",
+    "prepare": "sh scripts/install-git-hooks.sh",
+    "hooks:install": "sh scripts/install-git-hooks.sh",
+    "check:staged": "pnpm run lint:check && pnpm run types:check"
   },
   "dependencies": {
     "clsx": "^2.1.1",
